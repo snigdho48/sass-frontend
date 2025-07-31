@@ -88,8 +88,14 @@ const WaterAnalysis = () => {
   const calculateAnalysis = async () => {
     setCalculating(true);
     try {
-      const response = await api.post('/calculate-water-analysis/', inputData);
-      setResults(response.data);
+      const response = await api.post('/calculate-water-analysis-with-recommendations/', inputData);
+      
+      // Set calculation results
+      setResults(response.data.calculation);
+      
+      // Set recommendations
+      setRecommendations(response.data.recommendations);
+      
       toast.success('Analysis calculated successfully!');
     } catch (error) {
       toast.error('Error calculating analysis');
