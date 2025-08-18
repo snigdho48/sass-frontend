@@ -89,12 +89,14 @@ const WaterAnalysis = () => {
     setCalculating(true);
     try {
       const response = await api.post('/calculate-water-analysis-with-recommendations/', inputData);
-      
+      await Promise.all([loadTrends()]);
+
       // Set calculation results
       setResults(response.data.calculation);
       
       // Set recommendations
       setRecommendations(response.data.recommendations);
+      
       
       toast.success('Analysis calculated successfully!');
     } catch (error) {
@@ -117,8 +119,9 @@ const WaterAnalysis = () => {
       await api.post('/water-analysis/', analysisData);
       toast.success('Analysis saved successfully!');
       
+      
       // Reload trends and recommendations dynamically
-      await Promise.all([loadTrends(), loadRecommendations()]);
+      await Promise.all([loadTrends()]);
     } catch (error) {
       toast.error('Error saving analysis');
       console.error('Save error:', error);
@@ -128,15 +131,9 @@ const WaterAnalysis = () => {
   };
 
   // Refresh data periodically and after calculations
-  const refreshData = async () => {
-    await Promise.all([loadTrends(), loadRecommendations()]);
-  };
 
-  // Auto-refresh data every 30 seconds
-  useEffect(() => {
-    const interval = setInterval(refreshData, 30000);
-    return () => clearInterval(interval);
-  }, []);
+
+
   
   const getStatusColor = (status) => {
     switch (status) {
@@ -371,13 +368,7 @@ const WaterAnalysis = () => {
                 <TrendingUp className="w-5 h-5 text-purple-600 mr-2" />
                 <h2 className="text-xl font-semibold text-gray-900">Trends</h2>
               </div>
-              <button
-                onClick={refreshData}
-                className="flex items-center px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors"
-              >
-                <RefreshCw className="w-4 h-4 mr-1" />
-                Refresh
-              </button>
+           
             </div>
             
             <div className="space-y-4">
@@ -424,13 +415,7 @@ const WaterAnalysis = () => {
                 <AlertTriangle className="w-5 h-5 text-orange-600 mr-2" />
                 <h2 className="text-xl font-semibold text-gray-900">Suggested Actions</h2>
               </div>
-              <button
-                onClick={refreshData}
-                className="flex items-center px-3 py-1 text-sm bg-orange-100 text-orange-700 rounded-md hover:bg-orange-200 transition-colors"
-              >
-                <RefreshCw className="w-4 h-4 mr-1" />
-                Refresh
-              </button>
+          
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
