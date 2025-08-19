@@ -37,7 +37,7 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    dispatch(loginUser(formData));
+    dispatch(loginUser(formData))
   };
 
   return (

@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 export const loginUser = createAsyncThunk(
   'auth/login',
   async ({ email, password }, { rejectWithValue }) => {
+
     try {
       const response = await authService.login(email, password);
       localStorage.setItem('token', response.token);
