@@ -34,7 +34,6 @@ const WaterAnalysis = () => {
     chloride: 60,
     temperature: 26,
     hot_temperature: 26,
-    sulphate: 0,
     // Boiler water specific parameters
     m_alkalinity: 120,
     p_alkalinity: 0,
@@ -84,10 +83,11 @@ const WaterAnalysis = () => {
         '> 300': 'High hardness — risk of scaling. Check softener and adjust treatment chemicals.'
       }
     },
-    m_alkalinity: {
-      target: '≤ 300',
+      m_alkalinity: {
+      target: '600 – 1400',
       actions: {
-        '> 300': 'High alkalinity — scaling risk. Adjust chemical program and blowdown.'
+        '< 600': 'M-Alkalinity too low — may lead to corrosion. Increase alkalinity through dosing.',
+        '> 1400': 'M-Alkalinity too high — may lead to scaling. Reduce alkalinity through blowdown.'
       }
     },
     chloride: {
@@ -148,10 +148,10 @@ const WaterAnalysis = () => {
       }
     },
     m_alkalinity: {
-      target: '250 – 600',
+      target: '600 – 1400',
       actions: {
-        '< 250': 'M-Alkalinity too low — may lead to corrosion. Increase alkalinity through dosing.',
-        '> 600': 'M-Alkalinity too high — may lead to scaling. Reduce alkalinity through blowdown.'
+        '< 600': 'M-Alkalinity too low — may lead to corrosion. Increase alkalinity through dosing.',
+        '> 1400': 'M-Alkalinity too high — may lead to scaling. Reduce alkalinity through blowdown.'
       }
     }
   };
@@ -338,6 +338,7 @@ const WaterAnalysis = () => {
       const analysisData = {
         ...inputData,
         ...results,
+        analysis_type: analysisType,
         analysis_date: new Date().toISOString().split('T')[0] // Add current date
       };
       
@@ -522,18 +523,6 @@ const WaterAnalysis = () => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-              
-              <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Sulphate (ppm)</label>
-                    <input
-                      type="number"
-                      step="1"
-                      min="0"
-                      value={inputData.sulphate}
-                      onChange={(e) => handleInputChange('sulphate', parseFloat(e.target.value))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
                   
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Basin Temperature (°C)</label>
