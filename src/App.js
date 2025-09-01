@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from './hooks/useAppSelector';
 import { getCurrentUser } from './store/slices/authSlice';
 import { setPageLoading } from './store/slices/uiSlice';
@@ -14,6 +14,7 @@ import Profile from './pages/Profile';
 import Admin from './pages/Admin';
 import NotFound from './pages/NotFound';
 import { PageLoader, NavigationLoader } from './components/Loader';
+import { authService } from './services/authService';
 
 const PrivateRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAppSelector(state => state.auth);
@@ -144,6 +145,27 @@ function App() {
       dispatch(getCurrentUser());
     }
   }, [token, dispatch]);
+
+  // On first load, if only refresh token exists, try refresh to get access token
+  useEffect(() => {
+    const tryRefresh = async () => {
+      const access = localStorage.getItem('token');
+      const refresh = localStorage.getItem('refresh');
+      if (!access && refresh) {
+        try {
+          const res = await authService.refreshToken(refresh);
+          const newAccess = res?.access || res?.token || res;
+          if (newAccess) {
+            localStorage.setItem('token', newAccess);
+            dispatch(getCurrentUser());
+          }
+        } catch (_) {
+          // ignore; user will be treated as logged out
+        }
+      }
+    };
+    tryRefresh();
+  }, [dispatch]);
 
   return <AppRoutes />;
 }

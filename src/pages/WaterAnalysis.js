@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAppSelector } from '../hooks/useAppSelector';
 import api from '../services/api';
 import { dataService } from '../services/dataService';
@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import SearchableSelect from '../components/SearchableSelect';
+import LoadingOverlay from '../components/LoadingOverlay';
 
 const WaterAnalysis = () => {
   const { user } = useAppSelector(state => state.auth);
@@ -265,12 +266,50 @@ const WaterAnalysis = () => {
     };
   };
 
+  const loadPlants = useCallback(async () => {
+    try {
+      setPlantsLoading(true);
+      
+      // Add timeout to prevent infinite loading
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Request timeout')), 10000)
+      );
+      
+      const plantsData = await Promise.race([
+        dataService.getPlants(),
+        timeoutPromise
+      ]);
+      
+      // Ensure plantsData is an array
+      if (Array.isArray(plantsData)) {
+        setPlants(plantsData);
+      } else if (plantsData && Array.isArray(plantsData.results)) {
+        setPlants(plantsData.results);
+      } else {
+        console.warn('Plants data is not in expected format:', plantsData);
+        setPlants([]);
+      }
+    } catch (error) {
+      console.error('Error loading plants:', error);
+      // Don't show error toast for plants - it's optional
+      setPlants([]);
+    } finally {
+      setPlantsLoading(false);
+    }
+  }, []);
+
   // Load plants on component mount (only if user is authenticated)
   useEffect(() => {
-    if (user) {
+    let isMounted = true;
+    
+    if (user?.id && isMounted) {
       loadPlants();
     }
-  }, [user]);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user?.id, loadPlants]); // Only trigger when user.id changes
 
   // Load trends and recommendations only when there are results
   useEffect(() => {
@@ -323,28 +362,6 @@ const WaterAnalysis = () => {
     }
   };
   
-  const loadPlants = async () => {
-    try {
-      setPlantsLoading(true);
-      const plantsData = await dataService.getPlants();
-      // Ensure plantsData is an array
-      if (Array.isArray(plantsData)) {
-        setPlants(plantsData);
-      } else if (plantsData && Array.isArray(plantsData.results)) {
-        setPlants(plantsData.results);
-      } else {
-        console.warn('Plants data is not in expected format:', plantsData);
-        setPlants([]);
-      }
-    } catch (error) {
-      console.error('Error loading plants:', error);
-      // Don't show error toast for plants - it's optional
-      setPlants([]);
-    } finally {
-      setPlantsLoading(false);
-    }
-  };
-
   const loadRecommendations = async () => {
     try {
       const response = await api.get('/water-recommendations/');
@@ -623,7 +640,8 @@ const WaterAnalysis = () => {
   
   return (
     <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto">
+      <div className="relative max-w-7xl mx-auto">
+        <LoadingOverlay show={plantsLoading || plantDetailsLoading || calculating || loading} />
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Water Stability Analysis</h1>

@@ -5,6 +5,13 @@ export const authService = {
   async login(email, password) {
     try {
       const response = await api.post('/auth/login/', { email, password });
+      // Persist both tokens for refresh flow
+      if (response.data?.refresh) {
+        localStorage.setItem('refresh', response.data.refresh);
+      }
+      if (response.data?.token) {
+        localStorage.setItem('token', response.data.token);
+      }
       return response.data;
     } catch (error) {
       throw new Error(error.response?.data?.error || 'Login failed');
@@ -15,6 +22,12 @@ export const authService = {
   async register(userData) {
     try {
       const response = await api.post('/auth/register/', userData);
+      if (response.data?.refresh) {
+        localStorage.setItem('refresh', response.data.refresh);
+      }
+      if (response.data?.token) {
+        localStorage.setItem('token', response.data.token);
+      }
       return response.data;
     } catch (error) {
       const errors = error.response?.data;
@@ -67,7 +80,12 @@ export const authService = {
   // Logout user
   async logout(refreshToken) {
     try {
-      await api.post('/auth/logout/', { refresh: refreshToken });
+      const refresh = refreshToken || localStorage.getItem('refresh');
+      if (refresh) {
+        await api.post('/auth/logout/', { refresh });
+      }
+      localStorage.removeItem('token');
+      localStorage.removeItem('refresh');
     } catch (error) {
       console.error('Logout error:', error);
     }

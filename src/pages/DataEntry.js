@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { dataService } from '../services/dataService';
 import { Plus, Edit, Trash2, Save, X, Database, Building2 } from 'lucide-react';
+import LoadingOverlay from '../components/LoadingOverlay';
 import toast from 'react-hot-toast';
 
 const DataEntry = () => {
@@ -48,6 +49,9 @@ const DataEntry = () => {
   const { data: categories = [], error: categoriesError, isLoading: categoriesLoading } = useQuery('categories', dataService.getCategories, {
     retry: 3,
     retryDelay: 1000,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    cacheTime: 10 * 60 * 1000, // 10 minutes
+    refetchOnWindowFocus: false,
     onError: (error) => {
       console.error('Categories error:', error);
       toast.error('Failed to load categories');
@@ -56,14 +60,28 @@ const DataEntry = () => {
   const { data: entries = [], isLoading } = useQuery(
     ['entries', selectedCategory],
     () => dataService.getDataEntries({ category: selectedCategory }),
-    { enabled: !!selectedCategory }
+    { 
+      enabled: !!selectedCategory,
+      staleTime: 2 * 60 * 1000, // 2 minutes
+      cacheTime: 5 * 60 * 1000, // 5 minutes
+      refetchOnWindowFocus: false,
+      retry: 2,
+      retryDelay: 1000
+    }
   );
 
   // Plant queries
   const { data: plantsData = { results: [], count: 0 }, isLoading: plantsLoading } = useQuery(
     ['plants-management', currentPage, searchTerm],
     () => dataService.getPlantsManagement({ page: currentPage, search: searchTerm, page_size: 10 }),
-    { keepPreviousData: true }
+    { 
+      keepPreviousData: true,
+      staleTime: 2 * 60 * 1000, // 2 minutes
+      cacheTime: 5 * 60 * 1000, // 5 minutes
+      refetchOnWindowFocus: false,
+      retry: 2,
+      retryDelay: 1000
+    }
   );
 
   const createEntryMutation = useMutation(dataService.createDataEntry, {
@@ -284,6 +302,21 @@ const DataEntry = () => {
 
   return (
     <div className="space-y-6">
+      <div className="relative">
+        <LoadingOverlay
+          show={
+            categoriesLoading ||
+            isLoading ||
+            plantsLoading ||
+            createEntryMutation.isLoading ||
+            updateEntryMutation.isLoading ||
+            deleteEntryMutation.isLoading ||
+            createPlantMutation.isLoading ||
+            updatePlantMutation.isLoading ||
+            deletePlantMutation.isLoading
+          }
+        />
+      </div>
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
