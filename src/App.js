@@ -34,7 +34,9 @@ const PrivateRoute = ({ children }) => {
     }
   }, [isAuthenticated, loading, navigate]);
   
-  if (loading || pageLoading) {
+  // Show loader only if we're loading AND not authenticated
+  // If authenticated, show content even if still loading (from login process)
+  if ((loading && !isAuthenticated) || pageLoading) {
     return <PageLoader />;
   }
   
@@ -63,7 +65,9 @@ const AdminRoute = ({ children }) => {
     }
   }, [isAuthenticated, user, loading, navigate]);
   
-  if (loading || pageLoading) {
+  // Show loader only if we're loading AND not authenticated
+  // If authenticated, show content even if still loading (from login process)
+  if ((loading && !isAuthenticated) || pageLoading) {
     return <PageLoader />;
   }
   

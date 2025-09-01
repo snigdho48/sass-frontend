@@ -266,6 +266,20 @@ const WaterAnalysis = () => {
     };
   };
 
+  // Add error handling and loading state resets
+  const resetLoadingStates = useCallback(() => {
+    setPlantsLoading(false);
+    setPlantDetailsLoading(false);
+    setCalculating(false);
+    setLoading(false);
+  }, []);
+
+  const handleError = useCallback((error, context) => {
+    console.error(`${context} error:`, error);
+    toast.error(`${context} failed. Please try again.`);
+    resetLoadingStates();
+  }, [resetLoadingStates]);
+
   const loadPlants = useCallback(async () => {
     try {
       setPlantsLoading(true);
@@ -296,20 +310,6 @@ const WaterAnalysis = () => {
       setPlantsLoading(false);
     }
   }, [handleError]);
-
-  // Add error handling and loading state resets
-  const resetLoadingStates = useCallback(() => {
-    setPlantsLoading(false);
-    setPlantDetailsLoading(false);
-    setCalculating(false);
-    setLoading(false);
-  }, []);
-
-  const handleError = useCallback((error, context) => {
-    console.error(`${context} error:`, error);
-    toast.error(`${context} failed. Please try again.`);
-    resetLoadingStates();
-  }, [resetLoadingStates]);
 
   // Load plants on component mount (only if user is authenticated)
   useEffect(() => {

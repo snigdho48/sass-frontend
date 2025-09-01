@@ -6,9 +6,17 @@ import toast from 'react-hot-toast';
 export const loginUser = createAsyncThunk(
   'auth/login',
   async ({ email, password }, { rejectWithValue }) => {
-
     try {
-      const response = await authService.login(email, password);
+      // Add timeout to prevent infinite loading
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Login timeout')), 15000)
+      );
+      
+      const response = await Promise.race([
+        authService.login(email, password),
+        timeoutPromise
+      ]);
+      
       localStorage.setItem('token', response.token);
       return response;
     } catch (error) {
@@ -36,7 +44,16 @@ export const getCurrentUser = createAsyncThunk(
   'auth/getCurrentUser',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await authService.getCurrentUser();
+      // Add timeout to prevent infinite loading
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Get user timeout')), 10000)
+      );
+      
+      const response = await Promise.race([
+        authService.getCurrentUser(),
+        timeoutPromise
+      ]);
+      
       return response;
     } catch (error) {
       localStorage.removeItem('token');
@@ -101,6 +118,10 @@ const authSlice = createSlice({
     },
     setLoading: (state, action) => {
       state.loading = action.payload;
+    },
+    resetLoading: (state) => {
+      state.loading = false;
+      state.error = null;
     },
   },
   extraReducers: (builder) => {
@@ -173,7 +194,7 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout, clearError, setLoading } = authSlice.actions;
+export const { logout, clearError, setLoading, resetLoading } = authSlice.actions;
 
 // Action to completely reset the store
 export const resetStore = () => ({

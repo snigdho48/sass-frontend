@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from '../hooks/useAppSelector';
-import { loginUser, clearError } from '../store/slices/authSlice';
+import { loginUser, clearError, resetLoading } from '../store/slices/authSlice';
 import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
 import { ButtonLoader } from '../components/Loader';
 
@@ -25,6 +25,7 @@ const Login = () => {
   useEffect(() => {
     return () => {
       dispatch(clearError());
+      dispatch(resetLoading());
     };
   }, [dispatch]);
 
