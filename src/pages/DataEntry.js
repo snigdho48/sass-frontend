@@ -737,17 +737,17 @@ const DataEntry = () => {
                     </div>
                     <div>
                       <label className='block text-sm font-medium text-gray-700 mb-1'>
-                        Chloride Max (ppm)
+                        Cycle Max
                       </label>
                       <input
                         type='number'
-                        step='1'
+                        step='0.1'
                         className='input'
-                        value={plantFormData.cooling_chloride_max}
+                        value={plantFormData.cooling_cycle_max}
                         onChange={(e) =>
                           setPlantFormData({
                             ...plantFormData,
-                            cooling_chloride_max: parseFloat(e.target.value),
+                            cooling_cycle_max: parseFloat(e.target.value),
                           })
                         }
                       />
@@ -787,23 +787,7 @@ const DataEntry = () => {
                         }
                       />
                     </div>
-                    <div>
-                      <label className='block text-sm font-medium text-gray-700 mb-1'>
-                        Cycle Max
-                      </label>
-                      <input
-                        type='number'
-                        step='0.1'
-                        className='input'
-                        value={plantFormData.cooling_cycle_max}
-                        onChange={(e) =>
-                          setPlantFormData({
-                            ...plantFormData,
-                            cooling_cycle_max: parseFloat(e.target.value),
-                          })
-                        }
-                      />
-                    </div>
+
                     <div>
                       <label className='block text-sm font-medium text-gray-700 mb-1'>
                         Iron Max (ppm)
@@ -817,6 +801,23 @@ const DataEntry = () => {
                           setPlantFormData({
                             ...plantFormData,
                             cooling_iron_max: parseFloat(e.target.value),
+                          })
+                        }
+                      />
+                    </div>
+                    <div>
+                      <label className='block text-sm font-medium text-gray-700 mb-1'>
+                        Chloride Max (ppm)
+                      </label>
+                      <input
+                        type='number'
+                        step='1'
+                        className='input'
+                        value={plantFormData.cooling_chloride_max}
+                        onChange={(e) =>
+                          setPlantFormData({
+                            ...plantFormData,
+                            cooling_chloride_max: parseFloat(e.target.value),
                           })
                         }
                       />
