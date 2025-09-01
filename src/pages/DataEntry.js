@@ -4,6 +4,7 @@ import { useAppSelector } from '../hooks/useAppSelector';
 import { dataService } from '../services/dataService';
 import { Plus, Edit, Trash2, Save, X, Database, Building2 } from 'lucide-react';
 import LoadingOverlay from '../components/LoadingOverlay';
+import SearchableUserSelect from '../components/SearchableUserSelect';
 import toast from 'react-hot-toast';
 
 const DataEntry = () => {
@@ -23,6 +24,7 @@ const DataEntry = () => {
   const [plantFormData, setPlantFormData] = useState({
     name: '',
     is_active: true,
+    owner_id: null,
     // Cooling water parameters
     cooling_ph_min: 6.5,
     cooling_ph_max: 7.8,
@@ -89,7 +91,7 @@ const DataEntry = () => {
   );
 
   // Plant queries
-  const { data: plantsData = { results: [], count: 0 }, isLoading: plantsLoading, error: plantsError } = useQuery(
+  const { data: plantsData = { results: [], count: 0 }, isLoading: plantsLoading } = useQuery(
     ['plants-management', currentPage, searchTerm],
     () => dataService.getPlantsManagement({ page: currentPage, search: searchTerm, page_size: 10 }),
     { 
@@ -102,12 +104,24 @@ const DataEntry = () => {
       onError: (error) => {
         console.error('Plants error:', error);
         toast.error('Failed to load plants');
-      },
-      onSuccess: () => {
-        // Reset error state when data loads successfully
-        if (plantsError) {
-          console.log('Plants loaded successfully');
-        }
+      }
+    }
+  );
+
+  // Users query for plant owner assignment (admin only)
+  const { data: users = [], isLoading: usersLoading, error: usersError } = useQuery(
+    'users-for-plant-access',
+    dataService.getUsersForPlantAccess,
+    { 
+      enabled: user?.role === 'admin',
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      cacheTime: 10 * 60 * 1000, // 10 minutes
+      refetchOnWindowFocus: false,
+      retry: 2,
+      retryDelay: 1000,
+      onError: (error) => {
+        console.error('Users error:', error);
+        toast.error('Failed to load users for plant owner assignment');
       }
     }
   );
@@ -191,7 +205,8 @@ const DataEntry = () => {
         toast.success('Plant updated successfully');
       },
       onError: (error) => {
-        toast.error(error.message);
+        console.error('Update plant error:', error);
+        toast.error(error.message || 'Failed to update plant');
       },
     }
   );
@@ -250,15 +265,41 @@ const DataEntry = () => {
   // Plant management handlers
   const handlePlantSubmit = (e) => {
     e.preventDefault();
+    
+    // If client is not editing, just close the form
+    if (user?.role === 'client' && !editingPlant) {
+      setShowPlantForm(false);
+      setEditingPlant(null);
+      return;
+    }
+    
     if (!plantFormData.name.trim()) {
       toast.error('Plant name is required');
       return;
     }
 
+    // Validate owner field for admin users
+    if (user?.role === 'admin' && !plantFormData.owner_id) {
+      toast.error('Plant owner is required');
+      return;
+    }
+
+    // Prepare data for submission
+    const submitData = { ...plantFormData };
+    
+    // For non-admin users, don't send owner_id (backend will set it automatically)
+    if (user?.role !== 'admin') {
+      delete submitData.owner_id;
+    }
+
+    console.log('Submitting plant data:', submitData);
+    console.log('User role:', user?.role);
+    console.log('Editing plant:', editingPlant);
+
     if (editingPlant) {
-      updatePlantMutation.mutate({ id: editingPlant.id, data: plantFormData });
+      updatePlantMutation.mutate({ id: editingPlant.id, data: submitData });
     } else {
-      createPlantMutation.mutate(plantFormData);
+      createPlantMutation.mutate(submitData);
     }
   };
 
@@ -267,6 +308,7 @@ const DataEntry = () => {
     setPlantFormData({
       name: plant.name,
       is_active: plant.is_active,
+      owner_id: user?.role === 'admin' ? (plant.owner?.id || null) : null,
       cooling_ph_min: plant.cooling_ph_min,
       cooling_ph_max: plant.cooling_ph_max,
       cooling_tds_min: plant.cooling_tds_min,
@@ -300,6 +342,7 @@ const DataEntry = () => {
     setPlantFormData({
       name: '',
       is_active: true,
+      owner_id: user?.role === 'admin' ? null : null,
       cooling_ph_min: 6.5,
       cooling_ph_max: 7.8,
       cooling_tds_min: 500,
@@ -589,7 +632,7 @@ const DataEntry = () => {
               Create and manage plant parameters for water analysis.
             </p>
           </div>
-          {user?.role !== 'client' && (
+          {user?.role !== "client" && (
             <button
               onClick={() => setShowPlantForm(true)}
               className='btn btn-primary flex items-center'
@@ -601,11 +644,15 @@ const DataEntry = () => {
         </div>
 
         {/* Plant Form */}
-        {showPlantForm && user?.role !== 'client' && (
+        {showPlantForm && (
           <div className='card mb-6'>
             <div className='card-header'>
               <h3 className='text-lg font-medium text-gray-900'>
-                {editingPlant ? "Edit Plant" : "Add New Plant"}
+                {editingPlant
+                  ? "Edit Plant"
+                  : user?.role !== "client"
+                  ? "Add New Plant"
+                  : "Plant Details"}
               </h3>
             </div>
             <div className='card-body'>
@@ -628,6 +675,7 @@ const DataEntry = () => {
                         })
                       }
                       placeholder='Enter plant name'
+                      disabled={user?.role === "client" && !editingPlant}
                     />
                   </div>
                   <div className='flex items-center'>
@@ -642,11 +690,52 @@ const DataEntry = () => {
                             is_active: e.target.checked,
                           })
                         }
+                        disabled={user?.role === "client" && !editingPlant}
                       />
                       <span className='ml-2 text-sm text-gray-700'>Active</span>
                     </label>
                   </div>
                 </div>
+
+                {/* Plant Owner (Admin Only) */}
+                {user?.role === "admin" && (
+                  <div className='border-t pt-6'>
+                    <h4 className='text-md font-medium text-gray-900 mb-4'>
+                      Plant Owner
+                    </h4>
+                    <div className='space-y-3'>
+                      <label className='block text-sm font-medium text-gray-700 mb-2'>
+                        Select Plant Owner *
+                      </label>
+                      {usersLoading ? (
+                        <div className='text-sm text-gray-500'>
+                          Loading users...
+                        </div>
+                      ) : usersError ? (
+                        <div className='text-sm text-red-500'>
+                          Failed to load users
+                        </div>
+                      ) : (
+                        <SearchableUserSelect
+                          options={users}
+                          value={plantFormData.owner_id}
+                          onChange={(ownerId) => {
+                            setPlantFormData({
+                              ...plantFormData,
+                              owner_id: ownerId,
+                            });
+                          }}
+                          placeholder='Search and select a user...'
+                          required={true}
+                        />
+                      )}
+                      <p className='text-xs text-gray-500'>
+                        Plant owner is required. Only the selected user can
+                        access this plant.
+                      </p>
+                    </div>
+                  </div>
+                )}
 
                 {/* Cooling Water Parameters */}
                 <div className='border-t pt-6'>
@@ -976,7 +1065,11 @@ const DataEntry = () => {
                     className='btn btn-primary'
                   >
                     <Save className='h-4 w-4 mr-2' />
-                    {editingPlant ? "Update" : "Save"}
+                    {editingPlant
+                      ? "Update"
+                      : user?.role !== "client"
+                      ? "Save"
+                      : "Close"}
                   </button>
                 </div>
               </form>
@@ -1034,6 +1127,11 @@ const DataEntry = () => {
                         <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
                           Created
                         </th>
+                        {user?.role === "admin" && (
+                          <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                            Owner
+                          </th>
+                        )}
                         <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
                           Actions
                         </th>
@@ -1065,24 +1163,43 @@ const DataEntry = () => {
                           <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
                             {new Date(plant.created_at).toLocaleDateString()}
                           </td>
-                                                     <td className='px-6 py-4 whitespace-nowrap text-sm font-medium'>
-                             <div className='flex space-x-2'>
-                               <button
-                                 onClick={() => handlePlantEdit(plant)}
-                                 className='text-primary-600 hover:text-primary-900'
-                               >
-                                 <Edit className='h-4 w-4' />
-                               </button>
-                               {user?.role !== 'client' && (
-                                 <button
-                                   onClick={() => handlePlantDelete(plant)}
-                                   className='text-danger-600 hover:text-danger-900'
-                                 >
-                                   <Trash2 className='h-4 w-4' />
-                                 </button>
-                               )}
-                             </div>
-                           </td>
+                          {user?.role === "admin" && (
+                            <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center'>
+                              {plant.owner ? (
+                                <>
+                                  <div className='text-xs font-semibold'>
+                                    {plant.owner.first_name}{" "}
+                                    {plant.owner.last_name}
+                                  </div>
+                                  <div className='text-xs'>
+                                    {plant.owner.email}
+                                  </div>
+                                </>
+                              ) : (
+                                <span className='text-gray-400 text-xs'>
+                                  No owner
+                                </span>
+                              )}
+                            </td>
+                          )}
+                          <td className='px-6 py-4 whitespace-nowrap text-sm font-medium'>
+                            <div className='flex space-x-2'>
+                              <button
+                                onClick={() => handlePlantEdit(plant)}
+                                className='text-primary-600 hover:text-primary-900'
+                              >
+                                <Edit className='h-4 w-4' />
+                              </button>
+                              {user?.role === "admin" && (
+                                <button
+                                  onClick={() => handlePlantDelete(plant)}
+                                  className='text-danger-600 hover:text-danger-900'
+                                >
+                                  <Trash2 className='h-4 w-4' />
+                                </button>
+                              )}
+                            </div>
+                          </td>
                         </tr>
                       ))}
                     </tbody>

@@ -196,7 +196,7 @@ export const dataService = {
 
   async createPlant(plantData) {
     try {
-      const response = await api.post('/plants/', plantData);
+      const response = await api.post('/plants-management/', plantData);
       return response.data;
     } catch (error) {
       const errors = error.response?.data;
@@ -210,7 +210,7 @@ export const dataService = {
 
   async updatePlant(plantId, plantData) {
     try {
-      const response = await api.patch(`/plants/${plantId}/`, plantData);
+      const response = await api.patch(`/plants-management/${plantId}/`, plantData);
       return response.data;
     } catch (error) {
       const errors = error.response?.data;
@@ -224,9 +224,19 @@ export const dataService = {
 
   async deletePlant(plantId) {
     try {
-      await api.delete(`/plants/${plantId}/`);
+      await api.delete(`/plants-management/${plantId}/`);
     } catch (error) {
       throw new Error('Failed to delete plant');
+    }
+  },
+
+  // Get users for plant owner assignment (admin only)
+  async getUsersForPlantAccess() {
+    try {
+      const response = await api.get('/plants-management/users/');
+      return response.data;
+    } catch (error) {
+      throw new Error('Failed to fetch users for plant owner assignment');
     }
   },
 }; 
