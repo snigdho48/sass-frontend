@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
+import { useAppSelector } from '../hooks/useAppSelector';
 import { dataService } from '../services/dataService';
 import { Plus, Edit, Trash2, Save, X, Database, Building2 } from 'lucide-react';
 import LoadingOverlay from '../components/LoadingOverlay';
 import toast from 'react-hot-toast';
 
 const DataEntry = () => {
+  const { user } = useAppSelector(state => state.auth);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [formData, setFormData] = useState({
     value: '',
@@ -587,17 +589,19 @@ const DataEntry = () => {
               Create and manage plant parameters for water analysis.
             </p>
           </div>
-          <button
-            onClick={() => setShowPlantForm(true)}
-            className='btn btn-primary flex items-center'
-          >
-            <Plus className='h-4 w-4 mr-2' />
-            Add Plant
-          </button>
+          {user?.role !== 'client' && (
+            <button
+              onClick={() => setShowPlantForm(true)}
+              className='btn btn-primary flex items-center'
+            >
+              <Plus className='h-4 w-4 mr-2' />
+              Add Plant
+            </button>
+          )}
         </div>
 
         {/* Plant Form */}
-        {showPlantForm && (
+        {showPlantForm && user?.role !== 'client' && (
           <div className='card mb-6'>
             <div className='card-header'>
               <h3 className='text-lg font-medium text-gray-900'>
@@ -1061,22 +1065,24 @@ const DataEntry = () => {
                           <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
                             {new Date(plant.created_at).toLocaleDateString()}
                           </td>
-                          <td className='px-6 py-4 whitespace-nowrap text-sm font-medium'>
-                            <div className='flex space-x-2'>
-                              <button
-                                onClick={() => handlePlantEdit(plant)}
-                                className='text-primary-600 hover:text-primary-900'
-                              >
-                                <Edit className='h-4 w-4' />
-                              </button>
-                              <button
-                                onClick={() => handlePlantDelete(plant)}
-                                className='text-danger-600 hover:text-danger-900'
-                              >
-                                <Trash2 className='h-4 w-4' />
-                              </button>
-                            </div>
-                          </td>
+                                                     <td className='px-6 py-4 whitespace-nowrap text-sm font-medium'>
+                             <div className='flex space-x-2'>
+                               <button
+                                 onClick={() => handlePlantEdit(plant)}
+                                 className='text-primary-600 hover:text-primary-900'
+                               >
+                                 <Edit className='h-4 w-4' />
+                               </button>
+                               {user?.role !== 'client' && (
+                                 <button
+                                   onClick={() => handlePlantDelete(plant)}
+                                   className='text-danger-600 hover:text-danger-900'
+                                 >
+                                   <Trash2 className='h-4 w-4' />
+                                 </button>
+                               )}
+                             </div>
+                           </td>
                         </tr>
                       ))}
                     </tbody>

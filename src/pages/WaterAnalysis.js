@@ -35,20 +35,20 @@ const WaterAnalysis = () => {
   
   // Input data state - Core parameters for both cooling and boiler water
   const [inputData, setInputData] = useState({
-    ph: 7.5,
-    tds: 150,
-    total_alkalinity: 120,
-    hardness: 100,
-    chloride: 60,
-    temperature: 26,
-    hot_temperature: 26,
+    ph: '',
+    tds: '',
+    total_alkalinity: '',
+    hardness: '',
+    chloride: '',
+    temperature: '',
+    hot_temperature: '',
     // Boiler water specific parameters
-    m_alkalinity: 120,
-    p_alkalinity: 0,
-    oh_alkalinity: 0,
-    sulfite: 0,
-    chlorides: 0,
-    iron: 0,
+    m_alkalinity: '',
+    p_alkalinity: '',
+    oh_alkalinity: '',
+    sulfite: '',
+    chlorides: '',
+    iron: '',
     analysis_name: 'Water Analysis',
     notes: ''
   });
@@ -280,6 +280,21 @@ const WaterAnalysis = () => {
     resetLoadingStates();
   }, [resetLoadingStates]);
 
+  // Check if all required fields are filled
+  const areRequiredFieldsFilled = useCallback(() => {
+    if (!selectedPlant) return false;
+    
+    if (analysisType === 'cooling') {
+      // For cooling water, check all required fields
+      const requiredFields = ['ph', 'tds', 'total_alkalinity', 'hardness', 'chloride', 'temperature', 'hot_temperature'];
+      return requiredFields.every(field => inputData[field] !== '' && inputData[field] !== null && inputData[field] !== undefined);
+    } else {
+      // For boiler water, check required fields
+      const requiredFields = ['ph', 'tds', 'hardness', 'm_alkalinity'];
+      return requiredFields.every(field => inputData[field] !== '' && inputData[field] !== null && inputData[field] !== undefined);
+    }
+  }, [selectedPlant, analysisType, inputData]);
+
   const loadPlants = useCallback(async () => {
     try {
       setPlantsLoading(true);
@@ -311,6 +326,37 @@ const WaterAnalysis = () => {
     }
   }, [handleError]);
 
+  const loadTrends = useCallback(async () => {
+    try {
+       const [phTrends, lsiTrends, rsiTrends, psiTrends, lrTrends] = await Promise.all([
+        api.get('/water-trends/?parameter=ph'),
+        api.get('/water-trends/?parameter=lsi'),
+         api.get('/water-trends/?parameter=rsi'),
+         api.get('/water-trends/?parameter=psi'),
+         api.get('/water-trends/?parameter=lr')
+      ]);
+      
+      setTrends({
+        ph: phTrends.data,
+        lsi: lsiTrends.data,
+         rsi: rsiTrends.data,
+         psi: psiTrends.data,
+         lr: lrTrends.data
+      });
+    } catch (error) {
+      handleError(error, 'Loading trends');
+    }
+  }, [handleError]);
+  
+  const loadRecommendations = useCallback(async () => {
+    try {
+      const response = await api.get('/water-recommendations/');
+      setRecommendations(response.data);
+    } catch (error) {
+      handleError(error, 'Loading recommendations');
+    }
+  }, [handleError]);
+
   // Load plants on component mount (only if user is authenticated)
   useEffect(() => {
     let isMounted = true;
@@ -333,10 +379,10 @@ const WaterAnalysis = () => {
   // Load trends and recommendations only when there are results
   useEffect(() => {
     if (results.overall_status) {
-    loadTrends();
-    loadRecommendations();
+      loadTrends();
+      loadRecommendations();
     }
-  }, [results.overall_status]);
+  }, [results.overall_status, loadTrends, loadRecommendations]);
 
   // Clear results when analysis type changes
   useEffect(() => {
@@ -366,41 +412,12 @@ const WaterAnalysis = () => {
     };
   }, [resetLoadingStates]);
   
-  const loadTrends = async () => {
-    try {
-       const [phTrends, lsiTrends, rsiTrends, psiTrends, lrTrends] = await Promise.all([
-        api.get('/water-trends/?parameter=ph'),
-        api.get('/water-trends/?parameter=lsi'),
-         api.get('/water-trends/?parameter=rsi'),
-         api.get('/water-trends/?parameter=psi'),
-         api.get('/water-trends/?parameter=lr')
-      ]);
-      
-      setTrends({
-        ph: phTrends.data,
-        lsi: lsiTrends.data,
-         rsi: rsiTrends.data,
-         psi: psiTrends.data,
-         lr: lrTrends.data
-      });
-    } catch (error) {
-      handleError(error, 'Loading trends');
-    }
-  };
-  
-  const loadRecommendations = async () => {
-    try {
-      const response = await api.get('/water-recommendations/');
-      setRecommendations(response.data);
-    } catch (error) {
-      handleError(error, 'Loading recommendations');
-    }
-  };
-  
   const handleInputChange = (field, value) => {
+    // Handle empty string values properly
+    const finalValue = value === '' ? '' : value;
     setInputData(prev => ({
       ...prev,
-      [field]: value
+      [field]: finalValue
     }));
   };
 
@@ -470,6 +487,25 @@ const WaterAnalysis = () => {
   // Clear results when switching analysis types
   const handleAnalysisTypeChange = (newType) => {
     setAnalysisType(newType);
+    // Clear input data when switching types
+    setInputData({
+      ph: '',
+      tds: '',
+      total_alkalinity: '',
+      hardness: '',
+      chloride: '',
+      temperature: '',
+      hot_temperature: '',
+      // Boiler water specific parameters
+      m_alkalinity: '',
+      p_alkalinity: '',
+      oh_alkalinity: '',
+      sulfite: '',
+      chlorides: '',
+      iron: '',
+      analysis_name: 'Water Analysis',
+      notes: ''
+    });
     // Clear previous results when switching types
     setResults({
       lsi: null,
@@ -758,7 +794,7 @@ const WaterAnalysis = () => {
                   min="0"
                   max="14"
                   value={inputData.ph}
-                  onChange={(e) => handleInputChange('ph', parseFloat(e.target.value))}
+                                        onChange={(e) => handleInputChange('ph', e.target.value === '' ? '' : parseFloat(e.target.value))}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -770,7 +806,7 @@ const WaterAnalysis = () => {
                   step="1"
                   min="0"
                   value={inputData.tds}
-                  onChange={(e) => handleInputChange('tds', parseFloat(e.target.value))}
+                                        onChange={(e) => handleInputChange('tds', e.target.value === '' ? '' : parseFloat(e.target.value))}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -784,7 +820,7 @@ const WaterAnalysis = () => {
                   step="1"
                   min="0"
                   value={inputData.total_alkalinity}
-                  onChange={(e) => handleInputChange('total_alkalinity', parseFloat(e.target.value))}
+                                        onChange={(e) => handleInputChange('total_alkalinity', e.target.value === '' ? '' : parseFloat(e.target.value))}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -796,7 +832,7 @@ const WaterAnalysis = () => {
                   step="1"
                   min="0"
                   value={inputData.hardness}
-                  onChange={(e) => handleInputChange('hardness', parseFloat(e.target.value))}
+                                        onChange={(e) => handleInputChange('hardness', e.target.value === '' ? '' : parseFloat(e.target.value))}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -812,7 +848,7 @@ const WaterAnalysis = () => {
                       step="1"
                       min="0"
                       value={inputData.hardness}
-                      onChange={(e) => handleInputChange('hardness', parseFloat(e.target.value))}
+                      onChange={(e) => handleInputChange('hardness', e.target.value === '' ? '' : parseFloat(e.target.value))}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
@@ -828,7 +864,7 @@ const WaterAnalysis = () => {
                   step="1"
                   min="0"
                   value={inputData.chloride}
-                  onChange={(e) => handleInputChange('chloride', parseFloat(e.target.value))}
+                                        onChange={(e) => handleInputChange('chloride', e.target.value === '' ? '' : parseFloat(e.target.value))}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -840,7 +876,7 @@ const WaterAnalysis = () => {
                   step="0.1"
                   min="0"
                   value={inputData.temperature}
-                  onChange={(e) => handleInputChange('temperature', parseFloat(e.target.value))}
+                                        onChange={(e) => handleInputChange('temperature', e.target.value === '' ? '' : parseFloat(e.target.value))}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -852,7 +888,7 @@ const WaterAnalysis = () => {
                       step="0.1"
                       min="0"
                       value={inputData.hot_temperature || inputData.temperature}
-                      onChange={(e) => handleInputChange('hot_temperature', parseFloat(e.target.value))}
+                      onChange={(e) => handleInputChange('hot_temperature', e.target.value === '' ? '' : parseFloat(e.target.value))}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
@@ -870,7 +906,7 @@ const WaterAnalysis = () => {
                       step="1"
                       min="0"
                       value={inputData.m_alkalinity}
-                      onChange={(e) => handleInputChange('m_alkalinity', parseFloat(e.target.value))}
+                      onChange={(e) => handleInputChange('m_alkalinity', e.target.value === '' ? '' : parseFloat(e.target.value))}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
@@ -879,9 +915,9 @@ const WaterAnalysis = () => {
               
               <button
                 onClick={calculateAnalysis}
-                disabled={calculating || !selectedPlant}
+                disabled={calculating || !selectedPlant || !areRequiredFieldsFilled()}
                 className={`w-full py-2 px-4 rounded-md flex items-center justify-center ${
-                  !selectedPlant 
+                  !selectedPlant || !areRequiredFieldsFilled()
                     ? 'bg-gray-400 text-gray-600 cursor-not-allowed' 
                     : 'bg-blue-600 text-white hover:bg-blue-700'
                 } disabled:opacity-50 disabled:cursor-not-allowed`}
@@ -895,6 +931,11 @@ const WaterAnalysis = () => {
                   <>
                     <AlertTriangle className="w-4 h-4 mr-2" />
                     Select Plant First
+                  </>
+                ) : !areRequiredFieldsFilled() ? (
+                  <>
+                    <AlertTriangle className="w-4 h-4 mr-2" />
+                    Fill All Required Fields
                   </>
                 ) : (
                   <>
