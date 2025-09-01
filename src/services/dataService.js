@@ -165,4 +165,68 @@ export const dataService = {
       throw new Error('Failed to delete user');
     }
   },
+
+  // Plant services
+  async getPlants(params = {}) {
+    try {
+      const response = await api.get('/plants/', { params });
+      return response.data;
+    } catch (error) {
+      throw new Error('Failed to fetch plants');
+    }
+  },
+
+  async getPlantsManagement(params = {}) {
+    try {
+      const response = await api.get('/plants-management/', { params });
+      return response.data;
+    } catch (error) {
+      throw new Error('Failed to fetch plants for management');
+    }
+  },
+
+  async getPlant(plantId) {
+    try {
+      const response = await api.get(`/plants/${plantId}/`);
+      return response.data;
+    } catch (error) {
+      throw new Error('Failed to fetch plant');
+    }
+  },
+
+  async createPlant(plantData) {
+    try {
+      const response = await api.post('/plants/', plantData);
+      return response.data;
+    } catch (error) {
+      const errors = error.response?.data;
+      if (errors) {
+        const errorMessages = Object.values(errors).flat();
+        throw new Error(errorMessages.join(', '));
+      }
+      throw new Error('Failed to create plant');
+    }
+  },
+
+  async updatePlant(plantId, plantData) {
+    try {
+      const response = await api.patch(`/plants/${plantId}/`, plantData);
+      return response.data;
+    } catch (error) {
+      const errors = error.response?.data;
+      if (errors) {
+        const errorMessages = Object.values(errors).flat();
+        throw new Error(errorMessages.join(', '));
+      }
+      throw new Error('Failed to update plant');
+    }
+  },
+
+  async deletePlant(plantId) {
+    try {
+      await api.delete(`/plants/${plantId}/`);
+    } catch (error) {
+      throw new Error('Failed to delete plant');
+    }
+  },
 }; 

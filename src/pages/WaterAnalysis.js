@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAppSelector } from '../hooks/useAppSelector';
 import api from '../services/api';
+import { dataService } from '../services/dataService';
 import { toast } from 'react-hot-toast';
 import { 
   Calculator, 
@@ -16,6 +17,7 @@ import {
   Zap
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import SearchableSelect from '../components/SearchableSelect';
 
 const WaterAnalysis = () => {
   const { user } = useAppSelector(state => state.auth);
@@ -24,6 +26,11 @@ const WaterAnalysis = () => {
   const [trends, setTrends] = useState({});
   const [recommendations, setRecommendations] = useState([]);
   const [analysisType, setAnalysisType] = useState('cooling'); // 'cooling' or 'boiler'
+  const [plants, setPlants] = useState([]);
+  const [plantsLoading, setPlantsLoading] = useState(true);
+  const [selectedPlant, setSelectedPlant] = useState(null);
+  const [plantParameters, setPlantParameters] = useState(null);
+  const [plantDetailsLoading, setPlantDetailsLoading] = useState(false);
   
   // Input data state - Core parameters for both cooling and boiler water
   const [inputData, setInputData] = useState({
@@ -61,100 +68,209 @@ const WaterAnalysis = () => {
     overall_status: ''
   });
   
-  // WaterS8 Suggested Actions Tables
-  const coolingWaterActions = {
-    ph: {
-      target: '6.5 – 7.8',
-      actions: {
-        '< 6.5': 'Water is acidic — corrosion risk. Adjust chemical dosing to raise pH into range.',
-        '> 7.8': 'Water is alkaline — scaling risk. Reduce pH using acid feed or adjust dosing.'
-      }
-    },
-    tds: {
-      target: '500 – 800',
-      actions: {
-        '< 500': 'TDS too low — may indicate over-blowdown. Optimize cycles and dosing.',
-        '> 800': 'High TDS — scaling risk. Increase blowdown to reduce concentration.'
-      }
-    },
-    hardness: {
-      target: '≤ 300',
-      actions: {
-        '> 300': 'High hardness — risk of scaling. Check softener and adjust treatment chemicals.'
-      }
-    },
-      m_alkalinity: {
-      target: '600 – 1400',
-      actions: {
-        '< 600': 'M-Alkalinity too low — may lead to corrosion. Increase alkalinity through dosing.',
-        '> 1400': 'M-Alkalinity too high — may lead to scaling. Reduce alkalinity through blowdown.'
-      }
-    },
-    chloride: {
-      target: '≤ 250',
-      actions: {
-        '> 250': 'Chloride level high — corrosion risk. Review makeup water and bleed-off.'
-      }
-    },
-    cycle_of_concentration: {
-      target: '5 – 8',
-      actions: {
-        '< 5': 'Low cycles — may be over-blowing down. Optimize for efficiency.',
-        '> 8': 'High cycles — scaling risk. Increase blowdown.'
-      }
-    },
-    iron: {
-      target: '≤ 3',
-      actions: {
-        '> 3': 'High iron — possible corrosion or contamination. Inspect system and check inhibitor.'
-      }
-    },
-    lsi: {
-      target: '≈ 0',
-      actions: {
-        '> 0': 'Positive LSI — scaling tendency. Adjust pH or use scale inhibitor.',
-        '< 0': 'Negative LSI — corrosive tendency. Increase pH or alkalinity.'
-      }
-    },
-    rsi: {
-      target: '6 – 8',
-      actions: {
-        '< 6': 'Low RSI — scaling tendency. Increase inhibitor dosage or adjust pH.',
-        '> 8': 'High RSI — corrosion risk. Adjust pH and inhibitor dosage.'
-      }
+    // Get plant-specific actions or use defaults
+  const getCoolingWaterActions = () => {
+    if (plantParameters) {
+      return {
+        ph: {
+          target: `${plantParameters.ph.min} – ${plantParameters.ph.max}`,
+          actions: {
+            [`< ${plantParameters.ph.min}`]: 'Water is acidic — corrosion risk. Adjust chemical dosing to raise pH into range.',
+            [`> ${plantParameters.ph.max}`]: 'Water is alkaline — scaling risk. Reduce pH using acid feed or adjust dosing.'
+          }
+        },
+        tds: {
+          target: `${plantParameters.tds.min} – ${plantParameters.tds.max}`,
+          actions: {
+            [`< ${plantParameters.tds.min}`]: 'TDS too low — may indicate over-blowdown. Optimize cycles and dosing.',
+            [`> ${plantParameters.tds.max}`]: 'High TDS — scaling risk. Increase blowdown to reduce concentration.'
+          }
+        },
+        hardness: {
+          target: `≤ ${plantParameters.hardness.max}`,
+          actions: {
+            [`> ${plantParameters.hardness.max}`]: 'High hardness — risk of scaling. Check softener and adjust treatment chemicals.'
+          }
+        },
+        m_alkalinity: {
+          target: `≤ ${plantParameters.alkalinity.max}`,
+          actions: {
+            [`> ${plantParameters.alkalinity.max}`]: 'M-Alkalinity too high — scaling risk. Reduce via blowdown or adjust program.'
+          }
+        },
+        chloride: {
+          target: `≤ ${plantParameters.chloride.max}`,
+          actions: {
+            [`> ${plantParameters.chloride.max}`]: 'Chloride level high — corrosion risk. Review makeup water and bleed-off.'
+          }
+        },
+        cycle: {
+          target: `${plantParameters.cycle.min} – ${plantParameters.cycle.max}`,
+          actions: {
+            [`< ${plantParameters.cycle.min}`]: 'Low cycles — may be over-blowing down. Optimize for efficiency.',
+            [`> ${plantParameters.cycle.max}`]: 'High cycles — scaling risk. Increase blowdown.'
+          }
+        },
+        iron: {
+          target: `≤ ${plantParameters.iron.max}`,
+          actions: {
+            [`> ${plantParameters.iron.max}`]: 'High iron — possible corrosion or contamination. Inspect system and check inhibitor.'
+          }
+        },
+        lsi: {
+          target: '-0.3 - 0.3',
+          actions: {
+            '> 0.3': 'Positive LSI — scaling tendency. Adjust pH or use scale inhibitor.',
+            '< -0.3': 'Negative LSI — corrosive tendency. Increase pH or M-Alkalinity.'
+          }
+        },
+        rsi: {
+          target: '6 – 8',
+          actions: {
+            '< 6': 'Low RSI — scaling tendency. Increase inhibitor dosage or adjust pH.',
+            '> 8': 'High RSI — corrosion risk. Adjust pH and inhibitor dosage.'
+          }
+        }
+      };
     }
+    
+    // Default actions
+    return {
+      ph: {
+        target: '6.5 – 7.8',
+        actions: {
+          '< 6.5': 'Water is acidic — corrosion risk. Adjust chemical dosing to raise pH into range.',
+          '> 7.8': 'Water is alkaline — scaling risk. Reduce pH using acid feed or adjust dosing.'
+        }
+      },
+      tds: {
+        target: '500 – 800',
+        actions: {
+          '< 500': 'TDS too low — may indicate over-blowdown. Optimize cycles and dosing.',
+          '> 800': 'High TDS — scaling risk. Increase blowdown to reduce concentration.'
+        }
+      },
+      hardness: {
+        target: '≤ 300',
+        actions: {
+          '> 300': 'High hardness — risk of scaling. Check softener and adjust treatment chemicals.'
+        }
+      },
+      m_alkalinity: {
+        target: '≤ 300',
+        actions: {
+          '> 300': 'M-Alkalinity too high — scaling risk. Reduce via blowdown or adjust program.'
+        }
+      },
+      chloride: {
+        target: '≤ 250',
+        actions: {
+          '> 250': 'Chloride level high — corrosion risk. Review makeup water and bleed-off.'
+        }
+      },
+      cycle: {
+        target: '5 – 8',
+        actions: {
+          '< 5': 'Low cycles — may be over-blowing down. Optimize for efficiency.',
+          '> 8': 'High cycles — scaling risk. Increase blowdown.'
+        }
+      },
+      iron: {
+        target: '≤ 3',
+        actions: {
+          '> 3': 'High iron — possible corrosion or contamination. Inspect system and check inhibitor.'
+        }
+      },
+      lsi: {
+        target: '-0.3 - 0.3',
+        actions: {
+          '> 0.3': 'Positive LSI — scaling tendency. Adjust pH or use scale inhibitor.',
+          '< -0.3': 'Negative LSI — corrosive tendency. Increase pH or M-Alkalinity.'
+        }
+      },
+      rsi: {
+        target: '6 – 8',
+        actions: {
+          '< 6': 'Low RSI — scaling tendency. Increase inhibitor dosage or adjust pH.',
+          '> 8': 'High RSI — corrosion risk. Adjust pH and inhibitor dosage.'
+        }
+      }
+    };
   };
 
-  const boilerWaterActions = {
-    ph: {
-      target: '10.5 – 11.5',
-      actions: {
-        '< 10.5': 'pH too low — corrosion risk. Adjust chemical feed to raise pH.',
-        '> 11.5': 'pH too high — risk of caustic embrittlement. Reduce chemical feed.'
-      }
-    },
-    tds: {
-      target: '2500 – 3500',
-      actions: {
-        '< 2500': 'TDS too low — may indicate over-blowdown. Optimize cycles and dosing.',
-        '> 3500': 'TDS too high — risk of carryover and foaming. Increase blowdown.'
-      }
-    },
-    hardness: {
-      target: '≤ 2',
-      actions: {
-        '3 – 5': 'Hardness detected — risk of scaling. Check softener and condensate contamination.',
-        '> 5': 'High hardness — risk of scaling. Check softener and condensate contamination.'
-      }
-    },
-    m_alkalinity: {
-      target: '600 – 1400',
-      actions: {
-        '< 600': 'M-Alkalinity too low — may lead to corrosion. Increase alkalinity through dosing.',
-        '> 1400': 'M-Alkalinity too high — may lead to scaling. Reduce alkalinity through blowdown.'
-      }
+  const getBoilerWaterActions = () => {
+    if (plantParameters) {
+      return {
+        ph: {
+          target: `${plantParameters.ph.min} – ${plantParameters.ph.max}`,
+          actions: {
+            [`< ${plantParameters.ph.min}`]: 'pH too low — corrosion risk. Adjust chemical feed to raise pH.',
+            [`> ${plantParameters.ph.max}`]: 'pH too high — risk of caustic embrittlement. Reduce chemical feed.'
+          }
+        },
+        tds: {
+          target: `${plantParameters.tds.min} – ${plantParameters.tds.max}`,
+          actions: {
+            [`< ${plantParameters.tds.min}`]: 'TDS too low — may indicate over-blowdown. Optimize cycles and dosing.',
+            [`> ${plantParameters.tds.max}`]: 'TDS too high — risk of carryover and foaming. Increase blowdown.'
+          }
+        },
+        hardness: {
+          target: `≤ ${plantParameters.hardness.max}`,
+          actions: {
+            [`3 – ${plantParameters.hardness.max * 2.5}`]: 'Hardness detected — risk of scaling. Check softener and condensate contamination.',
+            [`> ${plantParameters.hardness.max * 2.5}`]: 'High hardness — risk of scaling. Check softener and condensate contamination.'
+          }
+        },
+        m_alkalinity: {
+          target: `${plantParameters.alkalinity.min} – ${plantParameters.alkalinity.max}`,
+          actions: {
+            [`< ${plantParameters.alkalinity.min}`]: 'M-Alkalinity too low — may lead to corrosion. Increase M-Alkalinity through dosing.',
+            [`> ${plantParameters.alkalinity.max}`]: 'M-Alkalinity too high — may lead to scaling. Reduce M-Alkalinity through blowdown.'
+          }
+        }
+      };
     }
+    
+    // Default actions
+    return {
+      ph: {
+        target: '10.5 – 11.5',
+        actions: {
+          '< 10.5': 'pH too low — corrosion risk. Adjust chemical feed to raise pH.',
+          '> 11.5': 'pH too high — risk of caustic embrittlement. Reduce chemical feed.'
+        }
+      },
+      tds: {
+        target: '2500 – 3500',
+        actions: {
+          '< 2500': 'TDS too low — may indicate over-blowdown. Optimize cycles and dosing.',
+          '> 3500': 'TDS too high — risk of carryover and foaming. Increase blowdown.'
+        }
+      },
+      hardness: {
+        target: '≤ 2',
+        actions: {
+          '3 – 5': 'Hardness detected — risk of scaling. Check softener and condensate contamination.',
+          '> 5': 'High hardness — risk of scaling. Check softener and condensate contamination.'
+        }
+      },
+      m_alkalinity: {
+        target: '600 – 1400',
+        actions: {
+          '< 600': 'M-Alkalinity too low — may lead to corrosion. Increase M-Alkalinity through dosing.',
+          '> 1400': 'M-Alkalinity too high — may lead to scaling. Reduce M-Alkalinity through blowdown.'
+        }
+      }
+    };
   };
+
+  // Load plants on component mount (only if user is authenticated)
+  useEffect(() => {
+    if (user) {
+      loadPlants();
+    }
+  }, [user]);
 
   // Load trends and recommendations only when there are results
   useEffect(() => {
@@ -207,6 +323,28 @@ const WaterAnalysis = () => {
     }
   };
   
+  const loadPlants = async () => {
+    try {
+      setPlantsLoading(true);
+      const plantsData = await dataService.getPlants();
+      // Ensure plantsData is an array
+      if (Array.isArray(plantsData)) {
+        setPlants(plantsData);
+      } else if (plantsData && Array.isArray(plantsData.results)) {
+        setPlants(plantsData.results);
+      } else {
+        console.warn('Plants data is not in expected format:', plantsData);
+        setPlants([]);
+      }
+    } catch (error) {
+      console.error('Error loading plants:', error);
+      // Don't show error toast for plants - it's optional
+      setPlants([]);
+    } finally {
+      setPlantsLoading(false);
+    }
+  };
+
   const loadRecommendations = async () => {
     try {
       const response = await api.get('/water-recommendations/');
@@ -222,6 +360,70 @@ const WaterAnalysis = () => {
       [field]: value
     }));
   };
+
+  const handlePlantChange = async (plant) => {
+    if (!plant) {
+      setSelectedPlant(null);
+      setPlantParameters(null);
+      return;
+    }
+
+    try {
+      setPlantDetailsLoading(true);
+      // Get full plant details from API
+      const plantDetails = await dataService.getPlant(plant.id);
+      setSelectedPlant(plantDetails);
+      
+      // Get plant-specific parameters from the detailed data
+      const params = analysisType === 'cooling' ? {
+        ph: { min: plantDetails.cooling_ph_min, max: plantDetails.cooling_ph_max },
+        tds: { min: plantDetails.cooling_tds_min, max: plantDetails.cooling_tds_max },
+        hardness: { max: plantDetails.cooling_hardness_max },
+        alkalinity: { max: plantDetails.cooling_alkalinity_max },
+        chloride: { max: plantDetails.cooling_chloride_max },
+        cycle: { min: plantDetails.cooling_cycle_min, max: plantDetails.cooling_cycle_max },
+        iron: { max: plantDetails.cooling_iron_max }
+      } : {
+        ph: { min: plantDetails.boiler_ph_min, max: plantDetails.boiler_ph_max },
+        tds: { min: plantDetails.boiler_tds_min, max: plantDetails.boiler_tds_max },
+        hardness: { max: plantDetails.boiler_hardness_max },
+        alkalinity: { min: plantDetails.boiler_alkalinity_min, max: plantDetails.boiler_alkalinity_max }
+      };
+      setPlantParameters(params);
+    } catch (error) {
+      console.error('Error loading plant details:', error);
+      toast.error('Failed to load plant details');
+      setSelectedPlant(null);
+      setPlantParameters(null);
+    } finally {
+      setPlantDetailsLoading(false);
+    }
+  };
+
+  // Recompute plantParameters when analysis type changes (if a plant is selected)
+  useEffect(() => {
+    if (!selectedPlant) return;
+    try {
+      const plantDetails = selectedPlant;
+      const params = analysisType === 'cooling' ? {
+        ph: { min: plantDetails.cooling_ph_min, max: plantDetails.cooling_ph_max },
+        tds: { min: plantDetails.cooling_tds_min, max: plantDetails.cooling_tds_max },
+        hardness: { max: plantDetails.cooling_hardness_max },
+        alkalinity: { max: plantDetails.cooling_alkalinity_max },
+        chloride: { max: plantDetails.cooling_chloride_max },
+        cycle: { min: plantDetails.cooling_cycle_min, max: plantDetails.cooling_cycle_max },
+        iron: { max: plantDetails.cooling_iron_max }
+      } : {
+        ph: { min: plantDetails.boiler_ph_min, max: plantDetails.boiler_ph_max },
+        tds: { min: plantDetails.boiler_tds_min, max: plantDetails.boiler_tds_max },
+        hardness: { max: plantDetails.boiler_hardness_max },
+        alkalinity: { min: plantDetails.boiler_alkalinity_min, max: plantDetails.boiler_alkalinity_max }
+      };
+      setPlantParameters(params);
+    } catch (e) {
+      // noop
+    }
+  }, [analysisType, selectedPlant]);
 
   // Clear results when switching analysis types
   const handleAnalysisTypeChange = (newType) => {
@@ -248,10 +450,11 @@ const WaterAnalysis = () => {
 
   // Get suggested action based on parameter value and analysis type
   const getSuggestedAction = (parameter, value) => {
-    const actionsTable = analysisType === 'cooling' ? coolingWaterActions : boilerWaterActions;
+    const actionsTable = analysisType === 'cooling' ? getCoolingWaterActions() : getBoilerWaterActions();
     const parameterActions = actionsTable[parameter];
     
     if (!parameterActions) return null;
+    if (value === null || value === undefined || Number.isNaN(value) || !Number.isFinite(Number(value))) return null;
     
     for (const [condition, action] of Object.entries(parameterActions.actions)) {
       if (condition.startsWith('<') && value < parseFloat(condition.substring(2))) {
@@ -269,11 +472,18 @@ const WaterAnalysis = () => {
   };
   
   const calculateAnalysis = async () => {
+    // Validate that a plant is selected
+    if (!selectedPlant) {
+      toast.error('Please select a plant before calculating analysis');
+      return;
+    }
+    
     setCalculating(true);
     try {
       // Prepare request data based on analysis type
       let requestData = {
-        analysis_type: analysisType
+        analysis_type: analysisType,
+        plant_id: selectedPlant.id
       };
       
       if (analysisType === 'boiler') {
@@ -333,12 +543,19 @@ const WaterAnalysis = () => {
   };
   
   const saveAnalysis = async () => {
+    // Validate that a plant is selected
+    if (!selectedPlant) {
+      toast.error('Please select a plant before saving analysis');
+      return;
+    }
+    
     setLoading(true);
     try {
       const analysisData = {
         ...inputData,
         ...results,
         analysis_type: analysisType,
+        plant_id: selectedPlant.id,
         analysis_date: new Date().toISOString().split('T')[0] // Add current date
       };
       
@@ -368,6 +585,20 @@ const WaterAnalysis = () => {
         return 'text-yellow-600';
     }
         return 'text-gray-600';
+  };
+  
+  // Map current value to display in Suggested Actions table
+  const getCurrentValueForParam = (parameter) => {
+    // Use computed indices from results for these
+    if (['lsi', 'rsi', 'psi', 'lr'].includes(parameter)) {
+      return results[parameter];
+    }
+    // Cycle is not a direct input; show '-' instead of 0
+    if (parameter === 'cycle') {
+      return null;
+    }
+    // Fallback to input
+    return inputData[parameter];
   };
   
   const getStatusIcon = (status) => {
@@ -429,6 +660,43 @@ const WaterAnalysis = () => {
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Plant Selection */}
+        <div className="mb-6">
+          <div className="bg-white rounded-lg shadow-md p-4">
+            <div className="flex items-center space-x-4">
+              <span className="text-sm font-medium text-gray-700">
+                Select Plant: <span className="text-red-500">*</span>
+              </span>
+              <div className="flex-1 max-w-md">
+                <SearchableSelect
+                  options={plants}
+                  value={selectedPlant}
+                  onChange={handlePlantChange}
+                  placeholder="Search and select a plant..."
+                  loading={plantsLoading}
+                  searchPlaceholder="Type to search plants..."
+                  noOptionsMessage="No plants found"
+                />
+              </div>
+            </div>
+            {plantDetailsLoading && (
+              <div className="mt-2 text-sm text-gray-600">
+                <p>Loading plant details...</p>
+              </div>
+            )}
+            {selectedPlant && !plantDetailsLoading && (
+              <div className="mt-2 text-sm text-gray-600">
+                <p>Selected: <strong>{selectedPlant.name}</strong></p>
+              </div>
+            )}
+            {!selectedPlant && !plantDetailsLoading && (
+              <div className="mt-2 text-sm text-red-600">
+                <p>⚠️ Please select a plant to calculate water analysis</p>
+              </div>
+            )}
           </div>
         </div>
         
@@ -570,13 +838,22 @@ const WaterAnalysis = () => {
               
               <button
                 onClick={calculateAnalysis}
-                disabled={calculating}
-                className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                disabled={calculating || !selectedPlant}
+                className={`w-full py-2 px-4 rounded-md flex items-center justify-center ${
+                  !selectedPlant 
+                    ? 'bg-gray-400 text-gray-600 cursor-not-allowed' 
+                    : 'bg-blue-600 text-white hover:bg-blue-700'
+                } disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 {calculating ? (
                   <>
                     <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
                     Calculating...
+                  </>
+                ) : !selectedPlant ? (
+                  <>
+                    <AlertTriangle className="w-4 h-4 mr-2" />
+                    Select Plant First
                   </>
                 ) : (
                   <>
@@ -799,8 +1076,8 @@ const WaterAnalysis = () => {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {Object.entries(analysisType === 'cooling' ? coolingWaterActions : boilerWaterActions).map(([param, config]) => {
-                      const currentValue = inputData[param] || 0;
+                    {Object.entries(analysisType === 'cooling' ? getCoolingWaterActions() : getBoilerWaterActions()).map(([param, config]) => {
+                      const currentValue = getCurrentValueForParam(param);
                       const suggestedAction = getSuggestedAction(param, currentValue);
                       const isOutOfRange = suggestedAction !== null;
                       
@@ -813,7 +1090,7 @@ const WaterAnalysis = () => {
                             {config.target}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {currentValue}
+                            {currentValue === null || currentValue === undefined ? '-' : currentValue}
                           </td>
                           <td className="px-6 py-4 text-sm text-gray-900">
                             {suggestedAction ? (
