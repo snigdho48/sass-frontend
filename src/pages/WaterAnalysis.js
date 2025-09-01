@@ -290,13 +290,26 @@ const WaterAnalysis = () => {
         setPlants([]);
       }
     } catch (error) {
-      console.error('Error loading plants:', error);
-      // Don't show error toast for plants - it's optional
+      handleError(error, 'Loading plants');
       setPlants([]);
     } finally {
       setPlantsLoading(false);
     }
+  }, [handleError]);
+
+  // Add error handling and loading state resets
+  const resetLoadingStates = useCallback(() => {
+    setPlantsLoading(false);
+    setPlantDetailsLoading(false);
+    setCalculating(false);
+    setLoading(false);
   }, []);
+
+  const handleError = useCallback((error, context) => {
+    console.error(`${context} error:`, error);
+    toast.error(`${context} failed. Please try again.`);
+    resetLoadingStates();
+  }, [resetLoadingStates]);
 
   // Load plants on component mount (only if user is authenticated)
   useEffect(() => {
@@ -304,12 +317,18 @@ const WaterAnalysis = () => {
     
     if (user?.id && isMounted) {
       loadPlants();
+    } else if (!user?.id) {
+      // Reset states when user is not authenticated
+      resetLoadingStates();
+      setPlants([]);
+      setSelectedPlant(null);
+      setPlantParameters(null);
     }
 
     return () => {
       isMounted = false;
     };
-  }, [user?.id, loadPlants]); // Only trigger when user.id changes
+  }, [user?.id, loadPlants, resetLoadingStates]); // Only trigger when user.id changes
 
   // Load trends and recommendations only when there are results
   useEffect(() => {
@@ -339,6 +358,13 @@ const WaterAnalysis = () => {
     setTrends({});
     setRecommendations([]);
   }, [analysisType]);
+
+  // Cleanup effect to reset loading states on unmount
+  useEffect(() => {
+    return () => {
+      resetLoadingStates();
+    };
+  }, [resetLoadingStates]);
   
   const loadTrends = async () => {
     try {
@@ -358,7 +384,7 @@ const WaterAnalysis = () => {
          lr: lrTrends.data
       });
     } catch (error) {
-      console.error('Error loading trends:', error);
+      handleError(error, 'Loading trends');
     }
   };
   
@@ -367,7 +393,7 @@ const WaterAnalysis = () => {
       const response = await api.get('/water-recommendations/');
       setRecommendations(response.data);
     } catch (error) {
-      console.error('Error loading recommendations:', error);
+      handleError(error, 'Loading recommendations');
     }
   };
   
@@ -408,8 +434,7 @@ const WaterAnalysis = () => {
       };
       setPlantParameters(params);
     } catch (error) {
-      console.error('Error loading plant details:', error);
-      toast.error('Failed to load plant details');
+      handleError(error, 'Loading plant details');
       setSelectedPlant(null);
       setPlantParameters(null);
     } finally {
@@ -552,8 +577,7 @@ const WaterAnalysis = () => {
       
       toast.success('Analysis calculated successfully!');
     } catch (error) {
-      toast.error('Error calculating analysis');
-      console.error('Calculation error:', error);
+      handleError(error, 'Calculating analysis');
     } finally {
       setCalculating(false);
     }
@@ -582,8 +606,7 @@ const WaterAnalysis = () => {
       // Reload trends and recommendations dynamically
       await Promise.all([loadTrends()]);
     } catch (error) {
-      toast.error('Error saving analysis');
-      console.error('Save error:', error);
+      handleError(error, 'Saving analysis');
     } finally {
       setLoading(false);
     }

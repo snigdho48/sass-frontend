@@ -27,7 +27,13 @@ const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 // Configure store
 export const store = configureStore({
-  reducer: persistedReducer,
+  reducer: (state, action) => {
+    if (action.type === 'RESET_STORE') {
+      // Reset the entire store state
+      return persistedReducer(undefined, action);
+    }
+    return persistedReducer(state, action);
+  },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {

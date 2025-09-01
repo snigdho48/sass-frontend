@@ -55,9 +55,15 @@ const DataEntry = () => {
     onError: (error) => {
       console.error('Categories error:', error);
       toast.error('Failed to load categories');
+    },
+    onSuccess: () => {
+      // Reset any error states when data loads successfully
+      if (categoriesError) {
+        console.log('Categories loaded successfully');
+      }
     }
   });
-  const { data: entries = [], isLoading } = useQuery(
+  const { data: entries = [], isLoading, error: entriesError } = useQuery(
     ['entries', selectedCategory],
     () => dataService.getDataEntries({ category: selectedCategory }),
     { 
@@ -66,12 +72,22 @@ const DataEntry = () => {
       cacheTime: 5 * 60 * 1000, // 5 minutes
       refetchOnWindowFocus: false,
       retry: 2,
-      retryDelay: 1000
+      retryDelay: 1000,
+      onError: (error) => {
+        console.error('Entries error:', error);
+        toast.error('Failed to load data entries');
+      },
+      onSuccess: () => {
+        // Reset error state when data loads successfully
+        if (entriesError) {
+          console.log('Entries loaded successfully');
+        }
+      }
     }
   );
 
   // Plant queries
-  const { data: plantsData = { results: [], count: 0 }, isLoading: plantsLoading } = useQuery(
+  const { data: plantsData = { results: [], count: 0 }, isLoading: plantsLoading, error: plantsError } = useQuery(
     ['plants-management', currentPage, searchTerm],
     () => dataService.getPlantsManagement({ page: currentPage, search: searchTerm, page_size: 10 }),
     { 
@@ -80,7 +96,17 @@ const DataEntry = () => {
       cacheTime: 5 * 60 * 1000, // 5 minutes
       refetchOnWindowFocus: false,
       retry: 2,
-      retryDelay: 1000
+      retryDelay: 1000,
+      onError: (error) => {
+        console.error('Plants error:', error);
+        toast.error('Failed to load plants');
+      },
+      onSuccess: () => {
+        // Reset error state when data loads successfully
+        if (plantsError) {
+          console.log('Plants loaded successfully');
+        }
+      }
     }
   );
 

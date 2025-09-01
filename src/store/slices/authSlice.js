@@ -72,10 +72,28 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     logout: (state) => {
+      // Reset all state to initial values
       state.user = null;
       state.token = null;
       state.isAuthenticated = false;
+      state.loading = false;
+      state.error = null;
+      
+      // Clear all auth-related localStorage items
       localStorage.removeItem('token');
+      localStorage.removeItem('refresh');
+      
+      // Clear any persisted state
+      localStorage.removeItem('persist:root');
+      sessionStorage.clear();
+      
+      // Force clear all localStorage to ensure complete logout
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('persist:') || key === 'token' || key === 'refresh') {
+          localStorage.removeItem(key);
+        }
+      });
+      
       toast.success('Logged out successfully');
     },
     clearError: (state) => {
@@ -156,4 +174,9 @@ const authSlice = createSlice({
 });
 
 export const { logout, clearError, setLoading } = authSlice.actions;
+
+// Action to completely reset the store
+export const resetStore = () => ({
+  type: 'RESET_STORE'
+});
 export default authSlice.reducer; 

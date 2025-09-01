@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dna, Grid, Oval, Rings, TailSpin } from 'react-loader-spinner';
 
 // DNA Loader for main loading states
@@ -93,10 +93,38 @@ export const NavigationLoader = () => (
 
 // Content Loader for data fetching
 export const ContentLoader = ({ children, loading, error, emptyMessage = "No data available" }) => {
-  if (loading) {
+  const [timeoutReached, setTimeoutReached] = useState(false);
+
+  useEffect(() => {
+    if (loading) {
+      const timer = setTimeout(() => {
+        setTimeoutReached(true);
+      }, 30000); // 30 seconds
+
+      return () => clearTimeout(timer);
+    } else {
+      setTimeoutReached(false);
+    }
+  }, [loading]);
+
+  if (loading && !timeoutReached) {
     return (
       <div className="flex items-center justify-center py-12">
         <GridLoader size={60} />
+      </div>
+    );
+  }
+
+  if (timeoutReached) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12">
+        <div className="text-red-500 mb-4">Loading timeout - please refresh the page</div>
+        <button 
+          onClick={() => window.location.reload()} 
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          Refresh Page
+        </button>
       </div>
     );
   }
@@ -159,7 +187,7 @@ export const SkeletonLoader = ({ className = '', lines = 3 }) => (
   </div>
 );
 
-export default {
+const LoaderComponents = {
   DNALoader,
   GridLoader,
   OvalLoader,
@@ -170,4 +198,6 @@ export default {
   ContentLoader,
   ButtonLoader,
   SkeletonLoader,
-}; 
+};
+
+export default LoaderComponents; 

@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { Outlet, useNavigate, useLocation, Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Outlet, useLocation, Link } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from '../hooks/useAppSelector';
-import { logout } from '../store/slices/authSlice';
-import { setNavigationLoading, setSidebarOpen } from '../store/slices/uiSlice';
+import { logout, resetStore } from '../store/slices/authSlice';
+import { setSidebarOpen } from '../store/slices/uiSlice';
+import { authService } from '../services/authService';
 import {
   BarChart3,
   Database,
@@ -14,7 +15,6 @@ import {
   Settings,
   Bell,
   Shield,
-  Users,
   Droplets,
 } from 'lucide-react';
 import { NavigationLoader } from './Loader';
@@ -23,7 +23,6 @@ const Layout = () => {
   const { user, isAuthenticated } = useAppSelector(state => state.auth);
   const { sidebarOpen, navigationLoading } = useAppSelector(state => state.ui);
   const dispatch = useAppDispatch();
-  const navigate = useNavigate();
   const location = useLocation();
 
   const navigation = [
@@ -39,11 +38,48 @@ const Layout = () => {
     navigation.push({ name: 'Admin Panel', href: '/admin', icon: Shield });
   }
 
-  // Removed navigation loading effect to prevent interference with React Router
+  // Handle navigation loading timeout for dashboard
+  useEffect(() => {
+    if (navigationLoading && location.pathname === '/dashboard') {
+      const timer = setTimeout(() => {
+        // The loader will be automatically removed by the navigation completion
+        // This is just a fallback to ensure it doesn't stay forever
+      }, 300);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [navigationLoading, location.pathname]);
 
-  const handleLogout = () => {
-    dispatch(logout());
-    navigate('/login');
+  const handleLogout = async () => {
+    try {
+      // Clear React Query cache
+      if (window.queryClient) {
+        window.queryClient.clear();
+      }
+      // Call auth service logout to clear tokens on server
+      await authService.logout();
+      // Dispatch Redux logout action
+      dispatch(logout());
+      // Reset the entire store
+      dispatch(resetStore());
+      // Clear all localStorage completely
+      localStorage.clear();
+      sessionStorage.clear();
+      // Force a hard redirect to ensure complete logout
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 100);
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Even if there's an error, still logout locally
+      dispatch(logout());
+      dispatch(resetStore());
+      localStorage.clear();
+      sessionStorage.clear();
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 100);
+    }
   };
 
   const handleSidebarToggle = () => {
