@@ -902,45 +902,45 @@ const DataEntry = () => {
                         }
                       />
                     </div>
-                    <div>
-                      <div className='flex items-center mb-2'>
-                        <label className='flex items-center'>
-                          <input
-                            type='checkbox'
-                            className='rounded border-gray-300 text-primary-600 focus:ring-primary-500'
-                            checked={plantFormData.cooling_chloride_enabled}
-                            onChange={(e) =>
-                              setPlantFormData({
-                                ...plantFormData,
-                                cooling_chloride_enabled: e.target.checked,
-                              })
-                            }
-                            disabled={user?.role === "client" && !editingPlant}
-                          />
-                          <span className='ml-2 text-sm text-gray-700'>Enable Chloride Monitoring</span>
-                        </label>
-                      </div>
-                      {plantFormData.cooling_chloride_enabled && (
+                      {user?.role === "admin" && (
                         <div>
-                          <label className='block text-sm font-medium text-gray-700 mb-1'>
-                            Chloride Max (ppm)
-                          </label>
-                          <input
-                            type='number'
-                            step='1'
-                            className='input'
-                            value={plantFormData.cooling_chloride_max}
-                            onChange={(e) =>
-                              setPlantFormData({
-                                ...plantFormData,
-                                cooling_chloride_max: parseFloat(e.target.value),
-                              })
-                            }
-                            disabled={user?.role === "client" && !editingPlant}
-                          />
+                          <div className='flex items-center mb-2'>
+                            <label className='flex items-center'>
+                              <input
+                                type='checkbox'
+                                className='rounded border-gray-300 text-primary-600 focus:ring-primary-500'
+                                checked={plantFormData.cooling_chloride_enabled}
+                                onChange={(e) =>
+                                  setPlantFormData({
+                                    ...plantFormData,
+                                    cooling_chloride_enabled: e.target.checked,
+                                  })
+                                }
+                              />
+                              <span className='ml-2 text-sm text-gray-700'>Enable Chloride Monitoring</span>
+                            </label>
+                          </div>
+                          {plantFormData.cooling_chloride_enabled && (
+                            <div>
+                              <label className='block text-sm font-medium text-gray-700 mb-1'>
+                                Chloride Max (ppm)
+                              </label>
+                              <input
+                                type='number'
+                                step='1'
+                                className='input'
+                                value={plantFormData.cooling_chloride_max}
+                                onChange={(e) =>
+                                  setPlantFormData({
+                                    ...plantFormData,
+                                    cooling_chloride_max: parseFloat(e.target.value),
+                                  })
+                                }
+                              />
+                            </div>
+                          )}
                         </div>
                       )}
-                    </div>
                   </div>
                 </div>
 
