@@ -40,7 +40,12 @@ const Register = () => {
 
     try {
       const { confirm_password, ...registerData } = formData;
-      await dispatch(registerUser(registerData)).unwrap();
+      // Rename confirm_password to password2 to match backend expectation
+      const backendData = {
+        ...registerData,
+        password2: confirm_password
+      };
+      await dispatch(registerUser(backendData)).unwrap();
       toast.success('Registration successful!');
       navigate('/dashboard');
     } catch (error) {
