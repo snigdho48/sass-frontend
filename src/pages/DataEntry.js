@@ -5,6 +5,7 @@ import { dataService } from '../services/dataService';
 import { Plus, Edit, Trash2, Save, X, Database, Building2 } from 'lucide-react';
 import LoadingOverlay from '../components/LoadingOverlay';
 import SearchableUserSelect from '../components/SearchableUserSelect';
+import SearchableMultiUserSelect from '../components/SearchableMultiUserSelect';
 import toast from 'react-hot-toast';
 
 const DataEntry = () => {
@@ -33,6 +34,7 @@ const DataEntry = () => {
     cooling_hardness_max: 300,
     cooling_alkalinity_max: 300,
     cooling_chloride_max: 250,
+    cooling_chloride_enabled: false,
     cooling_cycle_min: 5.0,
     cooling_cycle_max: 8.0,
     cooling_iron_max: 3.0,
@@ -47,6 +49,7 @@ const DataEntry = () => {
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
+  const [ownerFilter, setOwnerFilter] = useState([]);
 
   const queryClient = useQueryClient();
 
@@ -92,8 +95,8 @@ const DataEntry = () => {
 
   // Plant queries
   const { data: plantsData = { results: [], count: 0 }, isLoading: plantsLoading } = useQuery(
-    ['plants-management', currentPage, searchTerm],
-    () => dataService.getPlantsManagement({ page: currentPage, search: searchTerm, page_size: 10 }),
+    ['plants-management', currentPage, searchTerm, ownerFilter],
+    () => dataService.getPlantsManagement({ page: currentPage, search: searchTerm, owners: ownerFilter.join(','), page_size: 10 }),
     { 
       keepPreviousData: true,
       staleTime: 2 * 60 * 1000, // 2 minutes
@@ -176,6 +179,7 @@ const DataEntry = () => {
         cooling_hardness_max: 300,
         cooling_alkalinity_max: 300,
         cooling_chloride_max: 250,
+        cooling_chloride_enabled: false,
         cooling_cycle_min: 5.0,
         cooling_cycle_max: 8.0,
         cooling_iron_max: 3.0,
@@ -899,21 +903,43 @@ const DataEntry = () => {
                       />
                     </div>
                     <div>
-                      <label className='block text-sm font-medium text-gray-700 mb-1'>
-                        Chloride Max (ppm)
-                      </label>
-                      <input
-                        type='number'
-                        step='1'
-                        className='input'
-                        value={plantFormData.cooling_chloride_max}
-                        onChange={(e) =>
-                          setPlantFormData({
-                            ...plantFormData,
-                            cooling_chloride_max: parseFloat(e.target.value),
-                          })
-                        }
-                      />
+                      <div className='flex items-center mb-2'>
+                        <label className='flex items-center'>
+                          <input
+                            type='checkbox'
+                            className='rounded border-gray-300 text-primary-600 focus:ring-primary-500'
+                            checked={plantFormData.cooling_chloride_enabled}
+                            onChange={(e) =>
+                              setPlantFormData({
+                                ...plantFormData,
+                                cooling_chloride_enabled: e.target.checked,
+                              })
+                            }
+                            disabled={user?.role === "client" && !editingPlant}
+                          />
+                          <span className='ml-2 text-sm text-gray-700'>Enable Chloride Monitoring</span>
+                        </label>
+                      </div>
+                      {plantFormData.cooling_chloride_enabled && (
+                        <div>
+                          <label className='block text-sm font-medium text-gray-700 mb-1'>
+                            Chloride Max (ppm)
+                          </label>
+                          <input
+                            type='number'
+                            step='1'
+                            className='input'
+                            value={plantFormData.cooling_chloride_max}
+                            onChange={(e) =>
+                              setPlantFormData({
+                                ...plantFormData,
+                                cooling_chloride_max: parseFloat(e.target.value),
+                              })
+                            }
+                            disabled={user?.role === "client" && !editingPlant}
+                          />
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -1093,6 +1119,22 @@ const DataEntry = () => {
                     setCurrentPage(1);
                   }}
                 />
+                
+                {/* Owner Filter (Admin Only) */}
+                {user?.role === "admin" && (
+                  <div className='w-64'>
+                    <SearchableMultiUserSelect
+                      options={users}
+                      value={ownerFilter}
+                      onChange={(selectedOwners) => {
+                        setOwnerFilter(selectedOwners);
+                        setCurrentPage(1); // Reset to first page when filtering
+                      }}
+                      placeholder='Filter by owners...'
+                      allowClear={true}
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </div>

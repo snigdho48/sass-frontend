@@ -73,51 +73,65 @@ const WaterAnalysis = () => {
   const getCoolingWaterActions = () => {
     if (plantParameters) {
       return {
-        ph: {
-          target: `${plantParameters.ph.min} – ${plantParameters.ph.max}`,
-          actions: {
-            [`< ${plantParameters.ph.min}`]: 'Water is acidic — corrosion risk. Adjust chemical dosing to raise pH into range.',
-            [`> ${plantParameters.ph.max}`]: 'Water is alkaline — scaling risk. Reduce pH using acid feed or adjust dosing.'
+        ...(plantParameters.ph && {
+          ph: {
+            target: `${plantParameters.ph.min} – ${plantParameters.ph.max}`,
+            actions: {
+              [`< ${plantParameters.ph.min}`]: 'Water is acidic — corrosion risk. Adjust chemical dosing to raise pH into range.',
+              [`> ${plantParameters.ph.max}`]: 'Water is alkaline — scaling risk. Reduce pH using acid feed or adjust dosing.'
+            }
           }
-        },
-        tds: {
-          target: `${plantParameters.tds.min} – ${plantParameters.tds.max}`,
-          actions: {
-            [`< ${plantParameters.tds.min}`]: 'TDS too low — may indicate over-blowdown. Optimize cycles and dosing.',
-            [`> ${plantParameters.tds.max}`]: 'High TDS — scaling risk. Increase blowdown to reduce concentration.'
+        }),
+        ...(plantParameters.tds && {
+          tds: {
+            target: `${plantParameters.tds.min} – ${plantParameters.tds.max}`,
+            actions: {
+              [`< ${plantParameters.tds.min}`]: 'TDS too low — may indicate over-blowdown. Optimize cycles and dosing.',
+              [`> ${plantParameters.tds.max}`]: 'High TDS — scaling risk. Increase blowdown to reduce concentration.'
+            }
           }
-        },
-        hardness: {
-          target: `≤ ${plantParameters.hardness.max}`,
-          actions: {
-            [`> ${plantParameters.hardness.max}`]: 'High hardness — risk of scaling. Check softener and adjust treatment chemicals.'
+        }),
+        ...(plantParameters.hardness && {
+          hardness: {
+            target: `≤ ${plantParameters.hardness.max}`,
+            actions: {
+              [`> ${plantParameters.hardness.max}`]: 'High hardness — risk of scaling. Check softener and adjust treatment chemicals.'
+            }
           }
-        },
-        m_alkalinity: {
-          target: `≤ ${plantParameters.alkalinity.max}`,
-          actions: {
-            [`> ${plantParameters.alkalinity.max}`]: 'M-Alkalinity too high — scaling risk. Reduce via blowdown or adjust program.'
+        }),
+        ...(plantParameters.alkalinity && {
+          m_alkalinity: {
+            target: `≤ ${plantParameters.alkalinity.max}`,
+            actions: {
+              [`> ${plantParameters.alkalinity.max}`]: 'M-Alkalinity too high — scaling risk. Reduce via blowdown or adjust program.'
+            }
           }
-        },
-        chloride: {
-          target: `≤ ${plantParameters.chloride.max}`,
-          actions: {
-            [`> ${plantParameters.chloride.max}`]: 'Chloride level high — corrosion risk. Review makeup water and bleed-off.'
+        }),
+        ...(plantParameters.chloride && {
+          chloride: {
+            target: `≤ ${plantParameters.chloride.max}`,
+            actions: {
+              [`> ${plantParameters.chloride.max}`]: 'Chloride level high — corrosion risk. Review makeup water and bleed-off.'
+            }
           }
-        },
-        cycle: {
-          target: `${plantParameters.cycle.min} – ${plantParameters.cycle.max}`,
-          actions: {
-            [`< ${plantParameters.cycle.min}`]: 'Low cycles — may be over-blowing down. Optimize for efficiency.',
-            [`> ${plantParameters.cycle.max}`]: 'High cycles — scaling risk. Increase blowdown.'
+        }),
+        ...(plantParameters.cycle && {
+          cycle: {
+            target: `${plantParameters.cycle.min} – ${plantParameters.cycle.max}`,
+            actions: {
+              [`< ${plantParameters.cycle.min}`]: 'Low cycles — may be over-blowing down. Optimize for efficiency.',
+              [`> ${plantParameters.cycle.max}`]: 'High cycles — scaling risk. Increase blowdown.'
+            }
           }
-        },
-        iron: {
-          target: `≤ ${plantParameters.iron.max}`,
-          actions: {
-            [`> ${plantParameters.iron.max}`]: 'High iron — possible corrosion or contamination. Inspect system and check inhibitor.'
+        }),
+        ...(plantParameters.iron && {
+          iron: {
+            target: `≤ ${plantParameters.iron.max}`,
+            actions: {
+              [`> ${plantParameters.iron.max}`]: 'High iron — possible corrosion or contamination. Inspect system and check inhibitor.'
+            }
           }
-        },
+        }),
         lsi: {
           target: '-0.3 - 0.3',
           actions: {
@@ -163,12 +177,14 @@ const WaterAnalysis = () => {
           '> 300': 'M-Alkalinity too high — scaling risk. Reduce via blowdown or adjust program.'
         }
       },
-      chloride: {
-        target: '≤ 250',
-        actions: {
-          '> 250': 'Chloride level high — corrosion risk. Review makeup water and bleed-off.'
+      ...(selectedPlant?.cooling_chloride_enabled && {
+        chloride: {
+          target: '≤ 250',
+          actions: {
+            '> 250': 'Chloride level high — corrosion risk. Review makeup water and bleed-off.'
+          }
         }
-      },
+      }),
       cycle: {
         target: '5 – 8',
         actions: {
@@ -286,7 +302,13 @@ const WaterAnalysis = () => {
     
     if (analysisType === 'cooling') {
       // For cooling water, check all required fields
-      const requiredFields = ['ph', 'tds', 'total_alkalinity', 'hardness', 'chloride', 'temperature', 'hot_temperature'];
+      let requiredFields = ['ph', 'tds', 'total_alkalinity', 'hardness', 'temperature', 'hot_temperature'];
+      
+      // Only require chloride if it's enabled for this plant
+      if (selectedPlant.cooling_chloride_enabled) {
+        requiredFields.push('chloride');
+      }
+      
       return requiredFields.every(field => inputData[field] !== '' && inputData[field] !== null && inputData[field] !== undefined);
     } else {
       // For boiler water, check required fields
@@ -440,9 +462,9 @@ const WaterAnalysis = () => {
         tds: { min: plantDetails.cooling_tds_min, max: plantDetails.cooling_tds_max },
         hardness: { max: plantDetails.cooling_hardness_max },
         alkalinity: { max: plantDetails.cooling_alkalinity_max },
-        chloride: { max: plantDetails.cooling_chloride_max },
         cycle: { min: plantDetails.cooling_cycle_min, max: plantDetails.cooling_cycle_max },
-        iron: { max: plantDetails.cooling_iron_max }
+        iron: { max: plantDetails.cooling_iron_max },
+        ...(plantDetails.cooling_chloride_enabled && { chloride: { max: plantDetails.cooling_chloride_max } })
       } : {
         ph: { min: plantDetails.boiler_ph_min, max: plantDetails.boiler_ph_max },
         tds: { min: plantDetails.boiler_tds_min, max: plantDetails.boiler_tds_max },
@@ -469,9 +491,9 @@ const WaterAnalysis = () => {
         tds: { min: plantDetails.cooling_tds_min, max: plantDetails.cooling_tds_max },
         hardness: { max: plantDetails.cooling_hardness_max },
         alkalinity: { max: plantDetails.cooling_alkalinity_max },
-        chloride: { max: plantDetails.cooling_chloride_max },
         cycle: { min: plantDetails.cooling_cycle_min, max: plantDetails.cooling_cycle_max },
-        iron: { max: plantDetails.cooling_iron_max }
+        iron: { max: plantDetails.cooling_iron_max },
+        ...(plantDetails.cooling_chloride_enabled && { chloride: { max: plantDetails.cooling_chloride_max } })
       } : {
         ph: { min: plantDetails.boiler_ph_min, max: plantDetails.boiler_ph_max },
         tds: { min: plantDetails.boiler_tds_min, max: plantDetails.boiler_tds_max },
@@ -575,9 +597,16 @@ const WaterAnalysis = () => {
         };
       } else {
         // For cooling water, send all required fields
+        const coolingData = { ...inputData };
+        
+        // Only include chloride if it's enabled for this plant
+        if (!selectedPlant.cooling_chloride_enabled) {
+          delete coolingData.chloride;
+        }
+        
         requestData = {
           ...requestData,
-          ...inputData
+          ...coolingData
         };
       }
       
@@ -857,17 +886,19 @@ const WaterAnalysis = () => {
               
               {analysisType === 'cooling' && (
                 <>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Chloride as NaCl (ppm)</label>
-                <input
-                  type="number"
-                  step="1"
-                  min="0"
-                  value={inputData.chloride}
-                                        onChange={(e) => handleInputChange('chloride', e.target.value === '' ? '' : parseFloat(e.target.value))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
+              {selectedPlant?.cooling_chloride_enabled && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Chloride as NaCl (ppm)</label>
+                  <input
+                    type="number"
+                    step="1"
+                    min="0"
+                    value={inputData.chloride}
+                    onChange={(e) => handleInputChange('chloride', e.target.value === '' ? '' : parseFloat(e.target.value))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              )}
                   
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Basin Temperature (°C)</label>
@@ -999,25 +1030,28 @@ const WaterAnalysis = () => {
                 </div>
               </div>
               
-              <div className="border-b pb-4">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-gray-700">LR (Langelier Ratio)</span>
-                  {results.lr_status && getStatusIcon(results.lr_status)}
+              {/* Only show LR if chloride monitoring is enabled */}
+              {selectedPlant?.cooling_chloride_enabled && (
+                <div className="border-b pb-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-gray-700">LR (Langelier Ratio)</span>
+                    {results.lr_status && getStatusIcon(results.lr_status)}
+                  </div>
+                  <div className="flex flex-col space-y-2">
+                    <span className="text-2xl font-bold">
+                      {results.lr ? 
+                        (results.lr > 100 || results.lr < -100 ? 
+                          'High Risk' : 
+                          results.lr.toFixed(2)
+                        ) : '--'
+                      }
+                    </span>
+                    <span className={`text-sm font-medium ${getStatusColor(results.lr_status)} leading-tight`}>
+                      {results.lr_status || 'Not calculated'}
+                    </span>
+                  </div>
                 </div>
-                <div className="flex flex-col space-y-2">
-                  <span className="text-2xl font-bold">
-                    {results.lr ? 
-                      (results.lr > 100 || results.lr < -100 ? 
-                        'High Risk' : 
-                        results.lr.toFixed(2)
-                      ) : '--'
-                    }
-                  </span>
-                  <span className={`text-sm font-medium ${getStatusColor(results.lr_status)} leading-tight`}>
-                    {results.lr_status || 'Not calculated'}
-                  </span>
-                </div>
-                </div>
+              )}
                 </>
               )}
               

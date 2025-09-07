@@ -5,7 +5,7 @@ const API_BASE_URL = "https://sassbackend.reachableads.com/api";
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 15000, // 15 seconds timeout
+  timeout: 30000, // 30 seconds timeout
   headers: {
     'Content-Type': 'application/json',
   },
