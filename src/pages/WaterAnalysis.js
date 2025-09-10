@@ -57,11 +57,9 @@ const WaterAnalysis = () => {
   const [results, setResults] = useState({
     lsi: null,
     rsi: null,
-    ls: null,
     stability_score: null,
     lsi_status: '',
     rsi_status: '',
-    ls_status: '',
     overall_status: ''
   });
   
@@ -294,6 +292,23 @@ const WaterAnalysis = () => {
     setLoading(false);
   }, []);
 
+  const resetAllData = useCallback(() => {
+    setResults({});
+    setTrends({});
+    setRecommendations([]);
+    setInputData({
+      ph: '',
+      tds: '',
+      total_alkalinity: '',
+      hardness: '',
+      chloride: '',
+      temperature: '',
+      hot_temperature: '',
+      sulphate: '',
+      m_alkalinity: ''
+    });
+  }, []);
+
   const handleError = useCallback((error, context) => {
     console.error(`${context} error:`, error);
     toast.error(`${context} failed. Please try again.`);
@@ -353,11 +368,16 @@ const WaterAnalysis = () => {
   }, [handleError]);
 
   const loadTrends = useCallback(async () => {
+    if (!selectedPlant) {
+      setTrends({});
+      return;
+    }
+    
     try {
-       const [phTrends, lsiTrends, rsiTrends] = await Promise.all([
-        api.get('/water-trends/?parameter=ph'),
-        api.get('/water-trends/?parameter=lsi'),
-         api.get('/water-trends/?parameter=rsi'),
+      const [phTrends, lsiTrends, rsiTrends] = await Promise.all([
+        api.get(`/water-trends/?parameter=ph&plant_id=${selectedPlant.id}`),
+        api.get(`/water-trends/?parameter=lsi&plant_id=${selectedPlant.id}`),
+        api.get(`/water-trends/?parameter=rsi&plant_id=${selectedPlant.id}`),
       ]);
       
       setTrends({
@@ -369,7 +389,7 @@ const WaterAnalysis = () => {
     } catch (error) {
       handleError(error, 'Loading trends');
     }
-  }, [handleError]);
+  }, [handleError, selectedPlant]);
   
   const loadRecommendations = useCallback(async () => {
     try {
@@ -400,6 +420,11 @@ const WaterAnalysis = () => {
     };
   }, [user?.id, loadPlants, resetLoadingStates]); // Only trigger when user.id changes
 
+  // Reset everything when plant selection changes
+  useEffect(() => {
+    resetAllData();
+  }, [selectedPlant, resetAllData]);
+
   // Load trends and recommendations only when there are results
   useEffect(() => {
     if (results.overall_status) {
@@ -410,22 +435,8 @@ const WaterAnalysis = () => {
 
   // Clear results when analysis type changes
   useEffect(() => {
-    // Clear results when switching analysis types
-    setResults({
-      lsi: null,
-      rsi: null,
-      ls: null,
-      lr: null,
-      stability_score: null,
-      lsi_status: '',
-      rsi_status: '',
-      ls_status: '',
-      lr_status: '',
-      overall_status: ''
-    });
-    setTrends({});
-    setRecommendations([]);
-  }, [analysisType]);
+    resetAllData();
+  }, [analysisType, resetAllData]);
 
   // Cleanup effect to reset loading states on unmount
   useEffect(() => {
@@ -532,12 +543,10 @@ const WaterAnalysis = () => {
     setResults({
       lsi: null,
       rsi: null,
-      ls: null,
       lr: null,
       stability_score: null,
       lsi_status: '',
       rsi_status: '',
-      ls_status: '',
       lr_status: '',
       overall_status: ''
     });
@@ -588,14 +597,22 @@ const WaterAnalysis = () => {
         // For boiler water, only send the 4 required fields
         requestData = {
           ...requestData,
-          ph: inputData.ph,
-          tds: inputData.tds,
-          hardness: inputData.hardness,
-          m_alkalinity: inputData.m_alkalinity
+          ph: inputData.ph || 0,
+          tds: inputData.tds || 0,
+          hardness: inputData.hardness || 0,
+          m_alkalinity: inputData.m_alkalinity || 0
         };
       } else {
         // For cooling water, send all required fields
-        const coolingData = { ...inputData };
+        const coolingData = {
+          ph: inputData.ph || 0,
+          tds: inputData.tds || 0,
+          total_alkalinity: inputData.total_alkalinity || 0,
+          hardness: inputData.hardness || 0,
+          chloride: inputData.chloride || 0,
+          temperature: inputData.temperature || 0,
+          sulphate: inputData.sulphate || 0
+        };
         
         // Only include chloride if it's enabled for this plant
         if (!selectedPlant.cooling_chloride_enabled) {
@@ -619,18 +636,26 @@ const WaterAnalysis = () => {
         setResults({
           lsi: null,
           rsi: null,
-          ls: null,
           lr: null,
           stability_score: response.data.calculation.stability_score,
           lsi_status: '',
-          ls_status: '',
           lr_status: '',
           overall_status: response.data.calculation.overall_status
         });
         setRecommendations(response.data.recommendations || []); // Boiler water has recommendations
       } else {
         // For cooling water, response has calculation and recommendations
-      setResults(response.data.calculation);
+        // Filter out any invalid fields that might come from the API
+        const validResults = {};
+        const validFields = ['lsi', 'rsi', 'lr', 'stability_score', 'lsi_status', 'rsi_status', 'lr_status', 'overall_status'];
+        
+        Object.keys(response.data.calculation).forEach(key => {
+          if (validFields.includes(key)) {
+            validResults[key] = response.data.calculation[key];
+          }
+        });
+        
+        setResults(validResults);
       setRecommendations(response.data.recommendations);
         // Only load trends for cooling water
         await loadTrends();
@@ -653,13 +678,104 @@ const WaterAnalysis = () => {
     
     setLoading(true);
     try {
-      const analysisData = {
-        ...inputData,
-        ...results,
+      // Clean the data - convert empty strings to null and ensure proper types
+      const cleanInputData = {};
+      Object.keys(inputData).forEach(key => {
+        const value = inputData[key];
+        if (value === '' || value === null || value === undefined) {
+          cleanInputData[key] = null;
+        } else if (typeof value === 'string' && !isNaN(value) && value.trim() !== '') {
+          cleanInputData[key] = parseFloat(value);
+        } else {
+          cleanInputData[key] = value;
+        }
+      });
+
+      // Validate required fields for the analysis type
+      if (analysisType === 'cooling') {
+        const requiredFields = ['ph', 'tds', 'total_alkalinity', 'hardness', 'temperature', 'hot_temperature'];
+        if (selectedPlant?.cooling_chloride_enabled) {
+          requiredFields.push('chloride');
+        }
+        
+        for (const field of requiredFields) {
+          if (cleanInputData[field] === null || cleanInputData[field] === undefined) {
+            toast.error(`Please fill in all required fields. Missing: ${field}`);
+            setLoading(false);
+            return;
+          }
+        }
+      } else {
+        const requiredFields = ['ph', 'tds', 'hardness', 'm_alkalinity'];
+        for (const field of requiredFields) {
+          if (cleanInputData[field] === null || cleanInputData[field] === undefined) {
+            toast.error(`Please fill in all required fields. Missing: ${field}`);
+            setLoading(false);
+            return;
+          }
+        }
+      }
+
+      // Recalculate the analysis to get fresh calculated values
+      // Convert null values to 0 for calculation API
+      const calculationData = {};
+      Object.keys(cleanInputData).forEach(key => {
+        calculationData[key] = cleanInputData[key] === null ? 0 : cleanInputData[key];
+      });
+      
+      const calculationResponse = await api.post('/calculate-water-analysis-with-recommendations/', {
+        ...calculationData,
         analysis_type: analysisType,
-        plant_id: selectedPlant.id,
-        analysis_date: new Date().toISOString().split('T')[0] // Add current date
+        plant_id: selectedPlant.id
+      });
+
+      let calculatedResults = {};
+      if (analysisType === 'boiler') {
+        calculatedResults = {
+          lsi: null,
+          rsi: null,
+          lr: null,
+          stability_score: calculationResponse.data.calculation.stability_score,
+          lsi_status: '',
+          rsi_status: '',
+          lr_status: '',
+          overall_status: calculationResponse.data.calculation.overall_status
+        };
+      } else {
+        // For cooling water, use the calculated values directly
+        calculatedResults = {
+          lsi: calculationResponse.data.calculation.lsi,
+          rsi: calculationResponse.data.calculation.rsi,
+          lr: calculationResponse.data.calculation.lr,
+          stability_score: calculationResponse.data.calculation.stability_score,
+          lsi_status: calculationResponse.data.calculation.lsi_status,
+          rsi_status: calculationResponse.data.calculation.rsi_status,
+          lr_status: calculationResponse.data.calculation.lr_status,
+          overall_status: calculationResponse.data.calculation.overall_status
+        };
+      }
+
+      const analysisData = {
+        ...cleanInputData,
+        ...calculatedResults,
+        analysis_type: analysisType,
+        plant: selectedPlant.id,
+        analysis_date: new Date().toISOString().split('T')[0], // Add current date
+        analysis_name: 'Water Analysis', // Add analysis name
+        notes: '', // Add empty notes field
+        // Map frontend field names to model field names
+        basin_temperature: cleanInputData.temperature, // Basin Temperature
+        temperature: cleanInputData.hot_temperature,    // Hot Side Temperature
+        // Add missing fields that exist in the model
+        sulphate: cleanInputData.sulphate || null,
+        m_alkalinity: cleanInputData.m_alkalinity || null,
+        psi: null, // PSI is not calculated anymore
+        psi_status: '', // PSI status is not calculated anymore
       };
+      
+      // Remove the old field names to avoid confusion
+      delete analysisData.hot_temperature;
+      
       
       await api.post('/water-analysis/', analysisData);
       toast.success('Analysis saved successfully!');
@@ -667,7 +783,21 @@ const WaterAnalysis = () => {
       // Reload trends and recommendations dynamically
       await Promise.all([loadTrends()]);
     } catch (error) {
-      handleError(error, 'Saving analysis');
+      console.error('Save analysis error:', error);
+      console.error('Error response:', error.response?.data);
+      
+      if (error.response?.data) {
+        // Show specific validation errors
+        const errorData = error.response.data;
+        if (typeof errorData === 'object') {
+          const errorMessages = Object.values(errorData).flat();
+          toast.error(`Validation Error: ${errorMessages.join(', ')}`);
+        } else {
+          toast.error(`Error: ${errorData}`);
+        }
+      } else {
+        toast.error('Failed to save analysis. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -675,6 +805,8 @@ const WaterAnalysis = () => {
 
   // Get status color based on exact status descriptions from images
   const getStatusColor = (status) => {
+    if (!status) return 'text-gray-500';
+    
     if (status.includes('Near Balance') || status.includes('Little scale or corrosion') || 
         status.includes('Water is in optimal range') || status.includes('will not interfere')) {
         return 'text-green-600';
@@ -812,7 +944,7 @@ const WaterAnalysis = () => {
             )}
           </div>
         </div>
-
+        
         <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
           {/* Input Data */}
           <div className='bg-white rounded-lg shadow-md p-6'>
@@ -822,7 +954,7 @@ const WaterAnalysis = () => {
                 Input Data
               </h2>
             </div>
-
+            
             <div className='space-y-4'>
               <div>
                 <label className='block text-sm font-medium text-gray-700 mb-1'>
@@ -843,7 +975,7 @@ const WaterAnalysis = () => {
                   className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
                 />
               </div>
-
+              
               <div>
                 <label className='block text-sm font-medium text-gray-700 mb-1'>
                   TDS (ppm)
@@ -862,18 +994,18 @@ const WaterAnalysis = () => {
                   className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
                 />
               </div>
-
+              
               {analysisType === "cooling" && (
                 <>
-                  <div>
+              <div>
                     <label className='block text-sm font-medium text-gray-700 mb-1'>
                       Total Alkalinity as CaCO₃ (ppm)
                     </label>
-                    <input
+                <input
                       type='number'
                       step='1'
                       min='0'
-                      value={inputData.total_alkalinity}
+                  value={inputData.total_alkalinity}
                       onChange={(e) =>
                         handleInputChange(
                           "total_alkalinity",
@@ -883,18 +1015,18 @@ const WaterAnalysis = () => {
                         )
                       }
                       className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
-                    />
-                  </div>
-
-                  <div>
+                />
+              </div>
+              
+              <div>
                     <label className='block text-sm font-medium text-gray-700 mb-1'>
                       Hardness as CaCO₃ (ppm)
                     </label>
-                    <input
+                <input
                       type='number'
                       step='1'
                       min='0'
-                      value={inputData.hardness}
+                  value={inputData.hardness}
                       onChange={(e) =>
                         handleInputChange(
                           "hardness",
@@ -904,11 +1036,11 @@ const WaterAnalysis = () => {
                         )
                       }
                       className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
-                    />
-                  </div>
+                />
+              </div>
                 </>
               )}
-
+              
               {analysisType === "boiler" && (
                 <>
                   <div>
@@ -933,19 +1065,19 @@ const WaterAnalysis = () => {
                   </div>
                 </>
               )}
-
+              
               {analysisType === "cooling" && (
                 <>
-                  {selectedPlant?.cooling_chloride_enabled && (
-                    <div>
+              {selectedPlant?.cooling_chloride_enabled && (
+                <div>
                       <label className='block text-sm font-medium text-gray-700 mb-1'>
                         Chloride as NaCl (ppm)
                       </label>
-                      <input
+                  <input
                         type='number'
                         step='1'
                         min='0'
-                        value={inputData.chloride}
+                    value={inputData.chloride}
                         onChange={(e) =>
                           handleInputChange(
                             "chloride",
@@ -955,19 +1087,19 @@ const WaterAnalysis = () => {
                           )
                         }
                         className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
-                      />
-                    </div>
-                  )}
-
+                  />
+                </div>
+              )}
+                  
                   <div>
                     <label className='block text-sm font-medium text-gray-700 mb-1'>
                       Basin Temperature (°C)
                     </label>
-                    <input
+                <input
                       type='number'
                       step='0.1'
                       min='0'
-                      value={inputData.temperature}
+                  value={inputData.temperature}
                       onChange={(e) =>
                         handleInputChange(
                           "temperature",
@@ -977,9 +1109,9 @@ const WaterAnalysis = () => {
                         )
                       }
                       className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
-                    />
-                  </div>
-
+                />
+              </div>
+                  
                   <div>
                     <label className='block text-sm font-medium text-gray-700 mb-1'>
                       Hot Side Temperature (°C)
@@ -1027,7 +1159,7 @@ const WaterAnalysis = () => {
                   </div>
                 </>
               )}
-
+              
               <button
                 onClick={calculateAnalysis}
                 disabled={
@@ -1063,14 +1195,14 @@ const WaterAnalysis = () => {
               </button>
             </div>
           </div>
-
+          
           {/* Results */}
           <div className='bg-white rounded-lg shadow-md p-6'>
             <div className='flex items-center mb-4'>
               <TrendingUp className='w-5 h-5 text-green-600 mr-2' />
               <h2 className='text-xl font-semibold text-gray-900'>Results</h2>
             </div>
-
+            
             <div className='space-y-4'>
               {/* Show water indices only for cooling water */}
               {analysisType === "cooling" && (
@@ -1080,8 +1212,8 @@ const WaterAnalysis = () => {
                       <span className='text-sm font-medium text-gray-700'>
                         LSI (Langelier Saturation Index)
                       </span>
-                      {results.lsi_status && getStatusIcon(results.lsi_status)}
-                    </div>
+                  {results.lsi_status && getStatusIcon(results.lsi_status)}
+                </div>
                     <div className='flex flex-col space-y-2'>
                       <span className='text-2xl font-bold'>
                         {results.lsi?.toFixed(1) || "--"}
@@ -1092,17 +1224,17 @@ const WaterAnalysis = () => {
                         )} leading-tight`}
                       >
                         {results.lsi_status || "Not calculated"}
-                      </span>
-                    </div>
-                  </div>
-
+                  </span>
+                </div>
+              </div>
+              
                   <div className='border-b pb-4'>
                     <div className='flex items-center justify-between mb-2'>
                       <span className='text-sm font-medium text-gray-700'>
                         RSI (Ryznar Stability Index)
                       </span>
-                      {results.rsi_status && getStatusIcon(results.rsi_status)}
-                    </div>
+                  {results.rsi_status && getStatusIcon(results.rsi_status)}
+                </div>
                     <div className='flex flex-col space-y-2'>
                       <span className='text-2xl font-bold'>
                         {results.rsi?.toFixed(1) || "--"}
@@ -1113,10 +1245,10 @@ const WaterAnalysis = () => {
                         )} leading-tight`}
                       >
                         {results.rsi_status || "Not calculated"}
-                      </span>
-                    </div>
-                  </div>
-
+                  </span>
+                </div>
+              </div>
+              
                   {/* 
               <div className="border-b pb-4">
                 <div className="flex items-center justify-between mb-2">
@@ -1130,16 +1262,16 @@ const WaterAnalysis = () => {
                   </span>
                 </div>
               </div> */}
-
-                  {/* Only show LR if chloride monitoring is enabled */}
-                  {selectedPlant?.cooling_chloride_enabled && (
+              
+              {/* Only show LR if chloride monitoring is enabled */}
+              {selectedPlant?.cooling_chloride_enabled && (
                     <div className='border-b pb-4'>
                       <div className='flex items-center justify-between mb-2'>
                         <span className='text-sm font-medium text-gray-700'>
                           LR (Langelier Ratio)
                         </span>
-                        {results.lr_status && getStatusIcon(results.lr_status)}
-                      </div>
+                    {results.lr_status && getStatusIcon(results.lr_status)}
+                  </div>
                       <div className='flex flex-col space-y-2'>
                         <span className='text-2xl font-bold'>
                           {results.lr
@@ -1147,20 +1279,20 @@ const WaterAnalysis = () => {
                               ? "High Risk"
                               : results.lr.toFixed(2)
                             : "--"}
-                        </span>
+                    </span>
                         <span
                           className={`text-sm font-medium ${getStatusColor(
                             results.lr_status
                           )} leading-tight`}
                         >
                           {results.lr_status || "Not calculated"}
-                        </span>
-                      </div>
-                    </div>
-                  )}
+                    </span>
+                  </div>
+                </div>
+              )}
                 </>
               )}
-
+              
               {/* Show boiler water specific message and status */}
               {analysisType === "boiler" && (
                 <>
@@ -1172,10 +1304,10 @@ const WaterAnalysis = () => {
                       <span className='text-sm text-blue-600'>
                         Analysis completed using the simplified 4-parameter
                         scoring system (pH, TDS, Hardness, M-Alkalinity)
-                      </span>
-                    </div>
-                  </div>
-
+                  </span>
+                </div>
+              </div>
+                  
                   {/* Boiler Water Overall Status */}
                   {results.overall_status && (
                     <div className='bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-4'>
@@ -1195,7 +1327,7 @@ const WaterAnalysis = () => {
                   )}
                 </>
               )}
-
+              
               {/* Stability Score */}
               <div className='bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg'>
                 <div className='text-center'>
@@ -1211,7 +1343,7 @@ const WaterAnalysis = () => {
                   </span>
                 </div>
               </div>
-
+              
               {results.stability_score && (
                 <button
                   onClick={saveAnalysis}
@@ -1233,72 +1365,136 @@ const WaterAnalysis = () => {
               )}
             </div>
           </div>
-
+          
           {/* Trends - Only show for cooling water when there are trends data */}
-          {analysisType === "cooling" && Object.keys(trends).length > 0 && (
-            <div className='bg-white rounded-lg shadow-md p-6'>
-              <div className='flex items-center justify-between mb-4'>
-                <div className='flex items-center'>
-                  <TrendingUp className='w-5 h-5 text-purple-600 mr-2' />
-                  <h2 className='text-xl font-semibold text-gray-900'>
-                    Trends
-                  </h2>
-                </div>
+            {analysisType === "cooling" && (
+              <div className='bg-white rounded-lg shadow-md p-6'>
+                <div className='flex items-center justify-between mb-4'>
+                  <div className='flex items-center'>
+                    <TrendingUp className='w-5 h-5 text-purple-600 mr-2' />
+                    <h2 className='text-xl font-semibold text-gray-900'>
+                      Trends
+                    </h2>
               </div>
-
-              <div className='space-y-4'>
-                {Object.keys(trends).map((parameter) => (
-                  <div key={parameter} className='border rounded-lg p-3'>
-                    <h3
-                      className={
-                        "text-sm font-medium text-gray-700 mb-2" 
-                      
-                      }
-                    >
-                      {parameter.toUpperCase() === "PH"
-                        ? "pH"
-                        : parameter.toUpperCase()}
+            </div>
+            
+                {!selectedPlant ? (
+                  <div className='text-center py-8'>
+                    <TrendingUp className='w-12 h-12 text-gray-400 mx-auto mb-4' />
+                    <h3 className='text-lg font-medium text-gray-900 mb-2'>
+                      Select a Plant
                     </h3>
-                    <div className='h-20'>
-                      <ResponsiveContainer width='100%' height='100%'>
-                        <LineChart data={trends[parameter]}>
-                          <CartesianGrid strokeDasharray='3 3' />
-                          <XAxis
-                            dataKey='date'
-                            tick={{ fontSize: 10 }}
-                            tickFormatter={(value) =>
-                              new Date(value).toLocaleDateString()
-                            }
-                          />
-                          <YAxis tick={{ fontSize: 10 }} />
-                          <Tooltip
-                            labelFormatter={(value) =>
-                              new Date(value).toLocaleDateString()
-                            }
-                            formatter={(value) => [
-                              value,
-                              parameter.toUpperCase(),
-                            ]}
-                          />
-                          <Line
-                            type='monotone'
-                            dataKey='value'
-                            stroke={
-                              parameter === "ph"
-                                ? "#3B82F6"
-                                : parameter === "lsi"
-                                ? "#EF4444"
-                                : "#10B981"
-                            }
-                            strokeWidth={2}
-                            dot={false}
-                          />
-                        </LineChart>
-                      </ResponsiveContainer>
+                    <p className='text-gray-600 mb-4'>
+                      Please select a plant and calculate an analysis to view historical trends.
+                    </p>
+                  </div>
+                ) : Object.keys(trends).length > 0 ? (
+                  <div className='space-y-4'>
+                    {Object.keys(trends).map((parameter) => (
+                      <div key={parameter} className='border rounded-lg p-3'>
+                        <div className="flex items-center justify-between mb-2">
+                          <h3 className="text-sm font-medium text-gray-700">
+                            {parameter.toUpperCase() === "PH"
+                              ? "pH"
+                              : parameter.toUpperCase()}
+                          </h3>
+                          <div className="flex items-center space-x-3 text-xs">
+                            <div className="flex items-center">
+                              <div className="w-3 h-0.5 bg-blue-500 mr-1" style={{borderTop: '2px dashed #3B82F6'}}></div>
+                              <span className="text-gray-600">Min</span>
+                            </div>
+                            <div className="flex items-center">
+                              <div className="w-3 h-0.5 bg-blue-700 mr-1"></div>
+                              <span className="text-gray-600">Max</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className='h-32'>
+                          <ResponsiveContainer width='100%' height='100%'>
+                      <LineChart data={trends[parameter]}>
+                              <CartesianGrid strokeDasharray='3 3' />
+                        <XAxis 
+                                dataKey='date'
+                          tick={{ fontSize: 10 }}
+                                tickFormatter={(value) =>
+                                  new Date(value).toLocaleDateString('en-US', {
+                                    month: 'short',
+                                    day: 'numeric',
+                                  })
+                                }
+                              />
+                              <YAxis
+                                tick={{ fontSize: 10 }}
+                                domain={['dataMin - 0.5', 'dataMax + 0.5']}
+                              />
+                        <Tooltip 
+                                labelFormatter={(value) => {
+                                  return new Date(value).toLocaleDateString(
+                                    'en-US',
+                                    {
+                                      month: 'short',
+                                      day: 'numeric',
+                                      year: 'numeric',
+                                    }
+                                  )
+                                }}
+                                formatter={(value, name) => {
+                                  if (name === 'Min') return [value, 'Min'];
+                                  if (name === 'Max') return [value, 'Max'];
+                                  return [value, parameter.toUpperCase()];
+                                }}
+                              />
+                              {/* Min value line */}
+                        <Line 
+                                type='monotone'
+                                dataKey='min_value'
+                                stroke={
+                                  parameter === "ph"
+                                    ? "#3B82F6"
+                                    : parameter === "lsi"
+                                    ? "#EF4444"
+                                    : "#10B981"
+                                }
+                          strokeWidth={2}
+                                strokeDasharray="5 5"
+                                dot={{ r: 3 }}
+                                name="Min"
+                              />
+                              {/* Max value line */}
+                              <Line
+                                type='monotone'
+                                dataKey='max_value'
+                                stroke={
+                                  parameter === "ph"
+                                    ? "#1D4ED8"
+                                    : parameter === "lsi"
+                                    ? "#DC2626"
+                                    : "#059669"
+                                }
+                                strokeWidth={2}
+                                dot={{ r: 3 }}
+                                name="Max"
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              ))}
+            </div>
+                ) : (
+                  <div className='text-center py-8'>
+                    <TrendingUp className='w-12 h-12 text-gray-400 mx-auto mb-4' />
+                    <h3 className='text-lg font-medium text-gray-900 mb-2'>
+                      No Historical Data
+                    </h3>
+                    <p className='text-gray-600 mb-4'>
+                      Calculate and save an analysis to start tracking trends for this plant.
+                    </p>
+                    <div className='text-sm text-gray-500'>
+                      Trends will appear here after you save analyses for this plant.
                     </div>
                   </div>
-                ))}
-              </div>
+                )}
             </div>
           )}
         </div>
@@ -1317,9 +1513,9 @@ const WaterAnalysis = () => {
                       : "Boiler Water"}{" "}
                     Suggested Actions
                   </h2>
-                </div>
-              </div>
-
+          </div>
+        </div>
+        
               <div className='overflow-x-auto'>
                 <table className='min-w-full divide-y divide-gray-200'>
                   <thead className='bg-gray-50'>
@@ -1350,7 +1546,7 @@ const WaterAnalysis = () => {
                         currentValue
                       );
                       const isOutOfRange = suggestedAction !== null;
-
+                      
                       return (
                         <tr
                           key={param}
@@ -1401,9 +1597,9 @@ const WaterAnalysis = () => {
             </div>
           </div>
         )}
-
+        
         {/* AI-Generated Recommendations - Only show when there are recommendations */}
-        {recommendations.length > 0 && (
+        {/* {recommendations.length > 0 && (
           <div className='mt-8'>
             <div className='bg-white rounded-lg shadow-md p-6'>
               <div className='flex items-center justify-between mb-4'>
@@ -1412,11 +1608,11 @@ const WaterAnalysis = () => {
                   <h2 className='text-xl font-semibold text-gray-900'>
                     AI-Generated Recommendations
                   </h2>
-                </div>
               </div>
-
+            </div>
+            
               <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                {recommendations.map((rec, index) => (
+              {recommendations.map((rec, index) => (
                   <div
                     key={rec.id || index}
                     className={`border rounded-lg p-4 ${
@@ -1432,10 +1628,10 @@ const WaterAnalysis = () => {
                         </h3>
                         {rec.source === "dynamic" && (
                           <span className='ml-2 px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full'>
-                            Dynamic
-                          </span>
-                        )}
-                      </div>
+                          Dynamic
+                        </span>
+                      )}
+                    </div>
                       <span
                         className={`px-2 py-1 text-xs rounded-full ${
                           rec.priority === "high"
@@ -1445,9 +1641,9 @@ const WaterAnalysis = () => {
                             : "bg-green-100 text-green-800"
                         }`}
                       >
-                        {rec.priority}
-                      </span>
-                    </div>
+                      {rec.priority}
+                    </span>
+                  </div>
                     <p className='text-sm text-gray-600'>{rec.description}</p>
                     <div className='mt-2 flex items-center justify-between'>
                       <span className='text-xs text-gray-500 capitalize'>
@@ -1457,14 +1653,14 @@ const WaterAnalysis = () => {
                         <span className='text-xs text-blue-600'>
                           Based on latest analysis
                         </span>
-                      )}
-                    </div>
+                    )}
                   </div>
-                ))}
+                </div>
+              ))}
               </div>
             </div>
-          </div>
-        )}
+                </div>
+              )} */}
       </div>
     </div>
   );
