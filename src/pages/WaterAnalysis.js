@@ -636,8 +636,6 @@ const WaterAnalysis = () => {
       
       const response = await api.post('/calculate-water-analysis-with-recommendations/', requestData);
       
-      console.log('API Response:', response.data);
-      console.log('Analysis Type:', analysisType);
       
       // Handle different response structures for cooling vs boiler water
       if (analysisType === 'boiler') {
