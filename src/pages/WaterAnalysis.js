@@ -309,6 +309,15 @@ const WaterAnalysis = () => {
     });
   }, []);
 
+  // Check if all trends data is empty
+  const areAllTrendsEmpty = useCallback(() => {
+    if (Object.keys(trends).length === 0) return true;
+    
+    return Object.values(trends).every(trendData => 
+      !trendData || trendData.length === 0
+    );
+  }, [trends]);
+
   const handleError = useCallback((error, context) => {
     console.error(`${context} error:`, error);
     toast.error(`${context} failed. Please try again.`);
@@ -1367,7 +1376,7 @@ const WaterAnalysis = () => {
           </div>
           
           {/* Trends - Only show for cooling water when there are trends data */}
-            {analysisType === "cooling" && (
+            {analysisType === "cooling" && !areAllTrendsEmpty() && (
               <div className='bg-white rounded-lg shadow-md p-6'>
                 <div className='flex items-center justify-between mb-4'>
                   <div className='flex items-center'>
@@ -1539,7 +1548,13 @@ const WaterAnalysis = () => {
                       analysisType === "cooling"
                         ? getCoolingWaterActions()
                         : getBoilerWaterActions()
-                    ).map(([param, config]) => {
+                    )
+                    .filter(([param, config]) => {
+                      const currentValue = getCurrentValueForParam(param);
+                      // Only show if value exists (not null, undefined, or empty string)
+                      return currentValue !== null && currentValue !== undefined && currentValue !== '';
+                    })
+                    .map(([param, config]) => {
                       const currentValue = getCurrentValueForParam(param);
                       const suggestedAction = getSuggestedAction(
                         param,
