@@ -44,11 +44,6 @@ const WaterAnalysis = () => {
     hot_temperature: '',
     // Boiler water specific parameters
     m_alkalinity: '',
-    p_alkalinity: '',
-    oh_alkalinity: '',
-    sulfite: '',
-    chlorides: '',
-    iron: '',
     analysis_name: 'Water Analysis',
     notes: ''
   });
@@ -72,9 +67,9 @@ const WaterAnalysis = () => {
             target: `${plantParameters.ph.min} – ${plantParameters.ph.max}`,
             actions: {
               [`< ${plantParameters.ph.min}`]:
-                "Water is acidic — corrosion risk. Adjust chemical dosing to raise pH into range.",
+                "Adjust chemical dosing & blowdown to bring the pH into range.",
               [`> ${plantParameters.ph.max}`]:
-                "Water is alkaline — scaling tendency. Adjust dosing.",
+                "Reduce pH by blowdown or adjust chemical dosing.",
             },
           },
         }),
@@ -83,9 +78,9 @@ const WaterAnalysis = () => {
             target: `${plantParameters.tds.min} – ${plantParameters.tds.max}`,
             actions: {
               [`< ${plantParameters.tds.min}`]:
-                "TDS too low — may indicate over-blowdown. Optimize cycles and dosing.",
+                "TDS too low — may indicate over-blowdown. Optimize cycles and adjust chemical dosing.",
               [`> ${plantParameters.tds.max}`]:
-                "High TDS — scaling risk. Increase blowdown to reduce concentration.",
+                "High TDS. Increase blowdown to reduce concentration.",
             },
           },
         }),
@@ -94,7 +89,7 @@ const WaterAnalysis = () => {
             target: `≤ ${plantParameters.hardness.max}`,
             actions: {
               [`> ${plantParameters.hardness.max}`]:
-                "Scaling tendency — risk of scaling. Check softener and adjust dosing.",
+                "High hardness — Scaling tendency. Check incoming water and adjust chemical dosing.",
             },
           },
         }),
@@ -103,7 +98,7 @@ const WaterAnalysis = () => {
             target: `≤ ${plantParameters.alkalinity.max}`,
             actions: {
               [`> ${plantParameters.alkalinity.max}`]:
-                "M-Alkalinity too high — scaling risk. Reduce via blowdown or adjust program.",
+                "High alkalinity. Adjust chemical dosing and blowdown.",
             },
           },
         }),
@@ -112,40 +107,29 @@ const WaterAnalysis = () => {
             target: `≤ ${plantParameters.chloride.max}`,
             actions: {
               [`> ${plantParameters.chloride.max}`]:
-                "Chloride level high — corrosion risk. Review makeup water and bleed-off.",
+                "Chloride level high. Check make-up water and blowdown.",
             },
           },
         }),
-        // ...(plantParameters.cycle && {
-        //   cycle: {
-        //     target: `${plantParameters.cycle.min} – ${plantParameters.cycle.max}`,
-        //     actions: {
-        //       [`< ${plantParameters.cycle.min}`]: 'Low cycles — may be over-blowing down. Optimize for efficiency.',
-        //       [`> ${plantParameters.cycle.max}`]: 'High cycles — scaling risk. Increase blowdown.'
-        //     }
-        //   }
-        // }),
-        // ...(plantParameters.iron && {
-        //   iron: {
-        //     target: `≤ ${plantParameters.iron.max}`,
-        //     actions: {
-        //       [`> ${plantParameters.iron.max}`]: 'High iron — possible corrosion or contamination. Inspect system and check inhibitor.'
-        //     }
-        //   }
-        // }),
         lsi: {
-          target: "-0.5 - 0.5",
+          target: "-2 < -0.5",
           actions: {
-            "> 0.5": "Positive LSI — scaling tendency. Adjust dosing",
-            "< -0.5":
-              "Negative LSI — corrosive tendency. Increase pH or M-Alkalinity.",
+            "< -0.5": "Corrosion tendency.",
+            "-0.5<0": "Slightly corrosion tendency but no scaling tendency.",
+            "0": "Balanced.",
+            "0<0.5": "Slightly scale forming.",
+            ">2": "Heavy Scale forming but no corrosion tendency."
           },
         },
         rsi: {
-          target: "6 – 8",
+          target: "4.0-5.0",
           actions: {
-            "< 6": "Low RSI — scaling tendency. Adjust dosing",
-            "> 8": "High RSI — corrosion risk. Adjust pH and inhibitor dosage.",
+            "4.8": "Heavy Scale tendency.",
+            "5.0-6.0": "Light Scale tendency.",
+            "6.0-7.0": "Light Scale or corrosion tendency.",
+            "7.0-7.5": "Corrosion tendency.",
+            "7.5-9.0": "Heavy corrosion tendency.",
+            ">9.0": "Intolerable corrosion tendency"
           },
         },
       };
@@ -156,62 +140,54 @@ const WaterAnalysis = () => {
       ph: {
         target: '6.5 – 7.8',
         actions: {
-          '< 6.5': 'Water is acidic — corrosion risk. Adjust chemical dosing to raise pH into range.',
-          '> 7.8': 'Water is alkaline — scaling risk. Reduce pH using acid feed or adjust dosing.'
+          '< 6.5': 'Adjust chemical dosing & blowdown to bring the pH into range.',
+          '> 7.8': 'Reduce pH by blowdown or adjust chemical dosing.'
         }
       },
       tds: {
-        target: '500 – 800',
+        target: '400 – 800',
         actions: {
-          '< 500': 'TDS too low — may indicate over-blowdown. Optimize cycles and dosing.',
-          '> 800': 'High TDS — scaling risk. Increase blowdown to reduce concentration.'
+          '< 400': 'TDS too low — may indicate over-blowdown. Optimize cycles and adjust chemical dosing.',
+          '> 800': 'High TDS. Increase blowdown to reduce concentration.'
         }
       },
       hardness: {
         target: '≤ 300',
         actions: {
-          '> 300': 'High hardness — risk of scaling. Check softener and adjust treatment chemicals.'
+          '> 300': 'High hardness — Scaling tendency. Check incoming water and adjust chemical dosing.'
         }
       },
       m_alkalinity: {
         target: '≤ 300',
         actions: {
-          '> 300': 'M-Alkalinity too high — scaling risk. Reduce via blowdown or adjust program.'
+          '> 300': 'High alkalinity. Adjust chemical dosing and blowdown.'
         }
       },
-      ...(selectedPlant?.cooling_chloride_enabled && {
-        chloride: {
-          target: '≤ 250',
-          actions: {
-            '> 250': 'Chloride level high — corrosion risk. Review makeup water and bleed-off.'
-          }
-        }
-      }),
-      // cycle: {
-      //   target: '5 – 8',
-      //   actions: {
-      //     '< 5': 'Low cycles — may be over-blowing down. Optimize for efficiency.',
-      //     '> 8': 'High cycles — scaling risk. Increase blowdown.'
-      //   }
-      // },
-      // iron: {
-      //   target: '≤ 3',
-      //   actions: {
-      //     '> 3': 'High iron — possible corrosion or contamination. Inspect system and check inhibitor.'
-      //   }
-      // },
-      lsi: {
-        target: '-0.3 - 0.3',
+      chloride: {
+        target: '≤ 250',
         actions: {
-          '> 0.3': 'Positive LSI — scaling tendency. Adjust pH or use scale inhibitor.',
-          '< -0.3': 'Negative LSI — corrosive tendency. Increase pH or M-Alkalinity.'
+          '> 250': 'Chloride level high. Check make-up water and blowdown.'
+        }
+      },
+      lsi: {
+        target: "-2 < -0.5",
+        actions: {
+          "< -0.5": "Corrosion tendency.",
+          "-0.5<0": "Slightly corrosion tendency but no scaling tendency.",
+          "0": "Balanced.",
+          "0<0.5": "Slightly scale forming.",
+          ">2": "Heavy Scale forming but no corrosion tendency."
         }
       },
       rsi: {
-        target: '6 – 8',
+        target: "4.0-5.0",
         actions: {
-          '< 6': 'Low RSI — scaling tendency. Increase inhibitor dosage or adjust pH.',
-          '> 8': 'High RSI — corrosion risk. Adjust pH and inhibitor dosage.'
+          "4.8": "Heavy Scale tendency.",
+          "5.0-6.0": "Light Scale tendency.",
+          "6.0-7.0": "Light Scale or corrosion tendency.",
+          "7.0-7.5": "Corrosion tendency.",
+          "7.5-9.0": "Heavy corrosion tendency.",
+          ">9.0": "Intolerable corrosion tendency"
         }
       }
     };
@@ -223,29 +199,26 @@ const WaterAnalysis = () => {
         ph: {
           target: `${plantParameters.ph.min} – ${plantParameters.ph.max}`,
           actions: {
-            [`< ${plantParameters.ph.min}`]: 'pH too low — corrosion risk. Adjust chemical feed to raise pH.',
-            [`> ${plantParameters.ph.max}`]: 'pH too high — risk of caustic embrittlement. Reduce chemical feed.'
+            [`< ${plantParameters.ph.min}`]: 'Low pH. Adjust chemical dosing to raise pH.',
+            [`> ${plantParameters.ph.max}`]: 'High pH — Reduce chemical dosing & Increase blowdown.'
           }
         },
         tds: {
-          target: `${plantParameters.tds.min} – ${plantParameters.tds.max}`,
+          target: `< ${plantParameters.tds.max}`,
           actions: {
-            [`< ${plantParameters.tds.min}`]: 'TDS too low — may indicate over-blowdown. Optimize cycles and dosing.',
             [`> ${plantParameters.tds.max}`]: 'TDS too high — risk of carryover and foaming. Increase blowdown.'
           }
         },
         hardness: {
-          target: `≤ ${plantParameters.hardness.max}`,
+          target: `< ${plantParameters.hardness.max}`,
           actions: {
-            [`3 – ${plantParameters.hardness.max * 2.5}`]: 'Hardness detected — risk of scaling. Check softener and condensate contamination.',
-            [`> ${plantParameters.hardness.max * 2.5}`]: 'High hardness — risk of scaling. Check softener and condensate contamination.'
+            [`≥ ${plantParameters.hardness.max}`]: 'Hardness detected — risk of scaling. Check softener and condensate contamination.'
           }
         },
         m_alkalinity: {
-          target: `${plantParameters.alkalinity.min} – ${plantParameters.alkalinity.max}`,
+          target: `≥ ${plantParameters.alkalinity.min}`,
           actions: {
-            [`< ${plantParameters.alkalinity.min}`]: 'M-Alkalinity too low — may lead to corrosion. Increase M-Alkalinity through dosing.',
-            [`> ${plantParameters.alkalinity.max}`]: 'M-Alkalinity too high — may lead to scaling. Reduce M-Alkalinity through blowdown.'
+            [`< ${plantParameters.alkalinity.min}`]: 'M-Alkalinity too low — Increase alkalinity through chemical dosing.'
           }
         }
       };
@@ -254,31 +227,28 @@ const WaterAnalysis = () => {
     // Default actions
     return {
       ph: {
-        target: '10.5 – 11.5',
+        target: '11.0 – 12.0',
         actions: {
-          '< 10.5': 'pH too low — corrosion risk. Adjust chemical feed to raise pH.',
-          '> 11.5': 'pH too high — risk of caustic embrittlement. Reduce chemical feed.'
+          '< 11.0': 'Low pH. Adjust chemical dosing to raise pH.',
+          '> 12.0': 'High pH — Reduce chemical dosing & Increase blowdown.'
         }
       },
       tds: {
-        target: '2500 – 3500',
+        target: '< 3500',
         actions: {
-          '< 2500': 'TDS too low — may indicate over-blowdown. Optimize cycles and dosing.',
           '> 3500': 'TDS too high — risk of carryover and foaming. Increase blowdown.'
         }
       },
       hardness: {
-        target: '≤ 2',
+        target: '< 5',
         actions: {
-          '3 – 5': 'Hardness detected — risk of scaling. Check softener and condensate contamination.',
-          '> 5': 'High hardness — risk of scaling. Check softener and condensate contamination.'
+          '≥ 5': 'Hardness detected — risk of scaling. Check softener and condensate contamination.'
         }
       },
       m_alkalinity: {
-        target: '600 – 1400',
+        target: '≥ 600',
         actions: {
-          '< 600': 'M-Alkalinity too low — may lead to corrosion. Increase M-Alkalinity through dosing.',
-          '> 1400': 'M-Alkalinity too high — may lead to scaling. Reduce M-Alkalinity through blowdown.'
+          '< 600': 'M-Alkalinity too low — Increase alkalinity through chemical dosing.'
         }
       }
     };
@@ -482,8 +452,6 @@ const WaterAnalysis = () => {
         tds: { min: plantDetails.cooling_tds_min, max: plantDetails.cooling_tds_max },
         hardness: { max: plantDetails.cooling_hardness_max },
         alkalinity: { max: plantDetails.cooling_alkalinity_max },
-        // cycle: { min: plantDetails.cooling_cycle_min, max: plantDetails.cooling_cycle_max },
-        // iron: { max: plantDetails.cooling_iron_max },
         ...(plantDetails.cooling_chloride_enabled && { chloride: { max: plantDetails.cooling_chloride_max } })
       } : {
         ph: { min: plantDetails.boiler_ph_min, max: plantDetails.boiler_ph_max },
@@ -511,8 +479,6 @@ const WaterAnalysis = () => {
         tds: { min: plantDetails.cooling_tds_min, max: plantDetails.cooling_tds_max },
         hardness: { max: plantDetails.cooling_hardness_max },
         alkalinity: { max: plantDetails.cooling_alkalinity_max },
-        // cycle: { min: plantDetails.cooling_cycle_min, max: plantDetails.cooling_cycle_max },
-        // iron: { max: plantDetails.cooling_iron_max },
         ...(plantDetails.cooling_chloride_enabled && { chloride: { max: plantDetails.cooling_chloride_max } })
       } : {
         ph: { min: plantDetails.boiler_ph_min, max: plantDetails.boiler_ph_max },
@@ -538,13 +504,9 @@ const WaterAnalysis = () => {
       chloride: '',
       temperature: '',
       hot_temperature: '',
+      sulphate: '',
       // Boiler water specific parameters
       m_alkalinity: '',
-      p_alkalinity: '',
-      oh_alkalinity: '',
-      sulfite: '',
-      chlorides: '',
-      iron: '',
       analysis_name: 'Water Analysis',
       notes: ''
     });
@@ -572,6 +534,29 @@ const WaterAnalysis = () => {
     if (!parameterActions) return null;
     if (value === null || value === undefined || Number.isNaN(value) || !Number.isFinite(Number(value))) return null;
     
+    // Special handling for LSI and RSI with complex range conditions
+    if (parameter === 'lsi') {
+      const numValue = parseFloat(value);
+      if (numValue < -0.5) return parameterActions.actions["< -0.5"];
+      if (numValue >= -0.5 && numValue < 0) return parameterActions.actions["-0.5<0"];
+      if (numValue === 0) return parameterActions.actions["0"];
+      if (numValue > 0 && numValue <= 0.5) return parameterActions.actions["0<0.5"];
+      if (numValue > 2) return parameterActions.actions[">2"];
+      return null; // Within balanced range
+    }
+    
+    if (parameter === 'rsi') {
+      const numValue = parseFloat(value);
+      if (numValue <= 4.8) return parameterActions.actions["4.8"];
+      if (numValue > 4.8 && numValue <= 6.0) return parameterActions.actions["5.0-6.0"];
+      if (numValue > 6.0 && numValue <= 7.0) return parameterActions.actions["6.0-7.0"];
+      if (numValue > 7.0 && numValue <= 7.5) return parameterActions.actions["7.0-7.5"];
+      if (numValue > 7.5 && numValue <= 9.0) return parameterActions.actions["7.5-9.0"];
+      if (numValue > 9.0) return parameterActions.actions[">9.0"];
+      return null; // Within target range
+    }
+    
+    // Standard handling for other parameters
     for (const [condition, action] of Object.entries(parameterActions.actions)) {
       if (condition.startsWith('<') && value < parseFloat(condition.substring(2))) {
         return action;
@@ -580,6 +565,10 @@ const WaterAnalysis = () => {
       } else if (condition.startsWith('≥') && value >= parseFloat(condition.substring(2))) {
         return action;
       } else if (condition.startsWith('≤') && value <= parseFloat(condition.substring(2))) {
+        return action;
+      }
+      // Handle exact matches for conditions like "0" or specific values
+      else if (condition === value.toString()) {
         return action;
       }
     }
