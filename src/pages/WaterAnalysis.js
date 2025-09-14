@@ -42,8 +42,14 @@ const WaterAnalysis = () => {
     chloride: '',
     temperature: '',
     hot_temperature: '',
+    cycle: '',
+    iron: '',
     // Boiler water specific parameters
     m_alkalinity: '',
+    p_alkalinity: '',
+    oh_alkalinity: '',
+    sulfite: '',
+    chlorides: '',
     analysis_name: 'Water Analysis',
     notes: ''
   });
@@ -60,8 +66,61 @@ const WaterAnalysis = () => {
   
     // Get plant-specific actions or use defaults
   const getCoolingWaterActions = () => {
+    // Default actions that are always included
+    const defaultActions = {
+      ph: {
+        target: '6.5 – 7.8',
+        actions: {
+          '< 6.5': 'Adjust chemical dosing & blowdown to bring the pH into range.',
+          '> 7.8': 'Reduce pH by blowdown or adjust chemical dosing.'
+        }
+      },
+      tds: {
+        target: '400 – 800',
+        actions: {
+          '< 400': 'TDS too low — may indicate over-blowdown. Optimize cycles and adjust chemical dosing.',
+          '> 800': 'High TDS. Increase blowdown to reduce concentration.'
+        }
+      },
+      hardness: {
+        target: '≤ 300',
+        actions: {
+          '> 300': 'High hardness — Scaling tendency. Check incoming water and adjust chemical dosing.'
+        }
+      },
+      m_alkalinity: {
+        target: '≤ 300',
+        actions: {
+          '> 300': 'High alkalinity. Adjust chemical dosing and blowdown.'
+        }
+      },
+      lsi: {
+        target: "-2 < -0.5",
+        actions: {
+          "< -0.5": "Corrosion tendency.",
+          "-0.5<0": "Slightly corrosion tendency but no scaling tendency.",
+          "0": "Balanced.",
+          "0<0.5": "Slightly scale forming.",
+          ">2": "Heavy Scale forming but no corrosion tendency."
+        }
+      },
+      rsi: {
+        target: "4.0-5.0",
+        actions: {
+          "4.8": "Heavy Scale tendency.",
+          "5.0-6.0": "Light Scale tendency.",
+          "6.0-7.0": "Light Scale or corrosion tendency.",
+          "7.0-7.5": "Corrosion tendency.",
+          "7.5-9.0": "Heavy corrosion tendency.",
+          ">9.0": "Intolerable corrosion tendency"
+        }
+      }
+    };
+
     if (plantParameters) {
       return {
+        ...defaultActions,
+        // Override with plant-specific parameters if available
         ...(plantParameters.ph && {
           ph: {
             target: `${plantParameters.ph.min} – ${plantParameters.ph.max}`,
@@ -102,6 +161,7 @@ const WaterAnalysis = () => {
             },
           },
         }),
+        // Add optional parameters only if enabled
         ...(plantParameters.chloride && {
           chloride: {
             target: `≤ ${plantParameters.chloride.max}`,
@@ -111,121 +171,33 @@ const WaterAnalysis = () => {
             },
           },
         }),
-        lsi: {
-          target: "-2 < -0.5",
-          actions: {
-            "< -0.5": "Corrosion tendency.",
-            "-0.5<0": "Slightly corrosion tendency but no scaling tendency.",
-            "0": "Balanced.",
-            "0<0.5": "Slightly scale forming.",
-            ">2": "Heavy Scale forming but no corrosion tendency."
-          },
-        },
-        rsi: {
-          target: "4.0-5.0",
-          actions: {
-            "4.8": "Heavy Scale tendency.",
-            "5.0-6.0": "Light Scale tendency.",
-            "6.0-7.0": "Light Scale or corrosion tendency.",
-            "7.0-7.5": "Corrosion tendency.",
-            "7.5-9.0": "Heavy corrosion tendency.",
-            ">9.0": "Intolerable corrosion tendency"
-          },
-        },
+        ...(plantParameters.cycle && {
+          cycle: {
+            target: `${plantParameters.cycle.min} – ${plantParameters.cycle.max}`,
+            actions: {
+              [`< ${plantParameters.cycle.min}`]: 'Low cycles — may be over-blowing down. Optimize for efficiency.',
+              [`> ${plantParameters.cycle.max}`]: 'High cycles. Increase blowdown.'
+            }
+          }
+        }),
+        ...(plantParameters.iron && {
+          iron: {
+            target: `≤ ${plantParameters.iron.max}`,
+            actions: {
+              [`> ${plantParameters.iron.max}`]: 'High iron — possible corrosion or contamination. Inspect system and adjust chemical dosing.'
+            }
+          }
+        })
       };
     }
     
-    // Default actions
-    return {
-      ph: {
-        target: '6.5 – 7.8',
-        actions: {
-          '< 6.5': 'Adjust chemical dosing & blowdown to bring the pH into range.',
-          '> 7.8': 'Reduce pH by blowdown or adjust chemical dosing.'
-        }
-      },
-      tds: {
-        target: '400 – 800',
-        actions: {
-          '< 400': 'TDS too low — may indicate over-blowdown. Optimize cycles and adjust chemical dosing.',
-          '> 800': 'High TDS. Increase blowdown to reduce concentration.'
-        }
-      },
-      hardness: {
-        target: '≤ 300',
-        actions: {
-          '> 300': 'High hardness — Scaling tendency. Check incoming water and adjust chemical dosing.'
-        }
-      },
-      m_alkalinity: {
-        target: '≤ 300',
-        actions: {
-          '> 300': 'High alkalinity. Adjust chemical dosing and blowdown.'
-        }
-      },
-      chloride: {
-        target: '≤ 250',
-        actions: {
-          '> 250': 'Chloride level high. Check make-up water and blowdown.'
-        }
-      },
-      lsi: {
-        target: "-2 < -0.5",
-        actions: {
-          "< -0.5": "Corrosion tendency.",
-          "-0.5<0": "Slightly corrosion tendency but no scaling tendency.",
-          "0": "Balanced.",
-          "0<0.5": "Slightly scale forming.",
-          ">2": "Heavy Scale forming but no corrosion tendency."
-        }
-      },
-      rsi: {
-        target: "4.0-5.0",
-        actions: {
-          "4.8": "Heavy Scale tendency.",
-          "5.0-6.0": "Light Scale tendency.",
-          "6.0-7.0": "Light Scale or corrosion tendency.",
-          "7.0-7.5": "Corrosion tendency.",
-          "7.5-9.0": "Heavy corrosion tendency.",
-          ">9.0": "Intolerable corrosion tendency"
-        }
-      }
-    };
+    // Return default actions when no plant parameters
+    return defaultActions;
   };
 
   const getBoilerWaterActions = () => {
-    if (plantParameters) {
-      return {
-        ph: {
-          target: `${plantParameters.ph.min} – ${plantParameters.ph.max}`,
-          actions: {
-            [`< ${plantParameters.ph.min}`]: 'Low pH. Adjust chemical dosing to raise pH.',
-            [`> ${plantParameters.ph.max}`]: 'High pH — Reduce chemical dosing & Increase blowdown.'
-          }
-        },
-        tds: {
-          target: `< ${plantParameters.tds.max}`,
-          actions: {
-            [`> ${plantParameters.tds.max}`]: 'TDS too high — risk of carryover and foaming. Increase blowdown.'
-          }
-        },
-        hardness: {
-          target: `< ${plantParameters.hardness.max}`,
-          actions: {
-            [`≥ ${plantParameters.hardness.max}`]: 'Hardness detected — risk of scaling. Check softener and condensate contamination.'
-          }
-        },
-        m_alkalinity: {
-          target: `≥ ${plantParameters.alkalinity.min}`,
-          actions: {
-            [`< ${plantParameters.alkalinity.min}`]: 'M-Alkalinity too low — Increase alkalinity through chemical dosing.'
-          }
-        }
-      };
-    }
-    
-    // Default actions
-    return {
+    // Default actions that are always included
+    const defaultActions = {
       ph: {
         target: '11.0 – 12.0',
         actions: {
@@ -252,6 +224,83 @@ const WaterAnalysis = () => {
         }
       }
     };
+
+    if (plantParameters) {
+      return {
+        ...defaultActions,
+        // Override with plant-specific parameters if available
+        ph: {
+          target: `${plantParameters.ph.min} – ${plantParameters.ph.max}`,
+          actions: {
+            [`< ${plantParameters.ph.min}`]: 'Low pH. Adjust chemical dosing to raise pH.',
+            [`> ${plantParameters.ph.max}`]: 'High pH — Reduce chemical dosing & Increase blowdown.'
+          }
+        },
+        tds: {
+          target: `< ${plantParameters.tds.max}`,
+          actions: {
+            [`> ${plantParameters.tds.max}`]: 'TDS too high — risk of carryover and foaming. Increase blowdown.'
+          }
+        },
+        hardness: {
+          target: `< ${plantParameters.hardness.max}`,
+          actions: {
+            [`≥ ${plantParameters.hardness.max}`]: 'Hardness detected — risk of scaling. Check softener and condensate contamination.'
+          }
+        },
+        m_alkalinity: {
+          target: `≥ ${plantParameters.alkalinity.min}`,
+          actions: {
+            [`< ${plantParameters.alkalinity.min}`]: 'M-Alkalinity too low — Increase alkalinity through chemical dosing.'
+          }
+        },
+        // Add optional parameters only if enabled
+        ...(plantParameters.p_alkalinity && {
+          p_alkalinity: {
+            target: `≥ ${plantParameters.p_alkalinity.min}`,
+            actions: {
+              [`< ${plantParameters.p_alkalinity.min}`]: 'P-Alkalinity too low — risk of under-treatment. Increase chemical dosing.'
+            }
+          }
+        }),
+        ...(plantParameters.oh_alkalinity && {
+          oh_alkalinity: {
+            target: `≥ ${plantParameters.oh_alkalinity.min}`,
+            actions: {
+              [`< ${plantParameters.oh_alkalinity.min}`]: 'OH-Alkalinity too low — insufficient alkalinity reserve. Increase chemical dosing.'
+            }
+          }
+        }),
+        ...(plantParameters.sulfite && {
+          sulfite: {
+            target: `${plantParameters.sulfite.min} – ${plantParameters.sulfite.max}`,
+            actions: {
+              [`< ${plantParameters.sulfite.min}`]: 'Sulfite too low — oxygen scavenging inadequate. Increase chemical dosing.',
+              [`> ${plantParameters.sulfite.max}`]: 'Sulfite too high — may cause excess solids. Reduce chemical dosing.'
+            }
+          }
+        }),
+        ...(plantParameters.chlorides && {
+          chlorides: {
+            target: `≤ ${plantParameters.chlorides.max}`,
+            actions: {
+              [`> ${plantParameters.chlorides.max}`]: 'Chlorides high — possible contamination. Investigate feedwater.'
+            }
+          }
+        }),
+        ...(plantParameters.iron && {
+          iron: {
+            target: `< ${plantParameters.iron.max}`,
+            actions: {
+              [`≥ ${plantParameters.iron.max}`]: 'High iron — possible active corrosion. Inspect system.'
+            }
+          }
+        })
+      };
+    }
+    
+    // Return default actions when no plant parameters
+    return defaultActions;
   };
 
   // Add error handling and loading state resets
@@ -274,8 +323,14 @@ const WaterAnalysis = () => {
       chloride: '',
       temperature: '',
       hot_temperature: '',
+      cycle: '',
+      iron: '',
       sulphate: '',
-      m_alkalinity: ''
+      m_alkalinity: '',
+      p_alkalinity: '',
+      oh_alkalinity: '',
+      sulfite: '',
+      chlorides: ''
     });
   }, []);
 
@@ -299,18 +354,42 @@ const WaterAnalysis = () => {
     if (!selectedPlant) return false;
     
     if (analysisType === 'cooling') {
-      // For cooling water, check all required fields
+      // For cooling water, check core required fields
       let requiredFields = ['ph', 'tds', 'total_alkalinity', 'hardness', 'temperature', 'hot_temperature'];
       
-      // Only require chloride if it's enabled for this plant
-      if (selectedPlant.cooling_chloride_enabled) {
+      // Add optional fields only if they're enabled for this plant
+      if (selectedPlant?.cooling_chloride_enabled) {
         requiredFields.push('chloride');
+      }
+      if (selectedPlant?.cooling_cycle_enabled) {
+        requiredFields.push('cycle');
+      }
+      if (selectedPlant?.cooling_iron_enabled) {
+        requiredFields.push('iron');
       }
       
       return requiredFields.every(field => inputData[field] !== '' && inputData[field] !== null && inputData[field] !== undefined);
     } else {
-      // For boiler water, check required fields
-      const requiredFields = ['ph', 'tds', 'hardness', 'm_alkalinity'];
+      // For boiler water, check core required fields
+      let requiredFields = ['ph', 'tds', 'hardness', 'm_alkalinity'];
+      
+      // Add optional fields only if they're enabled for this plant
+      if (selectedPlant?.boiler_p_alkalinity_enabled) {
+        requiredFields.push('p_alkalinity');
+      }
+      if (selectedPlant?.boiler_oh_alkalinity_enabled) {
+        requiredFields.push('oh_alkalinity');
+      }
+      if (selectedPlant?.boiler_sulfite_enabled) {
+        requiredFields.push('sulfite');
+      }
+      if (selectedPlant?.boiler_chlorides_enabled) {
+        requiredFields.push('chlorides');
+      }
+      if (selectedPlant?.boiler_iron_enabled) {
+        requiredFields.push('iron');
+      }
+      
       return requiredFields.every(field => inputData[field] !== '' && inputData[field] !== null && inputData[field] !== undefined);
     }
   }, [selectedPlant, analysisType, inputData]);
@@ -452,12 +531,19 @@ const WaterAnalysis = () => {
         tds: { min: plantDetails.cooling_tds_min, max: plantDetails.cooling_tds_max },
         hardness: { max: plantDetails.cooling_hardness_max },
         alkalinity: { max: plantDetails.cooling_alkalinity_max },
-        ...(plantDetails.cooling_chloride_enabled && { chloride: { max: plantDetails.cooling_chloride_max } })
+        ...(plantDetails.cooling_chloride_enabled && { chloride: { max: plantDetails.cooling_chloride_max } }),
+        ...(plantDetails.cooling_cycle_enabled && { cycle: { min: plantDetails.cooling_cycle_min, max: plantDetails.cooling_cycle_max } }),
+        ...(plantDetails.cooling_iron_enabled && { iron: { max: plantDetails.cooling_iron_max } })
       } : {
         ph: { min: plantDetails.boiler_ph_min, max: plantDetails.boiler_ph_max },
         tds: { min: plantDetails.boiler_tds_min, max: plantDetails.boiler_tds_max },
         hardness: { max: plantDetails.boiler_hardness_max },
-        alkalinity: { min: plantDetails.boiler_alkalinity_min, max: plantDetails.boiler_alkalinity_max }
+        alkalinity: { min: plantDetails.boiler_alkalinity_min, max: plantDetails.boiler_alkalinity_max },
+        ...(plantDetails.boiler_p_alkalinity_enabled && { p_alkalinity: { min: plantDetails.boiler_p_alkalinity_min, max: plantDetails.boiler_p_alkalinity_max } }),
+        ...(plantDetails.boiler_oh_alkalinity_enabled && { oh_alkalinity: { min: plantDetails.boiler_oh_alkalinity_min, max: plantDetails.boiler_oh_alkalinity_max } }),
+        ...(plantDetails.boiler_sulfite_enabled && { sulfite: { min: plantDetails.boiler_sulfite_min, max: plantDetails.boiler_sulfite_max } }),
+        ...(plantDetails.boiler_chlorides_enabled && { chlorides: { max: plantDetails.boiler_chlorides_max } }),
+        ...(plantDetails.boiler_iron_enabled && { iron: { max: plantDetails.boiler_iron_max } })
       };
       setPlantParameters(params);
     } catch (error) {
@@ -479,12 +565,19 @@ const WaterAnalysis = () => {
         tds: { min: plantDetails.cooling_tds_min, max: plantDetails.cooling_tds_max },
         hardness: { max: plantDetails.cooling_hardness_max },
         alkalinity: { max: plantDetails.cooling_alkalinity_max },
-        ...(plantDetails.cooling_chloride_enabled && { chloride: { max: plantDetails.cooling_chloride_max } })
+        ...(plantDetails.cooling_chloride_enabled && { chloride: { max: plantDetails.cooling_chloride_max } }),
+        ...(plantDetails.cooling_cycle_enabled && { cycle: { min: plantDetails.cooling_cycle_min, max: plantDetails.cooling_cycle_max } }),
+        ...(plantDetails.cooling_iron_enabled && { iron: { max: plantDetails.cooling_iron_max } })
       } : {
         ph: { min: plantDetails.boiler_ph_min, max: plantDetails.boiler_ph_max },
         tds: { min: plantDetails.boiler_tds_min, max: plantDetails.boiler_tds_max },
         hardness: { max: plantDetails.boiler_hardness_max },
-        alkalinity: { min: plantDetails.boiler_alkalinity_min, max: plantDetails.boiler_alkalinity_max }
+        alkalinity: { min: plantDetails.boiler_alkalinity_min, max: plantDetails.boiler_alkalinity_max },
+        ...(plantDetails.boiler_p_alkalinity_enabled && { p_alkalinity: { min: plantDetails.boiler_p_alkalinity_min, max: plantDetails.boiler_p_alkalinity_max } }),
+        ...(plantDetails.boiler_oh_alkalinity_enabled && { oh_alkalinity: { min: plantDetails.boiler_oh_alkalinity_min, max: plantDetails.boiler_oh_alkalinity_max } }),
+        ...(plantDetails.boiler_sulfite_enabled && { sulfite: { min: plantDetails.boiler_sulfite_min, max: plantDetails.boiler_sulfite_max } }),
+        ...(plantDetails.boiler_chlorides_enabled && { chlorides: { max: plantDetails.boiler_chlorides_max } }),
+        ...(plantDetails.boiler_iron_enabled && { iron: { max: plantDetails.boiler_iron_max } })
       };
       setPlantParameters(params);
     } catch (e) {
@@ -504,9 +597,15 @@ const WaterAnalysis = () => {
       chloride: '',
       temperature: '',
       hot_temperature: '',
+      cycle: '',
+      iron: '',
       sulphate: '',
       // Boiler water specific parameters
       m_alkalinity: '',
+      p_alkalinity: '',
+      oh_alkalinity: '',
+      sulfite: '',
+      chlorides: '',
       analysis_name: 'Water Analysis',
       notes: ''
     });
@@ -592,7 +691,7 @@ const WaterAnalysis = () => {
       };
       
       if (analysisType === 'boiler') {
-        // For boiler water, only send the 4 required fields
+        // For boiler water, send core fields and only enabled optional fields
         requestData = {
           ...requestData,
           ph: inputData.ph || 0,
@@ -600,6 +699,23 @@ const WaterAnalysis = () => {
           hardness: inputData.hardness || 0,
           m_alkalinity: inputData.m_alkalinity || 0
         };
+        
+        // Only include optional fields if they're enabled for this plant
+        if (selectedPlant?.boiler_p_alkalinity_enabled) {
+          requestData.p_alkalinity = inputData.p_alkalinity || 0;
+        }
+        if (selectedPlant?.boiler_oh_alkalinity_enabled) {
+          requestData.oh_alkalinity = inputData.oh_alkalinity || 0;
+        }
+        if (selectedPlant?.boiler_sulfite_enabled) {
+          requestData.sulfite = inputData.sulfite || 0;
+        }
+        if (selectedPlant?.boiler_chlorides_enabled) {
+          requestData.chlorides = inputData.chlorides || 0;
+        }
+        if (selectedPlant?.boiler_iron_enabled) {
+          requestData.iron = inputData.iron || 0;
+        }
       } else {
         // For cooling water, send all required fields
         const coolingData = {
@@ -607,14 +723,20 @@ const WaterAnalysis = () => {
           tds: inputData.tds || 0,
           total_alkalinity: inputData.total_alkalinity || 0,
           hardness: inputData.hardness || 0,
-          chloride: inputData.chloride || 0,
           temperature: inputData.temperature || 0,
+          hot_temperature: inputData.hot_temperature || 0,
           sulphate: inputData.sulphate || 0
         };
         
-        // Only include chloride if it's enabled for this plant
-        if (!selectedPlant.cooling_chloride_enabled) {
-          delete coolingData.chloride;
+        // Add optional fields only if they're enabled for this plant
+        if (selectedPlant?.cooling_chloride_enabled) {
+          coolingData.chloride = inputData.chloride || 0;
+        }
+        if (selectedPlant?.cooling_cycle_enabled) {
+          coolingData.cycle = inputData.cycle || 0;
+        }
+        if (selectedPlant?.cooling_iron_enabled) {
+          coolingData.iron = inputData.iron || 0;
         }
         
         requestData = {
@@ -689,9 +811,18 @@ const WaterAnalysis = () => {
 
       // Validate required fields for the analysis type
       if (analysisType === 'cooling') {
-        const requiredFields = ['ph', 'tds', 'total_alkalinity', 'hardness', 'temperature', 'hot_temperature'];
+        // For cooling water, check core required fields
+        let requiredFields = ['ph', 'tds', 'total_alkalinity', 'hardness', 'temperature', 'hot_temperature'];
+        
+        // Add optional fields only if they're enabled for this plant
         if (selectedPlant?.cooling_chloride_enabled) {
           requiredFields.push('chloride');
+        }
+        if (selectedPlant?.cooling_cycle_enabled) {
+          requiredFields.push('cycle');
+        }
+        if (selectedPlant?.cooling_iron_enabled) {
+          requiredFields.push('iron');
         }
         
         for (const field of requiredFields) {
@@ -702,7 +833,26 @@ const WaterAnalysis = () => {
           }
         }
       } else {
-        const requiredFields = ['ph', 'tds', 'hardness', 'm_alkalinity'];
+        // For boiler water, check core required fields
+        let requiredFields = ['ph', 'tds', 'hardness', 'm_alkalinity'];
+        
+        // Add optional fields only if they're enabled for this plant
+        if (selectedPlant?.boiler_p_alkalinity_enabled) {
+          requiredFields.push('p_alkalinity');
+        }
+        if (selectedPlant?.boiler_oh_alkalinity_enabled) {
+          requiredFields.push('oh_alkalinity');
+        }
+        if (selectedPlant?.boiler_sulfite_enabled) {
+          requiredFields.push('sulfite');
+        }
+        if (selectedPlant?.boiler_chlorides_enabled) {
+          requiredFields.push('chlorides');
+        }
+        if (selectedPlant?.boiler_iron_enabled) {
+          requiredFields.push('iron');
+        }
+        
         for (const field of requiredFields) {
           if (cleanInputData[field] === null || cleanInputData[field] === undefined) {
             toast.error(`Please fill in all required fields. Missing: ${field}`);
@@ -1059,6 +1209,121 @@ const WaterAnalysis = () => {
                       className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
                     />
                   </div>
+                  
+                  {selectedPlant?.boiler_p_alkalinity_enabled && (
+                    <div>
+                      <label className='block text-sm font-medium text-gray-700 mb-1'>
+                        P-Alkalinity as CaCO₃ (ppm)
+                      </label>
+                      <input
+                        type='number'
+                        step='1'
+                        min='0'
+                        value={inputData.p_alkalinity}
+                        onChange={(e) =>
+                          handleInputChange(
+                            "p_alkalinity",
+                            e.target.value === ""
+                              ? ""
+                              : parseFloat(e.target.value)
+                          )
+                        }
+                        className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                      />
+                    </div>
+                  )}
+                  
+                  {selectedPlant?.boiler_oh_alkalinity_enabled && (
+                    <div>
+                      <label className='block text-sm font-medium text-gray-700 mb-1'>
+                        OH-Alkalinity as CaCO₃ (ppm)
+                      </label>
+                      <input
+                        type='number'
+                        step='1'
+                        min='0'
+                        value={inputData.oh_alkalinity}
+                        onChange={(e) =>
+                          handleInputChange(
+                            "oh_alkalinity",
+                            e.target.value === ""
+                              ? ""
+                              : parseFloat(e.target.value)
+                          )
+                        }
+                        className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                      />
+                    </div>
+                  )}
+                  
+                  {selectedPlant?.boiler_sulfite_enabled && (
+                    <div>
+                      <label className='block text-sm font-medium text-gray-700 mb-1'>
+                        Sulfite as SO₃ (ppm)
+                      </label>
+                      <input
+                        type='number'
+                        step='1'
+                        min='0'
+                        value={inputData.sulfite}
+                        onChange={(e) =>
+                          handleInputChange(
+                            "sulfite",
+                            e.target.value === ""
+                              ? ""
+                              : parseFloat(e.target.value)
+                          )
+                        }
+                        className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                      />
+                    </div>
+                  )}
+                  
+                  {selectedPlant?.boiler_chlorides_enabled && (
+                    <div>
+                      <label className='block text-sm font-medium text-gray-700 mb-1'>
+                        Chlorides (ppm)
+                      </label>
+                      <input
+                        type='number'
+                        step='1'
+                        min='0'
+                        value={inputData.chlorides}
+                        onChange={(e) =>
+                          handleInputChange(
+                            "chlorides",
+                            e.target.value === ""
+                              ? ""
+                              : parseFloat(e.target.value)
+                          )
+                        }
+                        className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                      />
+                    </div>
+                  )}
+                  
+                  {selectedPlant?.boiler_iron_enabled && (
+                    <div>
+                      <label className='block text-sm font-medium text-gray-700 mb-1'>
+                        Iron as Fe (ppm)
+                      </label>
+                      <input
+                        type='number'
+                        step='0.1'
+                        min='0'
+                        value={inputData.iron}
+                        onChange={(e) =>
+                          handleInputChange(
+                            "iron",
+                            e.target.value === ""
+                              ? ""
+                              : parseFloat(e.target.value)
+                          )
+                        }
+                        className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                      />
+                    </div>
+                  )}
                 </>
               )}
               
@@ -1128,6 +1393,52 @@ const WaterAnalysis = () => {
                       className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
                     />
                   </div>
+                  
+                  {selectedPlant?.cooling_cycle_enabled && (
+                    <div>
+                      <label className='block text-sm font-medium text-gray-700 mb-1'>
+                        Cycle of Concentration (as Cl)
+                      </label>
+                      <input
+                        type='number'
+                        step='0.1'
+                        min='0'
+                        value={inputData.cycle}
+                        onChange={(e) =>
+                          handleInputChange(
+                            "cycle",
+                            e.target.value === ""
+                              ? ""
+                              : parseFloat(e.target.value)
+                          )
+                        }
+                        className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                      />
+                    </div>
+                  )}
+                  
+                  {selectedPlant?.cooling_iron_enabled && (
+                    <div>
+                      <label className='block text-sm font-medium text-gray-700 mb-1'>
+                        Iron as Fe (ppm)
+                      </label>
+                      <input
+                        type='number'
+                        step='0.1'
+                        min='0'
+                        value={inputData.iron}
+                        onChange={(e) =>
+                          handleInputChange(
+                            "iron",
+                            e.target.value === ""
+                              ? ""
+                              : parseFloat(e.target.value)
+                          )
+                        }
+                        className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                      />
+                    </div>
+                  )}
                 </>
               )}
 

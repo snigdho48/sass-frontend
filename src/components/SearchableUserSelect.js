@@ -26,8 +26,33 @@ const SearchableUserSelect = ({
   const getDisplayValue = useCallback(() => {
     if (!value) return '';
     const selectedOption = options.find(option => option.id === value);
-    return selectedOption ? `${selectedOption.first_name} ${selectedOption.last_name} (${selectedOption.email})` : '';
+    return selectedOption ? `${selectedOption.first_name} ${selectedOption.last_name} (${selectedOption.email})` : `User ID: ${value}`;
   }, [value, options]);
+
+  // Initialize search term when value changes (for editing)
+  useEffect(() => {
+    if (value && !isOpen) {
+      const selectedOption = options.find(option => option.id === value);
+      if (selectedOption) {
+        setSearchTerm(`${selectedOption.first_name} ${selectedOption.last_name} (${selectedOption.email})`);
+      } else if (value) {
+        // If user not found in options yet, show a placeholder
+        setSearchTerm(`User ID: ${value}`);
+      }
+    }
+  }, [value, options, isOpen]);
+
+  // Reset search term when dropdown closes and we have a value
+  useEffect(() => {
+    if (!isOpen && value) {
+      const selectedOption = options.find(option => option.id === value);
+      if (selectedOption) {
+        setSearchTerm(`${selectedOption.first_name} ${selectedOption.last_name} (${selectedOption.email})`);
+      } else if (value) {
+        setSearchTerm(`User ID: ${value}`);
+      }
+    }
+  }, [isOpen, value, options]);
 
   // Handle option selection
   const handleSelect = useCallback((option) => {
@@ -113,7 +138,7 @@ const SearchableUserSelect = ({
           error ? 'border-red-500' : 'border-gray-300'
         } ${disabled ? 'bg-gray-100 cursor-not-allowed' : ''}`}
         placeholder={placeholder}
-        value={isOpen ? searchTerm : getDisplayValue()}
+        value={isOpen ? searchTerm : (getDisplayValue() || searchTerm)}
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}
         onFocus={() => !disabled && setIsOpen(true)}
