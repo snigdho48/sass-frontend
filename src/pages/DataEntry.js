@@ -322,6 +322,25 @@ const DataEntry = () => {
     // Prepare data for submission
     const submitData = { ...plantFormData };
     
+    // Ensure all boolean fields have proper values (not null/undefined)
+    const booleanFields = [
+      'is_active',
+      'cooling_chloride_enabled',
+      'cooling_cycle_enabled', 
+      'cooling_iron_enabled',
+      'boiler_p_alkalinity_enabled',
+      'boiler_oh_alkalinity_enabled',
+      'boiler_sulfite_enabled',
+      'boiler_chlorides_enabled',
+      'boiler_iron_enabled'
+    ];
+    
+    booleanFields.forEach(field => {
+      if (submitData[field] === null || submitData[field] === undefined) {
+        submitData[field] = false;
+      }
+    });
+    
     // For non-admin users, don't send owner_id (backend will set it automatically)
     if (user?.role !== 'admin') {
       delete submitData.owner_id;
