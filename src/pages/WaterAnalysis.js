@@ -187,6 +187,29 @@ const WaterAnalysis = () => {
               [`> ${plantParameters.iron.max}`]: 'High iron — possible corrosion or contamination. Inspect system and adjust chemical dosing.'
             }
           }
+        }),
+        ...(plantParameters.lsi && {
+          lsi: {
+            target: `${plantParameters.lsi.min} – ${plantParameters.lsi.max}`,
+            actions: {
+              [`< ${plantParameters.lsi.min}`]: "Corrosion tendency.",
+              [`${plantParameters.lsi.min}-0`]: "Slightly corrosion tendency but no scaling tendency.",
+              "0": "Balanced.",
+              [`0-${plantParameters.lsi.max}`]: "Slightly scale forming.",
+              [`>${plantParameters.lsi.max}`]: "Heavy Scale forming but no corrosion tendency."
+            }
+          }
+        }),
+        ...(plantParameters.rsi && {
+          rsi: {
+            target: `${plantParameters.rsi.min} – ${plantParameters.rsi.max}`,
+            actions: {
+              [`<${plantParameters.rsi.min}`]: "Heavy Scale tendency.",
+              [`${plantParameters.rsi.min}-${plantParameters.rsi.max}`]: "Light Scale or corrosion tendency.",
+              [`>${plantParameters.rsi.max}`]: "Heavy corrosion tendency.",
+              [`>${plantParameters.rsi.max + 2}`]: "Intolerable corrosion tendency"
+            }
+          }
         })
       };
     }
@@ -293,6 +316,29 @@ const WaterAnalysis = () => {
             target: `< ${plantParameters.iron.max}`,
             actions: {
               [`≥ ${plantParameters.iron.max}`]: 'High iron — possible active corrosion. Inspect system.'
+            }
+          }
+        }),
+        ...(plantParameters.lsi && {
+          lsi: {
+            target: `${plantParameters.lsi.min} – ${plantParameters.lsi.max}`,
+            actions: {
+              [`< ${plantParameters.lsi.min}`]: "Corrosion tendency.",
+              [`${plantParameters.lsi.min}-0`]: "Slightly corrosion tendency but no scaling tendency.",
+              "0": "Balanced.",
+              [`0-${plantParameters.lsi.max}`]: "Slightly scale forming.",
+              [`>${plantParameters.lsi.max}`]: "Heavy Scale forming but no corrosion tendency."
+            }
+          }
+        }),
+        ...(plantParameters.rsi && {
+          rsi: {
+            target: `${plantParameters.rsi.min} – ${plantParameters.rsi.max}`,
+            actions: {
+              [`<${plantParameters.rsi.min}`]: "Heavy Scale tendency.",
+              [`${plantParameters.rsi.min}-${plantParameters.rsi.max}`]: "Light Scale or corrosion tendency.",
+              [`>${plantParameters.rsi.max}`]: "Heavy corrosion tendency.",
+              [`>${plantParameters.rsi.max + 2}`]: "Intolerable corrosion tendency"
             }
           }
         })

@@ -40,6 +40,12 @@ const DataEntry = () => {
     cooling_cycle_enabled: false,
     cooling_iron_max: 3.0,
     cooling_iron_enabled: false,
+    cooling_lsi_min: -2.0,
+    cooling_lsi_max: 2.0,
+    cooling_lsi_enabled: false,
+    cooling_rsi_min: 6.0,
+    cooling_rsi_max: 7.0,
+    cooling_rsi_enabled: false,
     // Boiler water parameters
     boiler_ph_min: 10.5,
     boiler_ph_max: 11.5,
@@ -62,6 +68,12 @@ const DataEntry = () => {
     boiler_chlorides_enabled: false,
     boiler_iron_max: 5,
     boiler_iron_enabled: false,
+    boiler_lsi_min: -2.0,
+    boiler_lsi_max: 2.0,
+    boiler_lsi_enabled: false,
+    boiler_rsi_min: 6.0,
+    boiler_rsi_max: 7.0,
+    boiler_rsi_enabled: false,
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
@@ -328,11 +340,15 @@ const DataEntry = () => {
       'cooling_chloride_enabled',
       'cooling_cycle_enabled', 
       'cooling_iron_enabled',
+      'cooling_lsi_enabled',
+      'cooling_rsi_enabled',
       'boiler_p_alkalinity_enabled',
       'boiler_oh_alkalinity_enabled',
       'boiler_sulfite_enabled',
       'boiler_chlorides_enabled',
-      'boiler_iron_enabled'
+      'boiler_iron_enabled',
+      'boiler_lsi_enabled',
+      'boiler_rsi_enabled'
     ];
     
     booleanFields.forEach(field => {
@@ -377,6 +393,12 @@ const DataEntry = () => {
       cooling_cycle_enabled: plant.cooling_cycle_enabled || false,
       cooling_iron_max: plant.cooling_iron_max || 3.0,
       cooling_iron_enabled: plant.cooling_iron_enabled || false,
+      cooling_lsi_min: plant.cooling_lsi_min || -2.0,
+      cooling_lsi_max: plant.cooling_lsi_max || 2.0,
+      cooling_lsi_enabled: plant.cooling_lsi_enabled || false,
+      cooling_rsi_min: plant.cooling_rsi_min || 6.0,
+      cooling_rsi_max: plant.cooling_rsi_max || 7.0,
+      cooling_rsi_enabled: plant.cooling_rsi_enabled || false,
       // Boiler water parameters
       boiler_ph_min: plant.boiler_ph_min || 10.5,
       boiler_ph_max: plant.boiler_ph_max || 11.5,
@@ -399,6 +421,12 @@ const DataEntry = () => {
       boiler_chlorides_enabled: plant.boiler_chlorides_enabled || false,
       boiler_iron_max: plant.boiler_iron_max || 5,
       boiler_iron_enabled: plant.boiler_iron_enabled || false,
+      boiler_lsi_min: plant.boiler_lsi_min || -2.0,
+      boiler_lsi_max: plant.boiler_lsi_max || 2.0,
+      boiler_lsi_enabled: plant.boiler_lsi_enabled || false,
+      boiler_rsi_min: plant.boiler_rsi_min || 6.0,
+      boiler_rsi_max: plant.boiler_rsi_max || 7.0,
+      boiler_rsi_enabled: plant.boiler_rsi_enabled || false,
     });
     setShowPlantForm(true);
   };
@@ -430,6 +458,12 @@ const DataEntry = () => {
       cooling_cycle_enabled: false,
       cooling_iron_max: 3.0,
       cooling_iron_enabled: false,
+      cooling_lsi_min: -2.0,
+      cooling_lsi_max: 2.0,
+      cooling_lsi_enabled: false,
+      cooling_rsi_min: 6.0,
+      cooling_rsi_max: 7.0,
+      cooling_rsi_enabled: false,
       // Boiler water parameters
       boiler_ph_min: 10.5,
       boiler_ph_max: 11.5,
@@ -452,6 +486,12 @@ const DataEntry = () => {
       boiler_chlorides_enabled: false,
       boiler_iron_max: 5,
       boiler_iron_enabled: false,
+      boiler_lsi_min: -2.0,
+      boiler_lsi_max: 2.0,
+      boiler_lsi_enabled: false,
+      boiler_rsi_min: 6.0,
+      boiler_rsi_max: 7.0,
+      boiler_rsi_enabled: false,
     });
   };
 
@@ -1119,6 +1159,122 @@ const DataEntry = () => {
                             </div>
                           )}
                         </div>
+
+                        {/* LSI */}
+                        <div className='border border-gray-200 rounded-lg p-4'>
+                          <div className='flex items-center mb-3'>
+                            <label className='flex items-center'>
+                              <input
+                                type='checkbox'
+                                className='rounded border-gray-300 text-primary-600 focus:ring-primary-500'
+                                checked={plantFormData.cooling_lsi_enabled}
+                                onChange={(e) =>
+                                  setPlantFormData({
+                                    ...plantFormData,
+                                    cooling_lsi_enabled: e.target.checked,
+                                  })
+                                }
+                              />
+                              <span className='ml-2 text-sm font-medium text-gray-700'>Enable LSI Monitoring</span>
+                            </label>
+                          </div>
+                          {plantFormData.cooling_lsi_enabled && (
+                            <div className='grid grid-cols-2 gap-4'>
+                              <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>
+                                  LSI Min
+                                </label>
+                                <input
+                                  type='number'
+                                  step='0.1'
+                                  className='input'
+                                  value={plantFormData.cooling_lsi_min}
+                                  onChange={(e) =>
+                                    setPlantFormData({
+                                      ...plantFormData,
+                                      cooling_lsi_min: parseFloat(e.target.value),
+                                    })
+                                  }
+                                />
+                              </div>
+                              <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>
+                                  LSI Max
+                                </label>
+                                <input
+                                  type='number'
+                                  step='0.1'
+                                  className='input'
+                                  value={plantFormData.cooling_lsi_max}
+                                  onChange={(e) =>
+                                    setPlantFormData({
+                                      ...plantFormData,
+                                      cooling_lsi_max: parseFloat(e.target.value),
+                                    })
+                                  }
+                                />
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* RSI */}
+                        <div className='border border-gray-200 rounded-lg p-4'>
+                          <div className='flex items-center mb-3'>
+                            <label className='flex items-center'>
+                              <input
+                                type='checkbox'
+                                className='rounded border-gray-300 text-primary-600 focus:ring-primary-500'
+                                checked={plantFormData.cooling_rsi_enabled}
+                                onChange={(e) =>
+                                  setPlantFormData({
+                                    ...plantFormData,
+                                    cooling_rsi_enabled: e.target.checked,
+                                  })
+                                }
+                              />
+                              <span className='ml-2 text-sm font-medium text-gray-700'>Enable RSI Monitoring</span>
+                            </label>
+                          </div>
+                          {plantFormData.cooling_rsi_enabled && (
+                            <div className='grid grid-cols-2 gap-4'>
+                              <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>
+                                  RSI Min
+                                </label>
+                                <input
+                                  type='number'
+                                  step='0.1'
+                                  className='input'
+                                  value={plantFormData.cooling_rsi_min}
+                                  onChange={(e) =>
+                                    setPlantFormData({
+                                      ...plantFormData,
+                                      cooling_rsi_min: parseFloat(e.target.value),
+                                    })
+                                  }
+                                />
+                              </div>
+                              <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>
+                                  RSI Max
+                                </label>
+                                <input
+                                  type='number'
+                                  step='0.1'
+                                  className='input'
+                                  value={plantFormData.cooling_rsi_max}
+                                  onChange={(e) =>
+                                    setPlantFormData({
+                                      ...plantFormData,
+                                      cooling_rsi_max: parseFloat(e.target.value),
+                                    })
+                                  }
+                                />
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   )}
@@ -1509,6 +1665,122 @@ const DataEntry = () => {
                                   })
                                 }
                               />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* LSI */}
+                        <div className='border border-gray-200 rounded-lg p-4'>
+                          <div className='flex items-center mb-3'>
+                            <label className='flex items-center'>
+                              <input
+                                type='checkbox'
+                                className='rounded border-gray-300 text-primary-600 focus:ring-primary-500'
+                                checked={plantFormData.boiler_lsi_enabled}
+                                onChange={(e) =>
+                                  setPlantFormData({
+                                    ...plantFormData,
+                                    boiler_lsi_enabled: e.target.checked,
+                                  })
+                                }
+                              />
+                              <span className='ml-2 text-sm font-medium text-gray-700'>Enable LSI Monitoring</span>
+                            </label>
+                          </div>
+                          {plantFormData.boiler_lsi_enabled && (
+                            <div className='grid grid-cols-2 gap-4'>
+                              <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>
+                                  LSI Min
+                                </label>
+                                <input
+                                  type='number'
+                                  step='0.1'
+                                  className='input'
+                                  value={plantFormData.boiler_lsi_min}
+                                  onChange={(e) =>
+                                    setPlantFormData({
+                                      ...plantFormData,
+                                      boiler_lsi_min: parseFloat(e.target.value),
+                                    })
+                                  }
+                                />
+                              </div>
+                              <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>
+                                  LSI Max
+                                </label>
+                                <input
+                                  type='number'
+                                  step='0.1'
+                                  className='input'
+                                  value={plantFormData.boiler_lsi_max}
+                                  onChange={(e) =>
+                                    setPlantFormData({
+                                      ...plantFormData,
+                                      boiler_lsi_max: parseFloat(e.target.value),
+                                    })
+                                  }
+                                />
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* RSI */}
+                        <div className='border border-gray-200 rounded-lg p-4'>
+                          <div className='flex items-center mb-3'>
+                            <label className='flex items-center'>
+                              <input
+                                type='checkbox'
+                                className='rounded border-gray-300 text-primary-600 focus:ring-primary-500'
+                                checked={plantFormData.boiler_rsi_enabled}
+                                onChange={(e) =>
+                                  setPlantFormData({
+                                    ...plantFormData,
+                                    boiler_rsi_enabled: e.target.checked,
+                                  })
+                                }
+                              />
+                              <span className='ml-2 text-sm font-medium text-gray-700'>Enable RSI Monitoring</span>
+                            </label>
+                          </div>
+                          {plantFormData.boiler_rsi_enabled && (
+                            <div className='grid grid-cols-2 gap-4'>
+                              <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>
+                                  RSI Min
+                                </label>
+                                <input
+                                  type='number'
+                                  step='0.1'
+                                  className='input'
+                                  value={plantFormData.boiler_rsi_min}
+                                  onChange={(e) =>
+                                    setPlantFormData({
+                                      ...plantFormData,
+                                      boiler_rsi_min: parseFloat(e.target.value),
+                                    })
+                                  }
+                                />
+                              </div>
+                              <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>
+                                  RSI Max
+                                </label>
+                                <input
+                                  type='number'
+                                  step='0.1'
+                                  className='input'
+                                  value={plantFormData.boiler_rsi_max}
+                                  onChange={(e) =>
+                                    setPlantFormData({
+                                      ...plantFormData,
+                                      boiler_rsi_max: parseFloat(e.target.value),
+                                    })
+                                  }
+                                />
+                              </div>
                             </div>
                           )}
                         </div>
