@@ -579,7 +579,9 @@ const WaterAnalysis = () => {
         alkalinity: { max: plantDetails.cooling_alkalinity_max },
         ...(plantDetails.cooling_chloride_enabled && { chloride: { max: plantDetails.cooling_chloride_max } }),
         ...(plantDetails.cooling_cycle_enabled && { cycle: { min: plantDetails.cooling_cycle_min, max: plantDetails.cooling_cycle_max } }),
-        ...(plantDetails.cooling_iron_enabled && { iron: { max: plantDetails.cooling_iron_max } })
+        ...(plantDetails.cooling_iron_enabled && { iron: { max: plantDetails.cooling_iron_max } }),
+        ...(plantDetails.cooling_lsi_enabled && { lsi: { min: plantDetails.cooling_lsi_min, max: plantDetails.cooling_lsi_max } }),
+        ...(plantDetails.cooling_rsi_enabled && { rsi: { min: plantDetails.cooling_rsi_min, max: plantDetails.cooling_rsi_max } })
       } : {
         ph: { min: plantDetails.boiler_ph_min, max: plantDetails.boiler_ph_max },
         tds: { min: plantDetails.boiler_tds_min, max: plantDetails.boiler_tds_max },
@@ -589,7 +591,9 @@ const WaterAnalysis = () => {
         ...(plantDetails.boiler_oh_alkalinity_enabled && { oh_alkalinity: { min: plantDetails.boiler_oh_alkalinity_min, max: plantDetails.boiler_oh_alkalinity_max } }),
         ...(plantDetails.boiler_sulfite_enabled && { sulfite: { min: plantDetails.boiler_sulfite_min, max: plantDetails.boiler_sulfite_max } }),
         ...(plantDetails.boiler_chlorides_enabled && { chlorides: { max: plantDetails.boiler_chlorides_max } }),
-        ...(plantDetails.boiler_iron_enabled && { iron: { max: plantDetails.boiler_iron_max } })
+        ...(plantDetails.boiler_iron_enabled && { iron: { max: plantDetails.boiler_iron_max } }),
+        ...(plantDetails.boiler_lsi_enabled && { lsi: { min: plantDetails.boiler_lsi_min, max: plantDetails.boiler_lsi_max } }),
+        ...(plantDetails.boiler_rsi_enabled && { rsi: { min: plantDetails.boiler_rsi_min, max: plantDetails.boiler_rsi_max } })
       };
       setPlantParameters(params);
     } catch (error) {
@@ -613,7 +617,9 @@ const WaterAnalysis = () => {
         alkalinity: { max: plantDetails.cooling_alkalinity_max },
         ...(plantDetails.cooling_chloride_enabled && { chloride: { max: plantDetails.cooling_chloride_max } }),
         ...(plantDetails.cooling_cycle_enabled && { cycle: { min: plantDetails.cooling_cycle_min, max: plantDetails.cooling_cycle_max } }),
-        ...(plantDetails.cooling_iron_enabled && { iron: { max: plantDetails.cooling_iron_max } })
+        ...(plantDetails.cooling_iron_enabled && { iron: { max: plantDetails.cooling_iron_max } }),
+        ...(plantDetails.cooling_lsi_enabled && { lsi: { min: plantDetails.cooling_lsi_min, max: plantDetails.cooling_lsi_max } }),
+        ...(plantDetails.cooling_rsi_enabled && { rsi: { min: plantDetails.cooling_rsi_min, max: plantDetails.cooling_rsi_max } })
       } : {
         ph: { min: plantDetails.boiler_ph_min, max: plantDetails.boiler_ph_max },
         tds: { min: plantDetails.boiler_tds_min, max: plantDetails.boiler_tds_max },
@@ -623,7 +629,9 @@ const WaterAnalysis = () => {
         ...(plantDetails.boiler_oh_alkalinity_enabled && { oh_alkalinity: { min: plantDetails.boiler_oh_alkalinity_min, max: plantDetails.boiler_oh_alkalinity_max } }),
         ...(plantDetails.boiler_sulfite_enabled && { sulfite: { min: plantDetails.boiler_sulfite_min, max: plantDetails.boiler_sulfite_max } }),
         ...(plantDetails.boiler_chlorides_enabled && { chlorides: { max: plantDetails.boiler_chlorides_max } }),
-        ...(plantDetails.boiler_iron_enabled && { iron: { max: plantDetails.boiler_iron_max } })
+        ...(plantDetails.boiler_iron_enabled && { iron: { max: plantDetails.boiler_iron_max } }),
+        ...(plantDetails.boiler_lsi_enabled && { lsi: { min: plantDetails.boiler_lsi_min, max: plantDetails.boiler_lsi_max } }),
+        ...(plantDetails.boiler_rsi_enabled && { rsi: { min: plantDetails.boiler_rsi_min, max: plantDetails.boiler_rsi_max } })
       };
       setPlantParameters(params);
     } catch (e) {
