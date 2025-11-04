@@ -33,11 +33,11 @@ const Admin = () => {
     password2: '',
     company: '',
     phone: '',
-    role: 'client'
+    role: 'general_user'
   });
 
   useEffect(() => {
-    if (user?.is_admin) {
+    if (user?.is_admin || user?.is_general_user) {
       fetchUsers();
     }
   }, [user]);
@@ -61,6 +61,17 @@ const Admin = () => {
       return;
     }
 
+    // Check permissions before creating
+    const requestedRole = formData.role;
+    if ((requestedRole === 'admin' || requestedRole === 'super_admin') && !user?.can_create_admin_users) {
+      toast.error('Only Super Administrator can create Admin users');
+      return;
+    }
+    if (requestedRole === 'general_user' && !user?.can_create_general_users) {
+      toast.error('You do not have permission to create General Users');
+      return;
+    }
+
     try {
       await dataService.createUser(formData);
       toast.success('User created successfully');
@@ -74,6 +85,23 @@ const Admin = () => {
 
   const handleUpdateUser = async (e) => {
     e.preventDefault();
+    
+    // Check permissions before updating (especially if role is being changed)
+    const requestedRole = formData.role;
+    const currentRole = editingUser.role;
+    
+    if (requestedRole !== currentRole) {
+      // Role is being changed, check permissions
+      if ((requestedRole === 'admin' || requestedRole === 'super_admin') && !user?.can_create_admin_users) {
+        toast.error('Only Super Administrator can assign Admin or Super Admin roles');
+        return;
+      }
+      if (requestedRole === 'general_user' && !user?.can_create_general_users) {
+        toast.error('You do not have permission to assign General User role');
+        return;
+      }
+    }
+    
     try {
       await dataService.updateUser(editingUser.id, formData);
       toast.success('User updated successfully');
@@ -107,7 +135,7 @@ const Admin = () => {
       password2: '',
       company: '',
       phone: '',
-      role: 'client'
+      role: 'general_user'
     });
   };
 
@@ -119,7 +147,7 @@ const Admin = () => {
     return matchesSearch && matchesRole;
   });
 
-  if (!user?.is_admin) {
+  if (!user?.is_admin && !user?.is_general_user) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
@@ -141,13 +169,16 @@ const Admin = () => {
             Manage users and their roles in the system.
           </p>
         </div>
-        <button
-          onClick={() => setShowCreateForm(true)}
-          className="btn btn-primary flex items-center"
-        >
-          <UserPlus className="h-4 w-4 mr-2" />
-          Add User
-        </button>
+        {/* Only show Add User button for Admin and Super Admin users */}
+        {user?.is_admin && (user?.can_create_admin_users || user?.can_create_general_users) && (
+          <button
+            onClick={() => setShowCreateForm(true)}
+            className="btn btn-primary flex items-center"
+          >
+            <UserPlus className="h-4 w-4 mr-2" />
+            Add User
+          </button>
+        )}
       </div>
 
       {/* Filters */}
@@ -165,20 +196,21 @@ const Admin = () => {
               />
             </div>
           </div>
-          <div className="sm:w-48">
-            <select
-              value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value)}
-              className="input"
-            >
-              <option value="">All Roles</option>
-              <option value="admin">Admin</option>
-              <option value="client">Client</option>
-              <option value="manager">Manager</option>
-              <option value="operator">Operator</option>
-              <option value="viewer">Viewer</option>
-            </select>
-          </div>
+          {/* Role filter - Only show for Super Admin */}
+          {user?.can_create_plants && (
+            <div className="sm:w-48">
+              <select
+                value={roleFilter}
+                onChange={(e) => setRoleFilter(e.target.value)}
+                className="input"
+              >
+                <option value="">All Roles</option>
+                <option value="super_admin">Super Administrator</option>
+                <option value="admin">Administrator</option>
+                <option value="general_user">General User</option>
+              </select>
+            </div>
+          )}
         </div>
       </div>
 
@@ -207,70 +239,75 @@ const Admin = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredUsers.map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50">
+                {filteredUsers.map((userItem) => (
+                  <tr key={userItem.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center">
                           <span className="text-sm font-medium text-primary-700">
-                            {user.first_name?.[0]}{user.last_name?.[0]}
+                            {userItem.first_name?.[0]}{userItem.last_name?.[0]}
                           </span>
                         </div>
                         <div className="ml-4">
                           <div className="text-sm font-medium text-gray-900">
-                            {user.first_name} {user.last_name}
+                            {userItem.first_name} {userItem.last_name}
                           </div>
-                          <div className="text-sm text-gray-500">{user.email}</div>
+                          <div className="text-sm text-gray-500">{userItem.email}</div>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        user.role === 'admin' ? 'bg-red-100 text-red-800' :
-                        user.role === 'client' ? 'bg-blue-100 text-blue-800' :
-                        user.role === 'manager' ? 'bg-green-100 text-green-800' :
+                        userItem.role === 'super_admin' ? 'bg-purple-100 text-purple-800' :
+                        userItem.role === 'admin' ? 'bg-red-100 text-red-800' :
+                        userItem.role === 'general_user' ? 'bg-blue-100 text-blue-800' :
                         'bg-gray-100 text-gray-800'
                       }`}>
-                        {user.role}
+                        {userItem.role_display || userItem.role}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {user.company || '-'}
+                      {userItem.company || '-'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        user.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        userItem.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                       }`}>
-                        {user.is_active ? 'Active' : 'Inactive'}
+                        {userItem.is_active ? 'Active' : 'Inactive'}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex space-x-2">
-                        <button
-                          onClick={() => {
-                            setEditingUser(user);
-                            setFormData({
-                              email: user.email,
-                              username: user.username,
-                              first_name: user.first_name || '',
-                              last_name: user.last_name || '',
-                              password: '',
-                              password2: '',
-                              company: user.company || '',
-                              phone: user.phone || '',
-                              role: user.role
-                            });
-                          }}
-                          className="text-primary-600 hover:text-primary-900"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteUser(user.id)}
-                          className="text-red-600 hover:text-red-900"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
+                        {/* Only show Edit/Delete buttons for Admin and Super Admin users */}
+                        {user?.is_admin && (
+                          <>
+                            <button
+                              onClick={() => {
+                                setEditingUser(userItem);
+                                setFormData({
+                                  email: userItem.email,
+                                  username: userItem.username,
+                                  first_name: userItem.first_name || '',
+                                  last_name: userItem.last_name || '',
+                                  password: '',
+                                  password2: '',
+                                  company: userItem.company || '',
+                                  phone: userItem.phone || '',
+                                  role: userItem.role
+                                });
+                              }}
+                              className="text-primary-600 hover:text-primary-900"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteUser(userItem.id)}
+                              className="text-red-600 hover:text-red-900"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -283,7 +320,7 @@ const Admin = () => {
 
       {/* Create/Edit User Modal */}
       {(showCreateForm || editingUser) && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed -top-6 inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 h-screen w-screen">
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
             <h2 className="text-lg font-semibold mb-4">
               {editingUser ? 'Edit User' : 'Create New User'}
@@ -354,15 +391,18 @@ const Admin = () => {
                     </div>
                   </>
                 )}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Company</label>
-                  <input
-                    type="text"
-                    value={formData.company}
-                    onChange={(e) => setFormData({...formData, company: e.target.value})}
-                    className="input"
-                  />
-                </div>
+                {/* Company field - Only show for Super Admin (Admin users' company is auto-set) */}
+                {user?.can_create_plants && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Company</label>
+                    <input
+                      type="text"
+                      value={formData.company}
+                      onChange={(e) => setFormData({...formData, company: e.target.value})}
+                      className="input"
+                    />
+                  </div>
+                )}
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Phone</label>
                   <input
@@ -372,20 +412,43 @@ const Admin = () => {
                     className="input"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Role</label>
-                  <select
-                    value={formData.role}
-                    onChange={(e) => setFormData({...formData, role: e.target.value})}
-                    className="input"
-                  >
-                    <option value="client">Client</option>
-                    <option value="admin">Admin</option>
-                    <option value="manager">Manager</option>
-                    <option value="operator">Operator</option>
-                    <option value="viewer">Viewer</option>
-                  </select>
-                </div>
+                {/* Role field - Only show for Super Admin (Admin users can only create General Users, role is auto-set) */}
+                {user?.can_create_plants && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Role</label>
+                    <select
+                      value={formData.role}
+                      onChange={(e) => setFormData({...formData, role: e.target.value})}
+                      className="input"
+                      disabled={editingUser && editingUser.id === user?.id}
+                    >
+                      <option value="general_user">General User</option>
+                      {user?.can_create_admin_users && (
+                        <>
+                          <option value="admin">Administrator</option>
+                          <option value="super_admin">Super Administrator</option>
+                        </>
+                      )}
+                    </select>
+                    <p className="mt-1 text-xs text-gray-500">
+                      {user?.can_create_admin_users 
+                        ? "Super Admin can create Admin Users and General Users"
+                        : user?.can_create_general_users
+                        ? "Admin can only create General Users"
+                        : "You cannot create users"}
+                    </p>
+                  </div>
+                )}
+                {/* Show info message for Admin users */}
+                {!user?.can_create_plants && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
+                    <p className="text-xs text-blue-800">
+                      {editingUser 
+                        ? "You are editing a General User. The role and company will remain as General User and your company, respectively."
+                        : "You are creating a General User. The role and company will be automatically set to General User and your company, respectively."}
+                    </p>
+                  </div>
+                )}
               </div>
               <div className="flex justify-end space-x-3 mt-6">
                 <button

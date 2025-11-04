@@ -59,7 +59,7 @@ const AdminRoute = ({ children }) => {
     if (!loading) {
       if (!isAuthenticated) {
         navigate('/login', { replace: true });
-      } else if (!user?.is_admin) {
+      } else if (!user?.is_admin && !user?.is_general_user) {
         navigate('/dashboard', { replace: true });
       }
     }
@@ -71,7 +71,7 @@ const AdminRoute = ({ children }) => {
     return <PageLoader />;
   }
   
-  if (!isAuthenticated || !user?.is_admin) {
+  if (!isAuthenticated || (!user?.is_admin && !user?.is_general_user)) {
     return null;
   }
   
@@ -89,6 +89,49 @@ const PublicRoute = ({ children }) => {
   }, [isAuthenticated, navigate]);
   
   return isAuthenticated ? null : children;
+};
+
+const DataEntryRoute = () => {
+  const { user, isAuthenticated, loading } = useAppSelector(state => state.auth);
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    if (!loading && isAuthenticated) {
+      // General Users cannot access Data Entry
+      if (user?.is_general_user) {
+        navigate('/dashboard', { replace: true });
+      }
+    }
+  }, [user, isAuthenticated, loading, navigate]);
+  
+  // Show nothing if General User (will redirect)
+  if (user?.is_general_user) {
+    return null;
+  }
+
+  console.log('DataEntryRoute', user);
+  return <DataEntry />;
+};
+
+const WaterAnalysisRoute = () => {
+  const { user, isAuthenticated, loading } = useAppSelector(state => state.auth);
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    if (!loading && isAuthenticated) {
+      // General Users cannot access Water Analysis
+      if (user?.is_general_user) {
+        navigate('/dashboard', { replace: true });
+      }
+    }
+  }, [user, isAuthenticated, loading, navigate]);
+  
+  // Show nothing if General User (will redirect)
+  if (user?.is_general_user) {
+    return null;
+  }
+  
+  return <WaterAnalysis />;
 };
 
 function AppRoutes() {
@@ -118,8 +161,8 @@ function AppRoutes() {
         }>
           <Route index element={<Dashboard />} />
           <Route path="dashboard" element={<Dashboard />} />
-          <Route path="data-entry" element={<DataEntry />} />
-          <Route path="water-analysis" element={<WaterAnalysis />} />
+          <Route path="data-entry" element={<DataEntryRoute />} />
+          <Route path="water-analysis" element={<WaterAnalysisRoute />} />
           <Route path="reports" element={<Reports />} />
           <Route path="profile" element={<Profile />} />
         </Route>

@@ -27,14 +27,17 @@ const Layout = () => {
 
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: BarChart3 },
-    { name: 'Data Entry', href: '/data-entry', icon: Database },
-    { name: 'Water Analysis', href: '/water-analysis', icon: Droplets },
+    // Data Entry and Water Analysis are hidden for General Users
+    ...(user?.is_general_user ? [] : [
+      { name: 'Data Entry', href: '/data-entry', icon: Database },
+      { name: 'Water Analysis', href: '/water-analysis', icon: Droplets }
+    ]),
     { name: 'Reports', href: '/reports', icon: FileText },
     { name: 'Profile', href: '/profile', icon: User },
   ];
 
-  // Add admin navigation for admin users
-  if (user?.is_admin) {
+  // Add admin navigation for admin users and general users
+  if (user?.is_admin || user?.is_general_user) {
     navigation.push({ name: 'Admin Panel', href: '/admin', icon: Shield });
   }
 
@@ -203,7 +206,8 @@ const Layout = () => {
                       {user?.get_full_name || user?.email}
                     </span>
                     <span className='text-xs text-gray-500'>
-                      {user?.role} {user?.is_admin && "(Admin)"}
+                      {user?.role_display.replace('General User', 'User').replace('Administrator', 'Admin').replace('Super Administrator', 'Super Admin') || user?.role}
+            
                     </span>
                   </div>
                   <div className='h-8 w-8 rounded-full bg-primary-600 flex items-center justify-center'>

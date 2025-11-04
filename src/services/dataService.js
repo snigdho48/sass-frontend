@@ -239,4 +239,14 @@ export const dataService = {
       throw new Error('Failed to fetch users for plant owner assignment');
     }
   },
+
+  // Get admin users only for plant creation (Super Admin only)
+  async getAdminUsersForPlantCreation() {
+    try {
+      const response = await api.get('/plants-management/admin-users/');
+      return response.data;
+    } catch (error) {
+      throw new Error('Failed to fetch admin users for plant creation');
+    }
+  },
 }; 
