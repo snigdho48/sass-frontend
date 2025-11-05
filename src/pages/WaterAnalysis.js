@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAppSelector } from '../hooks/useAppSelector';
 import api from '../services/api';
 import { dataService } from '../services/dataService';
@@ -22,6 +23,9 @@ import LoadingOverlay from '../components/LoadingOverlay';
 
 const WaterAnalysis = () => {
   const { user } = useAppSelector(state => state.auth);
+  const navigate = useNavigate();
+  
+  // All hooks must be declared at the top level before any early returns
   const [loading, setLoading] = useState(false);
   const [calculating, setCalculating] = useState(false);
   const [trends, setTrends] = useState({});
@@ -66,8 +70,271 @@ const WaterAnalysis = () => {
     rsi_status: '',
     overall_status: ''
   });
+
+  // Add error handling and loading state resets
+  const resetLoadingStates = useCallback(() => {
+    setPlantsLoading(false);
+    setPlantDetailsLoading(false);
+    setCalculating(false);
+    setLoading(false);
+  }, []);
+
+  const resetAllData = useCallback(() => {
+    setResults({});
+    setTrends({});
+    setRecommendations([]);
+    setInputData({
+      ph: '',
+      tds: '',
+      total_alkalinity: '',
+      hardness: '',
+      chloride: '',
+      temperature: '',
+      hot_temperature: '',
+      cycle: '',
+      iron: '',
+      sulphate: '',
+      m_alkalinity: '',
+      p_alkalinity: '',
+      oh_alkalinity: '',
+      sulphite: '',
+      sodium_chloride: ''
+    });
+  }, []);
+
+  // Check if all trends data is empty
+  const areAllTrendsEmpty = useCallback(() => {
+    if (Object.keys(trends).length === 0) return true;
+    
+    return Object.values(trends).every(trendData => 
+      !trendData || trendData.length === 0
+    );
+  }, [trends]);
+
+  const handleError = useCallback((error, context) => {
+    console.error(`${context} error:`, error);
+    toast.error(`${context} failed. Please try again.`);
+    resetLoadingStates();
+  }, [resetLoadingStates]);
+
+  // Check if all required fields are filled
+  const areRequiredFieldsFilled = useCallback(() => {
+    if (!selectedPlant) return false;
+    
+    if (analysisType === 'cooling') {
+      // For cooling water, check core required fields
+      let requiredFields = ['ph', 'tds', 'total_alkalinity', 'hardness', 'temperature', 'hot_temperature'];
+      
+      // Add optional fields only if they're enabled for this plant
+      if (selectedPlant?.cooling_chloride_enabled) {
+        requiredFields.push('chloride');
+      }
+      if (selectedPlant?.cooling_cycle_enabled) {
+        requiredFields.push('cycle');
+      }
+      if (selectedPlant?.cooling_iron_enabled) {
+        requiredFields.push('iron');
+      }
+      
+      return requiredFields.every(field => inputData[field] !== '' && inputData[field] !== null && inputData[field] !== undefined);
+          } else {
+        // For boiler water, check core required fields
+        let requiredFields = ['ph', 'tds', 'hardness', 'm_alkalinity'];
+        
+        // Add optional fields only if they're enabled for this plant
+        if (selectedPlant?.boiler_p_alkalinity_enabled) {
+          requiredFields.push('p_alkalinity');
+        }
+        if (selectedPlant?.boiler_oh_alkalinity_enabled) {
+          requiredFields.push('oh_alkalinity');
+        }
+        if (selectedPlant?.boiler_sulphite_enabled) {
+          requiredFields.push('sulphite');
+        }
+        if (selectedPlant?.boiler_sodium_chloride_enabled) {
+          requiredFields.push('sodium_chloride');
+        }
+        if (selectedPlant?.boiler_iron_enabled) {
+          requiredFields.push('iron');
+        }
+        if (selectedPlant?.boiler_do_enabled) {
+          requiredFields.push('do');
+        }
+        if (selectedPlant?.boiler_phosphate_enabled) {
+          requiredFields.push('boiler_phosphate');
+        }
+        
+        return requiredFields.every(field => inputData[field] !== '' && inputData[field] !== null && inputData[field] !== undefined);
+      }
+  }, [selectedPlant, analysisType, inputData]);
+
+  const loadPlants = useCallback(async () => {
+    try {
+      setPlantsLoading(true);
+      
+      // Add timeout to prevent infinite loading
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Request timeout')), 10000)
+      );
+      
+      const plantsData = await Promise.race([
+        dataService.getPlants(),
+        timeoutPromise
+      ]);
+      
+      // Ensure plantsData is an array
+      if (Array.isArray(plantsData)) {
+        setPlants(plantsData);
+      } else if (plantsData && Array.isArray(plantsData.results)) {
+        setPlants(plantsData.results);
+      } else {
+        console.warn('Plants data is not in expected format:', plantsData);
+        setPlants([]);
+      }
+    } catch (error) {
+      handleError(error, 'Loading plants');
+      setPlants([]);
+    } finally {
+      setPlantsLoading(false);
+    }
+  }, [handleError]);
+
+  const loadTrends = useCallback(async () => {
+    if (!selectedPlant) {
+      setTrends({});
+      return;
+    }
+    
+    try {
+      const [phTrends, lsiTrends, rsiTrends] = await Promise.all([
+        api.get(`/water-trends/?parameter=ph&plant_id=${selectedPlant.id}`),
+        api.get(`/water-trends/?parameter=lsi&plant_id=${selectedPlant.id}`),
+        api.get(`/water-trends/?parameter=rsi&plant_id=${selectedPlant.id}`),
+      ]);
+      
+      setTrends({
+        ph: phTrends.data,
+        lsi: lsiTrends.data,
+         rsi: rsiTrends.data,
+       
+      });
+    } catch (error) {
+      handleError(error, 'Loading trends');
+    }
+  }, [handleError, selectedPlant]);
   
-    // Get plant-specific actions or use defaults
+  const loadRecommendations = useCallback(async () => {
+    try {
+      // const response = await api.get('/water-recommendations/');
+      // setRecommendations(response.data);
+      setRecommendations([]);
+    } catch (error) {
+      handleError(error, 'Loading recommendations');
+    }
+  }, [handleError]);
+
+  // Check if user is inactive general user - show error and redirect
+  useEffect(() => {
+    if (user?.is_general_user && !user?.is_active) {
+      toast.error('Your account is inactive. Please contact your administrator to activate your account to access Water Analysis.');
+      navigate('/dashboard', { replace: true });
+    }
+  }, [user, navigate]);
+
+  // Load plants on component mount (only if user is authenticated)
+  useEffect(() => {
+    let isMounted = true;
+    
+    if (user?.id && isMounted) {
+      loadPlants();
+    } else if (!user?.id) {
+      // Reset states when user is not authenticated
+      resetLoadingStates();
+      setPlants([]);
+      setSelectedPlant(null);
+      setPlantParameters(null);
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user?.id, loadPlants, resetLoadingStates]); // Only trigger when user.id changes
+
+  // Reset everything when plant selection changes
+  useEffect(() => {
+    resetAllData();
+  }, [selectedPlant, resetAllData]);
+
+  // Load trends and recommendations only when there are results
+  useEffect(() => {
+    if (results.overall_status) {
+      loadTrends();
+      loadRecommendations();
+    }
+  }, [results.overall_status, loadTrends, loadRecommendations]);
+
+  // Clear results when analysis type changes
+  useEffect(() => {
+    resetAllData();
+  }, [analysisType, resetAllData]);
+
+  // Cleanup effect to reset loading states on unmount
+  useEffect(() => {
+    return () => {
+      resetLoadingStates();
+    };
+  }, [resetLoadingStates]);
+
+  // Recompute plantParameters when analysis type changes (if a plant is selected)
+  useEffect(() => {
+    if (!selectedPlant) return;
+    try {
+      const plantDetails = selectedPlant;
+      const params = analysisType === 'cooling' ? {
+        ph: { min: plantDetails.cooling_ph_min, max: plantDetails.cooling_ph_max },
+        tds: { min: plantDetails.cooling_tds_min, max: plantDetails.cooling_tds_max },
+        hardness: { max: plantDetails.cooling_hardness_max },
+        alkalinity: { max: plantDetails.cooling_alkalinity_max },
+        ...(plantDetails.cooling_chloride_enabled && { chloride: { max: plantDetails.cooling_chloride_max } }),
+        ...(plantDetails.cooling_cycle_enabled && { cycle: { min: plantDetails.cooling_cycle_min, max: plantDetails.cooling_cycle_max } }),
+        ...(plantDetails.cooling_iron_enabled && { iron: { max: plantDetails.cooling_iron_max } }),
+        ...(plantDetails.cooling_lsi_enabled && { lsi: { min: plantDetails.cooling_lsi_min, max: plantDetails.cooling_lsi_max } }),
+        ...(plantDetails.cooling_rsi_enabled && { rsi: { min: plantDetails.cooling_rsi_min, max: plantDetails.cooling_rsi_max } })
+      } : {
+        ph: { min: plantDetails.boiler_ph_min, max: plantDetails.boiler_ph_max },
+        tds: { min: plantDetails.boiler_tds_min, max: plantDetails.boiler_tds_max },
+        hardness: { max: plantDetails.boiler_hardness_max },
+        alkalinity: { min: plantDetails.boiler_alkalinity_min, max: plantDetails.boiler_alkalinity_max },
+        ...(plantDetails.boiler_p_alkalinity_enabled && { p_alkalinity: { min: plantDetails.boiler_p_alkalinity_min, max: plantDetails.boiler_p_alkalinity_max } }),
+        ...(plantDetails.boiler_oh_alkalinity_enabled && { oh_alkalinity: { min: plantDetails.boiler_oh_alkalinity_min, max: plantDetails.boiler_oh_alkalinity_max } }),
+        ...(plantDetails.boiler_sulphite_enabled && { sulphite: { min: plantDetails.boiler_sulphite_min, max: plantDetails.boiler_sulphite_max } }),
+        ...(plantDetails.boiler_sodium_chloride_enabled && { sodium_chloride: { max: plantDetails.boiler_sodium_chloride_max } }),
+        ...(plantDetails.boiler_iron_enabled && { iron: { max: plantDetails.boiler_iron_max } }),
+        ...(plantDetails.boiler_do_enabled && { do: { max: plantDetails.boiler_do_max } }),
+        ...(plantDetails.boiler_phosphate_enabled && { boiler_phosphate: { min: plantDetails.boiler_phosphate_min, max: plantDetails.boiler_phosphate_max } })
+      };
+      setPlantParameters(params);
+    } catch (e) {
+      // noop
+    }
+  }, [analysisType, selectedPlant]);
+
+  // Early return if inactive general user (prevents rendering the component)
+  if (user?.is_general_user && !user?.is_active) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center max-w-md mx-auto p-6 bg-red-50 border border-red-200 rounded-lg">
+          <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-red-900 mb-2">Account Inactive</h2>
+          <p className="text-red-700">
+            Your account is inactive. Please contact your administrator to activate your account to access Water Analysis.
+          </p>
+        </div>
+      </div>
+    );
+  }
+  
+  // Get plant-specific actions or use defaults
   const getCoolingWaterActions = () => {
     // Default actions that are always included
     const defaultActions = {
@@ -345,212 +612,6 @@ const WaterAnalysis = () => {
     // Return default actions when no plant parameters
     return defaultActions;
   };
-
-  // Add error handling and loading state resets
-  const resetLoadingStates = useCallback(() => {
-    setPlantsLoading(false);
-    setPlantDetailsLoading(false);
-    setCalculating(false);
-    setLoading(false);
-  }, []);
-
-  const resetAllData = useCallback(() => {
-    setResults({});
-    setTrends({});
-    setRecommendations([]);
-    setInputData({
-      ph: '',
-      tds: '',
-      total_alkalinity: '',
-      hardness: '',
-      chloride: '',
-      temperature: '',
-      hot_temperature: '',
-      cycle: '',
-      iron: '',
-      sulphate: '',
-      m_alkalinity: '',
-      p_alkalinity: '',
-      oh_alkalinity: '',
-      sulphite: '',
-      sodium_chloride: ''
-    });
-  }, []);
-
-  // Check if all trends data is empty
-  const areAllTrendsEmpty = useCallback(() => {
-    if (Object.keys(trends).length === 0) return true;
-    
-    return Object.values(trends).every(trendData => 
-      !trendData || trendData.length === 0
-    );
-  }, [trends]);
-
-  const handleError = useCallback((error, context) => {
-    console.error(`${context} error:`, error);
-    toast.error(`${context} failed. Please try again.`);
-    resetLoadingStates();
-  }, [resetLoadingStates]);
-
-  // Check if all required fields are filled
-  const areRequiredFieldsFilled = useCallback(() => {
-    if (!selectedPlant) return false;
-    
-    if (analysisType === 'cooling') {
-      // For cooling water, check core required fields
-      let requiredFields = ['ph', 'tds', 'total_alkalinity', 'hardness', 'temperature', 'hot_temperature'];
-      
-      // Add optional fields only if they're enabled for this plant
-      if (selectedPlant?.cooling_chloride_enabled) {
-        requiredFields.push('chloride');
-      }
-      if (selectedPlant?.cooling_cycle_enabled) {
-        requiredFields.push('cycle');
-      }
-      if (selectedPlant?.cooling_iron_enabled) {
-        requiredFields.push('iron');
-      }
-      
-      return requiredFields.every(field => inputData[field] !== '' && inputData[field] !== null && inputData[field] !== undefined);
-          } else {
-        // For boiler water, check core required fields
-        let requiredFields = ['ph', 'tds', 'hardness', 'm_alkalinity'];
-        
-        // Add optional fields only if they're enabled for this plant
-        if (selectedPlant?.boiler_p_alkalinity_enabled) {
-          requiredFields.push('p_alkalinity');
-        }
-        if (selectedPlant?.boiler_oh_alkalinity_enabled) {
-          requiredFields.push('oh_alkalinity');
-        }
-        if (selectedPlant?.boiler_sulphite_enabled) {
-          requiredFields.push('sulphite');
-        }
-        if (selectedPlant?.boiler_sodium_chloride_enabled) {
-          requiredFields.push('sodium_chloride');
-        }
-        if (selectedPlant?.boiler_iron_enabled) {
-          requiredFields.push('iron');
-        }
-        if (selectedPlant?.boiler_do_enabled) {
-          requiredFields.push('do');
-        }
-        if (selectedPlant?.boiler_phosphate_enabled) {
-          requiredFields.push('boiler_phosphate');
-        }
-        
-        return requiredFields.every(field => inputData[field] !== '' && inputData[field] !== null && inputData[field] !== undefined);
-      }
-  }, [selectedPlant, analysisType, inputData]);
-
-  const loadPlants = useCallback(async () => {
-    try {
-      setPlantsLoading(true);
-      
-      // Add timeout to prevent infinite loading
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Request timeout')), 10000)
-      );
-      
-      const plantsData = await Promise.race([
-        dataService.getPlants(),
-        timeoutPromise
-      ]);
-      
-      // Ensure plantsData is an array
-      if (Array.isArray(plantsData)) {
-        setPlants(plantsData);
-      } else if (plantsData && Array.isArray(plantsData.results)) {
-        setPlants(plantsData.results);
-      } else {
-        console.warn('Plants data is not in expected format:', plantsData);
-        setPlants([]);
-      }
-    } catch (error) {
-      handleError(error, 'Loading plants');
-      setPlants([]);
-    } finally {
-      setPlantsLoading(false);
-    }
-  }, [handleError]);
-
-  const loadTrends = useCallback(async () => {
-    if (!selectedPlant) {
-      setTrends({});
-      return;
-    }
-    
-    try {
-      const [phTrends, lsiTrends, rsiTrends] = await Promise.all([
-        api.get(`/water-trends/?parameter=ph&plant_id=${selectedPlant.id}`),
-        api.get(`/water-trends/?parameter=lsi&plant_id=${selectedPlant.id}`),
-        api.get(`/water-trends/?parameter=rsi&plant_id=${selectedPlant.id}`),
-      ]);
-      
-      setTrends({
-        ph: phTrends.data,
-        lsi: lsiTrends.data,
-         rsi: rsiTrends.data,
-       
-      });
-    } catch (error) {
-      handleError(error, 'Loading trends');
-    }
-  }, [handleError, selectedPlant]);
-  
-  const loadRecommendations = useCallback(async () => {
-    try {
-      // const response = await api.get('/water-recommendations/');
-      // setRecommendations(response.data);
-      setRecommendations([]);
-    } catch (error) {
-      handleError(error, 'Loading recommendations');
-    }
-  }, [handleError]);
-
-  // Load plants on component mount (only if user is authenticated)
-  useEffect(() => {
-    let isMounted = true;
-    
-    if (user?.id && isMounted) {
-      loadPlants();
-    } else if (!user?.id) {
-      // Reset states when user is not authenticated
-      resetLoadingStates();
-      setPlants([]);
-      setSelectedPlant(null);
-      setPlantParameters(null);
-    }
-
-    return () => {
-      isMounted = false;
-    };
-  }, [user?.id, loadPlants, resetLoadingStates]); // Only trigger when user.id changes
-
-  // Reset everything when plant selection changes
-  useEffect(() => {
-    resetAllData();
-  }, [selectedPlant, resetAllData]);
-
-  // Load trends and recommendations only when there are results
-  useEffect(() => {
-    if (results.overall_status) {
-      loadTrends();
-      loadRecommendations();
-    }
-  }, [results.overall_status, loadTrends, loadRecommendations]);
-
-  // Clear results when analysis type changes
-  useEffect(() => {
-    resetAllData();
-  }, [analysisType, resetAllData]);
-
-  // Cleanup effect to reset loading states on unmount
-  useEffect(() => {
-    return () => {
-      resetLoadingStates();
-    };
-  }, [resetLoadingStates]);
   
   const handleInputChange = (field, value) => {
     // Handle empty string values properly
@@ -607,40 +668,6 @@ const WaterAnalysis = () => {
       setPlantDetailsLoading(false);
     }
   };
-
-  // Recompute plantParameters when analysis type changes (if a plant is selected)
-  useEffect(() => {
-    if (!selectedPlant) return;
-    try {
-      const plantDetails = selectedPlant;
-      const params = analysisType === 'cooling' ? {
-        ph: { min: plantDetails.cooling_ph_min, max: plantDetails.cooling_ph_max },
-        tds: { min: plantDetails.cooling_tds_min, max: plantDetails.cooling_tds_max },
-        hardness: { max: plantDetails.cooling_hardness_max },
-        alkalinity: { max: plantDetails.cooling_alkalinity_max },
-        ...(plantDetails.cooling_chloride_enabled && { chloride: { max: plantDetails.cooling_chloride_max } }),
-        ...(plantDetails.cooling_cycle_enabled && { cycle: { min: plantDetails.cooling_cycle_min, max: plantDetails.cooling_cycle_max } }),
-        ...(plantDetails.cooling_iron_enabled && { iron: { max: plantDetails.cooling_iron_max } }),
-        ...(plantDetails.cooling_lsi_enabled && { lsi: { min: plantDetails.cooling_lsi_min, max: plantDetails.cooling_lsi_max } }),
-        ...(plantDetails.cooling_rsi_enabled && { rsi: { min: plantDetails.cooling_rsi_min, max: plantDetails.cooling_rsi_max } })
-      } : {
-        ph: { min: plantDetails.boiler_ph_min, max: plantDetails.boiler_ph_max },
-        tds: { min: plantDetails.boiler_tds_min, max: plantDetails.boiler_tds_max },
-        hardness: { max: plantDetails.boiler_hardness_max },
-        alkalinity: { min: plantDetails.boiler_alkalinity_min, max: plantDetails.boiler_alkalinity_max },
-        ...(plantDetails.boiler_p_alkalinity_enabled && { p_alkalinity: { min: plantDetails.boiler_p_alkalinity_min, max: plantDetails.boiler_p_alkalinity_max } }),
-        ...(plantDetails.boiler_oh_alkalinity_enabled && { oh_alkalinity: { min: plantDetails.boiler_oh_alkalinity_min, max: plantDetails.boiler_oh_alkalinity_max } }),
-        ...(plantDetails.boiler_sulphite_enabled && { sulphite: { min: plantDetails.boiler_sulphite_min, max: plantDetails.boiler_sulphite_max } }),
-        ...(plantDetails.boiler_sodium_chloride_enabled && { sodium_chloride: { max: plantDetails.boiler_sodium_chloride_max } }),
-        ...(plantDetails.boiler_iron_enabled && { iron: { max: plantDetails.boiler_iron_max } }),
-        ...(plantDetails.boiler_do_enabled && { do: { max: plantDetails.boiler_do_max } }),
-        ...(plantDetails.boiler_phosphate_enabled && { boiler_phosphate: { min: plantDetails.boiler_phosphate_min, max: plantDetails.boiler_phosphate_max } })
-      };
-      setPlantParameters(params);
-    } catch (e) {
-      // noop
-    }
-  }, [analysisType, selectedPlant]);
 
   // Clear results when switching analysis types
   const handleAnalysisTypeChange = (newType) => {

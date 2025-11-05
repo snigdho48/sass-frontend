@@ -15,9 +15,10 @@ import Admin from './pages/Admin';
 import NotFound from './pages/NotFound';
 import { PageLoader, NavigationLoader } from './components/Loader';
 import { authService } from './services/authService';
+import toast from 'react-hot-toast';
 
 const PrivateRoute = ({ children }) => {
-  const { isAuthenticated, loading } = useAppSelector(state => state.auth);
+  const { isAuthenticated, loading, user } = useAppSelector(state => state.auth);
   const { pageLoading } = useAppSelector(state => state.ui);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -29,15 +30,31 @@ const PrivateRoute = ({ children }) => {
   }, [isAuthenticated, loading, dispatch]);
   
   useEffect(() => {
-    if (!loading && !isAuthenticated) {
-      navigate('/login', { replace: true });
+    if (!loading) {
+      if (!isAuthenticated) {
+        navigate('/login', { replace: true });
+      } else if (user) {
+        // Check if user is inactive - redirect to login to show modal
+        const isInactive = (user.is_admin || user.is_general_user) && !user.is_active;
+        if (isInactive) {
+          navigate('/login', { replace: true });
+        }
+      }
     }
-  }, [isAuthenticated, loading, navigate]);
+  }, [isAuthenticated, user, loading, navigate]);
   
   // Show loader only if we're loading AND not authenticated
   // If authenticated, show content even if still loading (from login process)
   if ((loading && !isAuthenticated) || pageLoading) {
     return <PageLoader />;
+  }
+  
+  // Check if user is inactive - don't render children
+  if (user) {
+    const isInactive = (user.is_admin || user.is_general_user) && !user.is_active;
+    if (isInactive) {
+      return null; // Will redirect to login
+    }
   }
   
   return isAuthenticated ? children : null;
@@ -59,7 +76,8 @@ const AdminRoute = ({ children }) => {
     if (!loading) {
       if (!isAuthenticated) {
         navigate('/login', { replace: true });
-      } else if (!user?.is_admin && !user?.is_general_user) {
+      } else if (!user?.is_admin) {
+        // Only Admin and Super Admin can access Admin Panel, not General Users
         navigate('/dashboard', { replace: true });
       }
     }
@@ -71,7 +89,8 @@ const AdminRoute = ({ children }) => {
     return <PageLoader />;
   }
   
-  if (!isAuthenticated || (!user?.is_admin && !user?.is_general_user)) {
+  // Only Admin and Super Admin can access Admin Panel, not General Users
+  if (!isAuthenticated || !user?.is_admin) {
     return null;
   }
   
@@ -79,16 +98,23 @@ const AdminRoute = ({ children }) => {
 };
 
 const PublicRoute = ({ children }) => {
-  const { isAuthenticated } = useAppSelector(state => state.auth);
+  const { isAuthenticated, user } = useAppSelector(state => state.auth);
   const navigate = useNavigate();
   
   useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/dashboard', { replace: true });
+    // Only redirect if user is authenticated AND active
+    // Inactive users should stay on login page to see the modal
+    if (isAuthenticated && user) {
+      const isInactive = (user.is_admin || user.is_general_user) && !user.is_active;
+      if (!isInactive) {
+        navigate('/dashboard', { replace: true });
+      }
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, user, navigate]);
   
-  return isAuthenticated ? null : children;
+  // Show login/register page if not authenticated OR if user is inactive (to show modal)
+  const isInactive = user && (user.is_admin || user.is_general_user) && !user.is_active;
+  return (isAuthenticated && !isInactive) ? null : children;
 };
 
 const DataEntryRoute = () => {
@@ -119,18 +145,21 @@ const WaterAnalysisRoute = () => {
   
   useEffect(() => {
     if (!loading && isAuthenticated) {
-      // General Users cannot access Water Analysis
-      if (user?.is_general_user) {
+      // Check if user is inactive general user - they cannot access Water Analysis
+      if (user?.is_general_user && !user?.is_active) {
+        // Show error message and redirect to dashboard
+        toast.error('Your account is inactive. Please contact your administrator to activate your account to access Water Analysis.');
         navigate('/dashboard', { replace: true });
       }
     }
   }, [user, isAuthenticated, loading, navigate]);
   
-  // Show nothing if General User (will redirect)
-  if (user?.is_general_user) {
+  // Show nothing if inactive general user (will redirect)
+  if (user?.is_general_user && !user?.is_active) {
     return null;
   }
   
+  // Water Analysis is accessible to all authenticated active users
   return <WaterAnalysis />;
 };
 

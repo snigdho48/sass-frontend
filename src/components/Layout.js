@@ -18,6 +18,7 @@ import {
   Droplets,
 } from 'lucide-react';
 import { NavigationLoader } from './Loader';
+import toast from 'react-hot-toast';
 
 const Layout = () => {
   const { user, isAuthenticated } = useAppSelector(state => state.auth);
@@ -27,17 +28,17 @@ const Layout = () => {
 
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: BarChart3 },
-    // Data Entry and Water Analysis are hidden for General Users
+    // Data Entry is hidden for General Users, but Water Analysis is available
     ...(user?.is_general_user ? [] : [
-      { name: 'Data Entry', href: '/data-entry', icon: Database },
-      { name: 'Water Analysis', href: '/water-analysis', icon: Droplets }
+      { name: 'Data Entry', href: '/data-entry', icon: Database }
     ]),
+    { name: 'Water Analysis', href: '/water-analysis', icon: Droplets },
     { name: 'Reports', href: '/reports', icon: FileText },
     { name: 'Profile', href: '/profile', icon: User },
   ];
 
-  // Add admin navigation for admin users and general users
-  if (user?.is_admin || user?.is_general_user) {
+  // Add admin navigation for admin users only (not for General Users)
+  if (user?.is_admin) {
     navigation.push({ name: 'Admin Panel', href: '/admin', icon: Shield });
   }
 
@@ -93,6 +94,14 @@ const Layout = () => {
     dispatch(setSidebarOpen(false));
   };
 
+  const handleNavigationClick = (e, item) => {
+    // Block Water Analysis navigation for inactive general users
+    if (item.href === '/water-analysis' && user?.is_general_user && !user?.is_active) {
+      e.preventDefault();
+      toast.error('Your account is inactive. Please contact your administrator to activate your account to access Water Analysis.');
+    }
+  };
+
   if (!isAuthenticated) {
     return null;
   }
@@ -136,7 +145,10 @@ const Layout = () => {
                   key={item.name}
                   to={item.href}
                   className={`sidebar-link ${isActive ? "active" : ""}`}
-                  onClick={handleSidebarClose}
+                  onClick={(e) => {
+                    handleNavigationClick(e, item);
+                    handleSidebarClose();
+                  }}
                 >
                   <item.icon size={20} className='mr-3' />
                   {item.name}
@@ -161,6 +173,7 @@ const Layout = () => {
                   key={item.name}
                   to={item.href}
                   className={`sidebar-link ${isActive ? "active" : ""}`}
+                  onClick={(e) => handleNavigationClick(e, item)}
                 >
                   <item.icon size={20} className='mr-3' />
                   {item.name}

@@ -11,7 +11,8 @@ import {
   Eye,
   EyeOff,
   Search,
-  Filter
+  Filter,
+  RefreshCw
 } from 'lucide-react';
 import { ButtonLoader, ContentLoader, DNALoader } from '../components/Loader';
 import toast from 'react-hot-toast';
@@ -24,6 +25,7 @@ const Admin = () => {
   const [roleFilter, setRoleFilter] = useState('');
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
+  const [togglingStatus, setTogglingStatus] = useState(null); // Track which user's status is being toggled
   const [formData, setFormData] = useState({
     email: '',
     username: '',
@@ -122,6 +124,33 @@ const Admin = () => {
       } catch (error) {
         toast.error(error.message);
       }
+    }
+  };
+
+  const handleToggleStatus = async (userItem) => {
+    // Prevent users from toggling their own status
+    if (userItem.id === user?.id) {
+      toast.error('You cannot change your own status');
+      return;
+    }
+
+    // Check permissions: Only Admin users can toggle status
+    if (!user?.is_admin) {
+      toast.error('You do not have permission to change user status');
+      return;
+    }
+
+    setTogglingStatus(userItem.id);
+    try {
+      const newStatus = !userItem.is_active;
+      await dataService.updateUser(userItem.id, { is_active: newStatus });
+      toast.success(`User status updated to ${newStatus ? 'Active' : 'Inactive'}`);
+      // Update the local state immediately for better UX
+      setUsers(users.map(u => u.id === userItem.id ? { ...u, is_active: newStatus } : u));
+    } catch (error) {
+      toast.error(error.message || 'Failed to update user status');
+    } finally {
+      setTogglingStatus(null);
     }
   };
 
@@ -270,11 +299,42 @@ const Admin = () => {
                       {userItem.company || '-'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        userItem.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                      }`}>
-                        {userItem.is_active ? 'Active' : 'Inactive'}
-                      </span>
+                      {user?.is_admin ? (
+                        <button
+                          onClick={() => handleToggleStatus(userItem)}
+                          disabled={togglingStatus === userItem.id || userItem.id === user?.id}
+                          className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-full transition-all border-2 focus:outline-none focus:ring-2 focus:ring-offset-1 ${
+                            togglingStatus === userItem.id 
+                              ? 'opacity-50 cursor-not-allowed border-transparent' 
+                              : userItem.id === user?.id
+                              ? 'cursor-not-allowed opacity-60 border-transparent'
+                              : userItem.is_active 
+                              ? 'cursor-pointer border-green-300 hover:border-green-500 hover:bg-green-200 hover:shadow-lg hover:shadow-green-200/50 active:scale-95 focus:ring-green-400'
+                              : 'cursor-pointer border-red-300 hover:border-red-500 hover:bg-red-200 hover:shadow-lg hover:shadow-red-200/50 active:scale-95 focus:ring-red-400'
+                          } ${
+                            userItem.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                          }`}
+                          title={userItem.id === user?.id ? 'You cannot change your own status' : 'Click to toggle status'}
+                        >
+                          {togglingStatus === userItem.id ? (
+                            <>
+                              <RefreshCw className="h-3 w-3 animate-spin" />
+                              Updating...
+                            </>
+                          ) : (
+                            <>
+                              <Eye className={`h-3 w-3 ${userItem.is_active ? 'text-green-700' : 'text-red-700'}`} />
+                              {userItem.is_active ? 'Active' : 'Inactive'}
+                            </>
+                          )}
+                        </button>
+                      ) : (
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                          userItem.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        }`}>
+                          {userItem.is_active ? 'Active' : 'Inactive'}
+                        </span>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex space-x-2">

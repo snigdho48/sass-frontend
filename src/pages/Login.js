@@ -4,6 +4,7 @@ import { useAppSelector, useAppDispatch } from '../hooks/useAppSelector';
 import { loginUser, clearError, resetLoading } from '../store/slices/authSlice';
 import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
 import { ButtonLoader } from '../components/Loader';
+import InactiveAccountModal from '../components/InactiveAccountModal';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -11,16 +12,36 @@ const Login = () => {
     password: '',
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [showInactiveModal, setShowInactiveModal] = useState(false);
   
-  const { loading, error, isAuthenticated } = useAppSelector(state => state.auth);
+  const { loading, error, isAuthenticated, user } = useAppSelector(state => state.auth);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/dashboard');
+    if (isAuthenticated && user) {
+      // Check if user is inactive (admin or general user)
+      const isInactive = (user.is_admin || user.is_general_user) && !user.is_active;
+      if (isInactive) {
+        // Show modal instead of redirecting - keep it open
+        setShowInactiveModal(true);
+      } else {
+        // User is active, proceed to dashboard
+        setShowInactiveModal(false);
+        navigate('/dashboard');
+      }
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, user, navigate]);
+
+  // Keep modal open if user is still inactive
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      const isInactive = (user.is_admin || user.is_general_user) && !user.is_active;
+      if (isInactive && !showInactiveModal) {
+        setShowInactiveModal(true);
+      }
+    }
+  }, [isAuthenticated, user, showInactiveModal]);
 
   useEffect(() => {
     return () => {
@@ -42,8 +63,17 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <>
+      <InactiveAccountModal 
+        isOpen={showInactiveModal}
+        onClose={() => {
+          // Only allow closing if user logs out (handled in modal)
+          // Modal will stay open until user logs out
+        }}
+        user={user}
+      />
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full space-y-8">
         <div>
           <div className="mx-auto flex items-center justify-center">
             <img 
@@ -164,6 +194,7 @@ const Login = () => {
         </form>
       </div>
     </div>
+    </>
   );
 };
 
