@@ -20,23 +20,25 @@ const Login = () => {
 
   useEffect(() => {
     if (isAuthenticated && user) {
-      // Check if user is inactive (admin or general user)
-      const isInactive = (user.is_admin || user.is_general_user) && !user.is_active;
+      // Check if user is inactive (admin or general user) - skip for super admin
+      const isSuperAdmin = user.is_super_admin || user.role === 'super_admin';
+      const isInactive = !isSuperAdmin && (user.is_admin || user.is_general_user) && !user.is_active;
       if (isInactive) {
         // Show modal instead of redirecting - keep it open
         setShowInactiveModal(true);
       } else {
-        // User is active, proceed to dashboard
+        // User is active or super admin, proceed to dashboard
         setShowInactiveModal(false);
         navigate('/dashboard');
       }
     }
   }, [isAuthenticated, user, navigate]);
 
-  // Keep modal open if user is still inactive
+  // Keep modal open if user is still inactive (but not super admin)
   useEffect(() => {
     if (isAuthenticated && user) {
-      const isInactive = (user.is_admin || user.is_general_user) && !user.is_active;
+      const isSuperAdmin = user.is_super_admin || user.role === 'super_admin';
+      const isInactive = !isSuperAdmin && (user.is_admin || user.is_general_user) && !user.is_active;
       if (isInactive && !showInactiveModal) {
         setShowInactiveModal(true);
       }

@@ -35,7 +35,9 @@ const PrivateRoute = ({ children }) => {
         navigate('/login', { replace: true });
       } else if (user) {
         // Check if user is inactive - redirect to login to show modal
-        const isInactive = (user.is_admin || user.is_general_user) && !user.is_active;
+        // Super admin can always access
+        const isSuperAdmin = user.is_super_admin || user.role === 'super_admin';
+        const isInactive = !isSuperAdmin && (user.is_admin || user.is_general_user) && !user.is_active;
         if (isInactive) {
           navigate('/login', { replace: true });
         }
@@ -49,9 +51,10 @@ const PrivateRoute = ({ children }) => {
     return <PageLoader />;
   }
   
-  // Check if user is inactive - don't render children
+  // Check if user is inactive - don't render children (but allow super admin)
   if (user) {
-    const isInactive = (user.is_admin || user.is_general_user) && !user.is_active;
+    const isSuperAdmin = user.is_super_admin || user.role === 'super_admin';
+    const isInactive = !isSuperAdmin && (user.is_admin || user.is_general_user) && !user.is_active;
     if (isInactive) {
       return null; // Will redirect to login
     }
@@ -102,10 +105,11 @@ const PublicRoute = ({ children }) => {
   const navigate = useNavigate();
   
   useEffect(() => {
-    // Only redirect if user is authenticated AND active
+    // Only redirect if user is authenticated AND active (or super admin)
     // Inactive users should stay on login page to see the modal
     if (isAuthenticated && user) {
-      const isInactive = (user.is_admin || user.is_general_user) && !user.is_active;
+      const isSuperAdmin = user.is_super_admin || user.role === 'super_admin';
+      const isInactive = !isSuperAdmin && (user.is_admin || user.is_general_user) && !user.is_active;
       if (!isInactive) {
         navigate('/dashboard', { replace: true });
       }
@@ -113,7 +117,9 @@ const PublicRoute = ({ children }) => {
   }, [isAuthenticated, user, navigate]);
   
   // Show login/register page if not authenticated OR if user is inactive (to show modal)
-  const isInactive = user && (user.is_admin || user.is_general_user) && !user.is_active;
+  // Super admin can always access
+  const isSuperAdmin = user && (user.is_super_admin || user.role === 'super_admin');
+  const isInactive = user && !isSuperAdmin && (user.is_admin || user.is_general_user) && !user.is_active;
   return (isAuthenticated && !isInactive) ? null : children;
 };
 
