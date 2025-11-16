@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { useAppSelector } from '../hooks/useAppSelector';
 import { dataService } from '../services/dataService';
-import { Plus, Edit, Trash2, Save, X, Database, Building2, UserPlus } from 'lucide-react';
+import { Plus, Edit, Trash2, Save, X, Database, Building2, UserPlus, Droplets, Thermometer } from 'lucide-react';
 import LoadingOverlay from '../components/LoadingOverlay';
 import SearchableUserSelect from '../components/SearchableUserSelect';
 import SearchableMultiUserSelect from '../components/SearchableMultiUserSelect';
@@ -28,57 +28,57 @@ const DataEntry = () => {
     name: '',
     is_active: true,
     owner_id: null,
-    // Cooling water parameters
-    cooling_ph_min: 6.5,
-    cooling_ph_max: 7.8,
-    cooling_tds_min: 500,
-    cooling_tds_max: 800,
-    cooling_hardness_max: 300,
-    cooling_alkalinity_max: 300,
-    cooling_chloride_max: 250,
+    // Cooling water parameters (all optional)
+    cooling_ph_min: '',
+    cooling_ph_max: '',
+    cooling_tds_min: '',
+    cooling_tds_max: '',
+    cooling_hardness_max: '',
+    cooling_alkalinity_max: '',
+    cooling_chloride_max: '',
     cooling_chloride_enabled: false,
-    cooling_cycle_min: 5.0,
-    cooling_cycle_max: 8.0,
+    cooling_cycle_min: '',
+    cooling_cycle_max: '',
     cooling_cycle_enabled: false,
-    cooling_iron_max: 3.0,
+    cooling_iron_max: '',
     cooling_iron_enabled: false,
-    cooling_phosphate_max: 10.0,
+    cooling_phosphate_max: '',
     cooling_phosphate_enabled: false,
-    cooling_lsi_min: -2.0,
-    cooling_lsi_max: 2.0,
+    cooling_lsi_min: '',
+    cooling_lsi_max: '',
     cooling_lsi_enabled: false,
-    cooling_rsi_min: 6.0,
-    cooling_rsi_max: 7.0,
+    cooling_rsi_min: '',
+    cooling_rsi_max: '',
     cooling_rsi_enabled: false,
-    // Boiler water parameters
-    boiler_ph_min: 10.5,
-    boiler_ph_max: 11.5,
-    boiler_tds_min: 2500,
-    boiler_tds_max: 3500,
-    boiler_hardness_max: 2.0,
-    boiler_alkalinity_min: 600,
-    boiler_alkalinity_max: 1400,
+    // Boiler water parameters (all optional)
+    boiler_ph_min: '',
+    boiler_ph_max: '',
+    boiler_tds_min: '',
+    boiler_tds_max: '',
+    boiler_hardness_max: '',
+    boiler_alkalinity_min: '',
+    boiler_alkalinity_max: '',
     // Boiler water optional parameters
-    boiler_p_alkalinity_min: 500,
-    boiler_p_alkalinity_max: 700,
+    boiler_p_alkalinity_min: '',
+    boiler_p_alkalinity_max: '',
     boiler_p_alkalinity_enabled: false,
-    boiler_oh_alkalinity_min: 700,
-    boiler_oh_alkalinity_max: 900,
+    boiler_oh_alkalinity_min: '',
+    boiler_oh_alkalinity_max: '',
     boiler_oh_alkalinity_enabled: false,
-    boiler_sulphite_min: 30,
-    boiler_sulphite_max: 60,
+    boiler_sulphite_min: '',
+    boiler_sulphite_max: '',
     boiler_sulphite_enabled: false,
-    boiler_sodium_chloride_max: 200,
+    boiler_sodium_chloride_max: '',
     boiler_sodium_chloride_enabled: false,
-    boiler_do_min: 0.0,
-    boiler_do_max: 0.05,
+    boiler_do_min: '',
+    boiler_do_max: '',
     boiler_do_enabled: false,
-          boiler_phosphate_min: 2.0,
-      boiler_phosphate_max: 10.0,
-      boiler_phosphate_enabled: false,
-      boiler_iron_max: 5,
-      boiler_iron_enabled: false,
-    });
+    boiler_phosphate_min: '',
+    boiler_phosphate_max: '',
+    boiler_phosphate_enabled: false,
+    boiler_iron_max: '',
+    boiler_iron_enabled: false,
+  });
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [ownerFilter, setOwnerFilter] = useState([]);
@@ -222,38 +222,56 @@ const DataEntry = () => {
       setPlantFormData({
         name: '',
         is_active: true,
-        cooling_ph_min: 6.5,
-        cooling_ph_max: 7.8,
-        cooling_tds_min: 500,
-        cooling_tds_max: 800,
-        cooling_hardness_max: 300,
-        cooling_alkalinity_max: 300,
-        cooling_chloride_max: 250,
+        owner_id: null,
+        // Cooling water parameters (all optional)
+        cooling_ph_min: '',
+        cooling_ph_max: '',
+        cooling_tds_min: '',
+        cooling_tds_max: '',
+        cooling_hardness_max: '',
+        cooling_alkalinity_max: '',
+        cooling_chloride_max: '',
         cooling_chloride_enabled: false,
-        cooling_cycle_min: 5.0,
-        cooling_cycle_max: 8.0,
+        cooling_cycle_min: '',
+        cooling_cycle_max: '',
         cooling_cycle_enabled: false,
-        cooling_iron_max: 3.0,
+        cooling_iron_max: '',
         cooling_iron_enabled: false,
-        boiler_ph_min: 10.5,
-        boiler_ph_max: 11.5,
-        boiler_tds_min: 2500,
-        boiler_tds_max: 3500,
-        boiler_hardness_max: 2.0,
-        boiler_alkalinity_min: 600,
-        boiler_alkalinity_max: 1400,
-        boiler_p_alkalinity_min: 500,
-        boiler_p_alkalinity_max: 700,
+        cooling_phosphate_max: '',
+        cooling_phosphate_enabled: false,
+        cooling_lsi_min: '',
+        cooling_lsi_max: '',
+        cooling_lsi_enabled: false,
+        cooling_rsi_min: '',
+        cooling_rsi_max: '',
+        cooling_rsi_enabled: false,
+        // Boiler water parameters (all optional)
+        boiler_ph_min: '',
+        boiler_ph_max: '',
+        boiler_tds_min: '',
+        boiler_tds_max: '',
+        boiler_hardness_max: '',
+        boiler_alkalinity_min: '',
+        boiler_alkalinity_max: '',
+        // Boiler water optional parameters
+        boiler_p_alkalinity_min: '',
+        boiler_p_alkalinity_max: '',
         boiler_p_alkalinity_enabled: false,
-        boiler_oh_alkalinity_min: 700,
-        boiler_oh_alkalinity_max: 900,
+        boiler_oh_alkalinity_min: '',
+        boiler_oh_alkalinity_max: '',
         boiler_oh_alkalinity_enabled: false,
-        boiler_sulphite_min: 30,
-        boiler_sulphite_max: 60,
+        boiler_sulphite_min: '',
+        boiler_sulphite_max: '',
         boiler_sulphite_enabled: false,
-        boiler_sodium_chloride_max: 200,
+        boiler_sodium_chloride_max: '',
         boiler_sodium_chloride_enabled: false,
-        boiler_iron_max: 5,
+        boiler_do_min: '',
+        boiler_do_max: '',
+        boiler_do_enabled: false,
+        boiler_phosphate_min: '',
+        boiler_phosphate_max: '',
+        boiler_phosphate_enabled: false,
+        boiler_iron_max: '',
         boiler_iron_enabled: false,
       });
       setShowPlantForm(false);
@@ -292,6 +310,17 @@ const DataEntry = () => {
     },
   });
 
+  // UI-only toggles for core parameter groups (not persisted as boolean flags)
+  const [plantUI, setPlantUI] = useState({
+    cooling_ph_enabled: false,
+    cooling_tds_enabled: false,
+    cooling_hardness_enabled: false,
+    cooling_alkalinity_enabled: false,
+    boiler_ph_enabled: false,
+    boiler_tds_enabled: false,
+    boiler_hardness_enabled: false,
+    boiler_alkalinity_enabled: false,
+  });
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!selectedCategory) {
@@ -350,14 +379,47 @@ const DataEntry = () => {
       return;
     }
 
-         // Validate owner field for super admin users only
-     if (user?.can_create_plants && !plantFormData.owner_id) {
-       toast.error('Plant owner is required');
-       return;
-     }
+    // Validate owner field for super admin users only
+    if (user?.can_create_plants && !plantFormData.owner_id) {
+      toast.error('Plant owner is required');
+      return;
+    }
 
     // Prepare data for submission
     const submitData = { ...plantFormData };
+    
+    // Convert empty strings to null for numeric fields
+    const numericFields = [
+      'cooling_ph_min', 'cooling_ph_max',
+      'cooling_tds_min', 'cooling_tds_max',
+      'cooling_hardness_max',
+      'cooling_alkalinity_max',
+      'cooling_chloride_max',
+      'cooling_cycle_min', 'cooling_cycle_max',
+      'cooling_iron_max',
+      'cooling_phosphate_max',
+      'cooling_lsi_min', 'cooling_lsi_max',
+      'cooling_rsi_min', 'cooling_rsi_max',
+      'boiler_ph_min', 'boiler_ph_max',
+      'boiler_tds_min', 'boiler_tds_max',
+      'boiler_hardness_max',
+      'boiler_alkalinity_min', 'boiler_alkalinity_max',
+      'boiler_p_alkalinity_min', 'boiler_p_alkalinity_max',
+      'boiler_oh_alkalinity_min', 'boiler_oh_alkalinity_max',
+      'boiler_sulphite_min', 'boiler_sulphite_max',
+      'boiler_sodium_chloride_max',
+      'boiler_do_min', 'boiler_do_max',
+      'boiler_phosphate_min', 'boiler_phosphate_max',
+      'boiler_iron_max',
+    ];
+    
+    numericFields.forEach(field => {
+      if (submitData[field] === '' || submitData[field] === null || submitData[field] === undefined) {
+        submitData[field] = null;
+      } else {
+        submitData[field] = parseFloat(submitData[field]);
+      }
+    });
     
     // Ensure all boolean fields have proper values (not null/undefined)
     const booleanFields = [
@@ -365,16 +427,17 @@ const DataEntry = () => {
       'cooling_chloride_enabled',
       'cooling_cycle_enabled', 
       'cooling_iron_enabled',
+      'cooling_phosphate_enabled',
       'cooling_lsi_enabled',
       'cooling_rsi_enabled',
-              'boiler_p_alkalinity_enabled',
-        'boiler_oh_alkalinity_enabled',
-        'boiler_sulphite_enabled',
-        'boiler_sodium_chloride_enabled',
-        'boiler_do_enabled',
-        'boiler_phosphate_enabled',
-        'boiler_iron_enabled'
-      ];
+      'boiler_p_alkalinity_enabled',
+      'boiler_oh_alkalinity_enabled',
+      'boiler_sulphite_enabled',
+      'boiler_sodium_chloride_enabled',
+      'boiler_do_enabled',
+      'boiler_phosphate_enabled',
+      'boiler_iron_enabled'
+    ];
     
     booleanFields.forEach(field => {
       if (submitData[field] === null || submitData[field] === undefined) {
@@ -382,10 +445,19 @@ const DataEntry = () => {
       }
     });
     
-         // For non-super-admin users, don't send owner_id (backend will set it automatically)
-     if (!user?.can_create_plants) {
-       delete submitData.owner_id;
-     }
+    // Validate that at least one parameter is provided (only for new plants)
+    if (!editingPlant) {
+      const hasParameter = numericFields.some(field => submitData[field] !== null && submitData[field] !== undefined);
+      if (!hasParameter) {
+        toast.error('At least one plant parameter must be provided. Please specify at least one cooling or boiler water parameter.');
+        return;
+      }
+    }
+    
+    // For non-super-admin users, don't send owner_id (backend will set it automatically)
+    if (!user?.can_create_plants) {
+      delete submitData.owner_id;
+    }
 
     console.log('Submitting plant data:', submitData);
     console.log('User role:', user?.is_admin);
@@ -412,55 +484,67 @@ const DataEntry = () => {
       name: plant.name,
       is_active: plant.is_active,
       owner_id: user?.can_create_plants ? (plant.owner?.id || null) : null,
-      // Cooling water parameters
-      cooling_ph_min: plant.cooling_ph_min || 6.5,
-      cooling_ph_max: plant.cooling_ph_max || 7.8,
-      cooling_tds_min: plant.cooling_tds_min || 500,
-      cooling_tds_max: plant.cooling_tds_max || 800,
-      cooling_hardness_max: plant.cooling_hardness_max || 300,
-      cooling_alkalinity_max: plant.cooling_alkalinity_max || 300,
-      cooling_chloride_max: plant.cooling_chloride_max || 250,
+      // Cooling water parameters (use null/empty if not set)
+      cooling_ph_min: plant.cooling_ph_min ?? '',
+      cooling_ph_max: plant.cooling_ph_max ?? '',
+      cooling_tds_min: plant.cooling_tds_min ?? '',
+      cooling_tds_max: plant.cooling_tds_max ?? '',
+      cooling_hardness_max: plant.cooling_hardness_max ?? '',
+      cooling_alkalinity_max: plant.cooling_alkalinity_max ?? '',
+      cooling_chloride_max: plant.cooling_chloride_max ?? '',
       cooling_chloride_enabled: plant.cooling_chloride_enabled || false,
-      cooling_cycle_min: plant.cooling_cycle_min || 5.0,
-      cooling_cycle_max: plant.cooling_cycle_max || 8.0,
+      cooling_cycle_min: plant.cooling_cycle_min ?? '',
+      cooling_cycle_max: plant.cooling_cycle_max ?? '',
       cooling_cycle_enabled: plant.cooling_cycle_enabled || false,
-      cooling_iron_max: plant.cooling_iron_max || 3.0,
+      cooling_iron_max: plant.cooling_iron_max ?? '',
       cooling_iron_enabled: plant.cooling_iron_enabled || false,
-      cooling_lsi_min: plant.cooling_lsi_min || -2.0,
-      cooling_lsi_max: plant.cooling_lsi_max || 2.0,
+      cooling_phosphate_max: plant.cooling_phosphate_max ?? '',
+      cooling_phosphate_enabled: plant.cooling_phosphate_enabled || false,
+      cooling_lsi_min: plant.cooling_lsi_min ?? '',
+      cooling_lsi_max: plant.cooling_lsi_max ?? '',
       cooling_lsi_enabled: plant.cooling_lsi_enabled || false,
-      cooling_rsi_min: plant.cooling_rsi_min || 6.0,
-      cooling_rsi_max: plant.cooling_rsi_max || 7.0,
+      cooling_rsi_min: plant.cooling_rsi_min ?? '',
+      cooling_rsi_max: plant.cooling_rsi_max ?? '',
       cooling_rsi_enabled: plant.cooling_rsi_enabled || false,
-      // Boiler water parameters
-      boiler_ph_min: plant.boiler_ph_min || 10.5,
-      boiler_ph_max: plant.boiler_ph_max || 11.5,
-      boiler_tds_min: plant.boiler_tds_min || 2500,
-      boiler_tds_max: plant.boiler_tds_max || 3500,
-      boiler_hardness_max: plant.boiler_hardness_max || 2.0,
-      boiler_alkalinity_min: plant.boiler_alkalinity_min || 600,
-      boiler_alkalinity_max: plant.boiler_alkalinity_max || 1400,
+      // Boiler water parameters (use null/empty if not set)
+      boiler_ph_min: plant.boiler_ph_min ?? '',
+      boiler_ph_max: plant.boiler_ph_max ?? '',
+      boiler_tds_min: plant.boiler_tds_min ?? '',
+      boiler_tds_max: plant.boiler_tds_max ?? '',
+      boiler_hardness_max: plant.boiler_hardness_max ?? '',
+      boiler_alkalinity_min: plant.boiler_alkalinity_min ?? '',
+      boiler_alkalinity_max: plant.boiler_alkalinity_max ?? '',
       // Boiler water optional parameters
-      boiler_p_alkalinity_min: plant.boiler_p_alkalinity_min || 500,
-      boiler_p_alkalinity_max: plant.boiler_p_alkalinity_max || 700,
+      boiler_p_alkalinity_min: plant.boiler_p_alkalinity_min ?? '',
+      boiler_p_alkalinity_max: plant.boiler_p_alkalinity_max ?? '',
       boiler_p_alkalinity_enabled: plant.boiler_p_alkalinity_enabled || false,
-      boiler_oh_alkalinity_min: plant.boiler_oh_alkalinity_min || 700,
-      boiler_oh_alkalinity_max: plant.boiler_oh_alkalinity_max || 900,
+      boiler_oh_alkalinity_min: plant.boiler_oh_alkalinity_min ?? '',
+      boiler_oh_alkalinity_max: plant.boiler_oh_alkalinity_max ?? '',
       boiler_oh_alkalinity_enabled: plant.boiler_oh_alkalinity_enabled || false,
-      boiler_sulphite_min: plant.boiler_sulphite_min || 30,
-      boiler_sulphite_max: plant.boiler_sulphite_max || 60,
+      boiler_sulphite_min: plant.boiler_sulphite_min ?? '',
+      boiler_sulphite_max: plant.boiler_sulphite_max ?? '',
       boiler_sulphite_enabled: plant.boiler_sulphite_enabled || false,
-              boiler_sodium_chloride_max: plant.boiler_sodium_chloride_max || 200,
-        boiler_sodium_chloride_enabled: plant.boiler_sodium_chloride_enabled || false,
-        boiler_do_min: plant.boiler_do_min || 0.0,
-        boiler_do_max: plant.boiler_do_max || 0.05,
-        boiler_do_enabled: plant.boiler_do_enabled || false,
-        boiler_phosphate_min: plant.boiler_phosphate_min || 2.0,
-        boiler_phosphate_max: plant.boiler_phosphate_max || 10.0,
-        boiler_phosphate_enabled: plant.boiler_phosphate_enabled || false,
-        boiler_iron_max: plant.boiler_iron_max || 5,
-        boiler_iron_enabled: plant.boiler_iron_enabled || false,
-      });
+      boiler_sodium_chloride_max: plant.boiler_sodium_chloride_max ?? '',
+      boiler_sodium_chloride_enabled: plant.boiler_sodium_chloride_enabled || false,
+      boiler_do_min: plant.boiler_do_min ?? '',
+      boiler_do_max: plant.boiler_do_max ?? '',
+      boiler_do_enabled: plant.boiler_do_enabled || false,
+      boiler_phosphate_min: plant.boiler_phosphate_min ?? '',
+      boiler_phosphate_max: plant.boiler_phosphate_max ?? '',
+      boiler_phosphate_enabled: plant.boiler_phosphate_enabled || false,
+      boiler_iron_max: plant.boiler_iron_max ?? '',
+      boiler_iron_enabled: plant.boiler_iron_enabled || false,
+    });
+    setPlantUI({
+      cooling_ph_enabled: (plant.cooling_ph_min != null || plant.cooling_ph_max != null),
+      cooling_tds_enabled: (plant.cooling_tds_min != null || plant.cooling_tds_max != null),
+      cooling_hardness_enabled: (plant.cooling_hardness_max != null),
+      cooling_alkalinity_enabled: (plant.cooling_alkalinity_max != null),
+      boiler_ph_enabled: (plant.boiler_ph_min != null || plant.boiler_ph_max != null),
+      boiler_tds_enabled: (plant.boiler_tds_min != null || plant.boiler_tds_max != null),
+      boiler_hardness_enabled: (plant.boiler_hardness_max != null),
+      boiler_alkalinity_enabled: (plant.boiler_alkalinity_min != null || plant.boiler_alkalinity_max != null),
+    });
     setShowPlantForm(true);
   };
 
@@ -505,59 +589,61 @@ const DataEntry = () => {
   const handlePlantCancel = () => {
     setShowPlantForm(false);
     setEditingPlant(null);
-          setPlantFormData({
-       name: '',
-       is_active: true,
-       owner_id: null,
-      // Cooling water parameters
-      cooling_ph_min: 6.5,
-      cooling_ph_max: 7.8,
-      cooling_tds_min: 500,
-      cooling_tds_max: 800,
-      cooling_hardness_max: 300,
-      cooling_alkalinity_max: 300,
-      cooling_chloride_max: 250,
+    setPlantFormData({
+      name: '',
+      is_active: true,
+      owner_id: null,
+      // Cooling water parameters (all optional)
+      cooling_ph_min: '',
+      cooling_ph_max: '',
+      cooling_tds_min: '',
+      cooling_tds_max: '',
+      cooling_hardness_max: '',
+      cooling_alkalinity_max: '',
+      cooling_chloride_max: '',
       cooling_chloride_enabled: false,
-      cooling_cycle_min: 5.0,
-      cooling_cycle_max: 8.0,
+      cooling_cycle_min: '',
+      cooling_cycle_max: '',
       cooling_cycle_enabled: false,
-      cooling_iron_max: 3.0,
+      cooling_iron_max: '',
       cooling_iron_enabled: false,
-      cooling_lsi_min: -2.0,
-      cooling_lsi_max: 2.0,
+      cooling_phosphate_max: '',
+      cooling_phosphate_enabled: false,
+      cooling_lsi_min: '',
+      cooling_lsi_max: '',
       cooling_lsi_enabled: false,
-      cooling_rsi_min: 6.0,
-      cooling_rsi_max: 7.0,
+      cooling_rsi_min: '',
+      cooling_rsi_max: '',
       cooling_rsi_enabled: false,
-      // Boiler water parameters
-      boiler_ph_min: 10.5,
-      boiler_ph_max: 11.5,
-      boiler_tds_min: 2500,
-      boiler_tds_max: 3500,
-      boiler_hardness_max: 2.0,
-      boiler_alkalinity_min: 600,
-      boiler_alkalinity_max: 1400,
+      // Boiler water parameters (all optional)
+      boiler_ph_min: '',
+      boiler_ph_max: '',
+      boiler_tds_min: '',
+      boiler_tds_max: '',
+      boiler_hardness_max: '',
+      boiler_alkalinity_min: '',
+      boiler_alkalinity_max: '',
       // Boiler water optional parameters
-      boiler_p_alkalinity_min: 500,
-      boiler_p_alkalinity_max: 700,
+      boiler_p_alkalinity_min: '',
+      boiler_p_alkalinity_max: '',
       boiler_p_alkalinity_enabled: false,
-      boiler_oh_alkalinity_min: 700,
-      boiler_oh_alkalinity_max: 900,
+      boiler_oh_alkalinity_min: '',
+      boiler_oh_alkalinity_max: '',
       boiler_oh_alkalinity_enabled: false,
-      boiler_sulphite_min: 30,
-      boiler_sulphite_max: 60,
+      boiler_sulphite_min: '',
+      boiler_sulphite_max: '',
       boiler_sulphite_enabled: false,
-              boiler_sodium_chloride_max: 200,
-        boiler_sodium_chloride_enabled: false,
-        boiler_do_min: 0.0,
-        boiler_do_max: 0.05,
-        boiler_do_enabled: false,
-        boiler_phosphate_min: 2.0,
-        boiler_phosphate_max: 10.0,
-        boiler_phosphate_enabled: false,
-        boiler_iron_max: 5,
-        boiler_iron_enabled: false,
-      });
+      boiler_sodium_chloride_max: '',
+      boiler_sodium_chloride_enabled: false,
+      boiler_do_min: '',
+      boiler_do_max: '',
+      boiler_do_enabled: false,
+      boiler_phosphate_min: '',
+      boiler_phosphate_max: '',
+      boiler_phosphate_enabled: false,
+      boiler_iron_max: '',
+      boiler_iron_enabled: false,
+    });
   };
 
   const totalPages = Math.ceil(plantsData.count / 10);
@@ -949,153 +1035,19 @@ const DataEntry = () => {
                 )}
 
                 {/* Cooling Water Parameters */}
-                <div className='border-t pt-6'>
-                  <h4 className='text-md font-medium text-gray-900 mb-4'>
-                    Cooling Water Parameters
+                <div className='border-t  shadow-md px-4 py-4 rounded-lg'>
+                  <h4 className='text-md font-bold text-gray-900 mb-4'>
+                                                          <Droplets className='w-4 h-4 inline mr-2 text-blue-600' />
+Cooling Water Parameters 
                   </h4>
-                  <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2'>
-                    <div>
-                      <label className='block text-sm font-medium text-gray-700 mb-1'>
-                        pH Min
-                      </label>
-                      <input
-                        type='number'
-                        step='0.1'
-                        className='input'
-                        value={plantFormData.cooling_ph_min}
-                        onChange={(e) =>
-                          setPlantFormData({
-                            ...plantFormData,
-                            cooling_ph_min: parseFloat(e.target.value),
-                          })
-                        }
-                      />
-                    </div>
-                    <div>
-                      <label className='block text-sm font-medium text-gray-700 mb-1'>
-                        pH Max
-                      </label>
-                      <input
-                        type='number'
-                        step='0.1'
-                        className='input'
-                        value={plantFormData.cooling_ph_max}
-                        onChange={(e) =>
-                          setPlantFormData({
-                            ...plantFormData,
-                            cooling_ph_max: parseFloat(e.target.value),
-                          })
-                        }
-                      />
-                    </div>
-                    <div>
-                      <label className='block text-sm font-medium text-gray-700 mb-1'>
-                        TDS Min (ppm)
-                      </label>
-                      <input
-                        type='number'
-                        step='1'
-                        className='input'
-                        value={plantFormData.cooling_tds_min}
-                        onChange={(e) =>
-                          setPlantFormData({
-                            ...plantFormData,
-                            cooling_tds_min: parseFloat(e.target.value),
-                          })
-                        }
-                      />
-                    </div>
-                    <div>
-                      <label className='block text-sm font-medium text-gray-700 mb-1'>
-                        TDS Max (ppm)
-                      </label>
-                      <input
-                        type='number'
-                        step='1'
-                        className='input'
-                        value={plantFormData.cooling_tds_max}
-                        onChange={(e) =>
-                          setPlantFormData({
-                            ...plantFormData,
-                            cooling_tds_max: parseFloat(e.target.value),
-                          })
-                        }
-                      />
-                    </div>
-                    <div>
-                      <label className='block text-sm font-medium text-gray-700 mb-1'>
-                        Cycle Min
-                      </label>
-                      <input
-                        type='number'
-                        step='0.1'
-                        className='input'
-                        value={plantFormData.cooling_cycle_min}
-                        onChange={(e) =>
-                          setPlantFormData({
-                            ...plantFormData,
-                            cooling_cycle_min: parseFloat(e.target.value),
-                          })
-                        }
-                      />
-                    </div>
-                    <div>
-                      <label className='block text-sm font-medium text-gray-700 mb-1'>
-                        Cycle Max
-                      </label>
-                      <input
-                        type='number'
-                        step='0.1'
-                        className='input'
-                        value={plantFormData.cooling_cycle_max}
-                        onChange={(e) =>
-                          setPlantFormData({
-                            ...plantFormData,
-                            cooling_cycle_max: parseFloat(e.target.value),
-                          })
-                        }
-                      />
-                    </div>
-
-                    <div>
-                      <label className='block text-sm font-medium text-gray-700 mb-1'>
-                        Hardness Max (ppm)
-                      </label>
-                      <input
-                        type='number'
-                        step='1'
-                        className='input'
-                        value={plantFormData.cooling_hardness_max}
-                        onChange={(e) =>
-                          setPlantFormData({
-                            ...plantFormData,
-                            cooling_hardness_max: parseFloat(e.target.value),
-                          })
-                        }
-                      />
-                    </div>
-                    <div>
-                      <label className='block text-sm font-medium text-gray-700 mb-1'>
-                        Alkalinity Max (ppm)
-                      </label>
-                      <input
-                        type='number'
-                        step='1'
-                        className='input'
-                        value={plantFormData.cooling_alkalinity_max}
-                        onChange={(e) =>
-                          setPlantFormData({
-                            ...plantFormData,
-                            cooling_alkalinity_max: parseFloat(e.target.value),
-                          })
-                        }
-                      />
-                    </div>
-
-                  </div>
+                  <p className='text-xs text-gray-500 mb-3 italic'>
+                    All cooling water fields below are optional. Provide any parameters you track.
+                    At least one parameter (cooling or boiler) is required to create a plant.
+                  </p>
+                  {/* Move all cooling inputs under "Optional Cooling Water Parameters" section for consistent visual grouping */}
                   
                                     {/* Cooling Water Optional Parameters */}
-                   {user?.can_create_plants && (
+                  {user?.can_create_plants && (
                     <div className='mt-6 pt-6 border-t border-gray-200'>
                       <h5 className='text-sm font-medium text-gray-900 mb-4'>
                         Optional Cooling Water Parameters
@@ -1103,6 +1055,191 @@ const DataEntry = () => {
                       
                       {/* Enable/Disable Checkboxes and Input Fields for Optional Parameters */}
                       <div className='space-y-6'>
+                        {/* pH - toggleable */}
+                        <div className='border border-gray-200 rounded-lg p-4'>
+                          <div className='flex items-center mb-3'>
+                            <label className='flex items-center'>
+                              <input
+                                type='checkbox'
+                                className='rounded border-gray-300 text-primary-600 focus:ring-primary-500'
+                                checked={plantUI.cooling_ph_enabled}
+                                onChange={(e) => {
+                                  const checked = e.target.checked;
+                                  setPlantUI({ ...plantUI, cooling_ph_enabled: checked });
+                                  if (!checked) {
+                                    setPlantFormData({ ...plantFormData, cooling_ph_min: '', cooling_ph_max: '' });
+                                  }
+                                }}
+                              />
+                              <span className='ml-2 text-sm font-medium text-gray-700'>pH Monitoring</span>
+                            </label>
+                          </div>
+                          {plantUI.cooling_ph_enabled && (
+                            <div className='grid grid-cols-2 gap-4'>
+                              <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>pH Min</label>
+                                <input
+                                  type='number'
+                                  step='0.1'
+                                  className='input'
+                                  value={plantFormData.cooling_ph_min}
+                                  onChange={(e) =>
+                                    setPlantFormData({
+                                      ...plantFormData,
+                                      cooling_ph_min: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                    })
+                                  }
+                                />
+                              </div>
+                              <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>pH Max</label>
+                                <input
+                                  type='number'
+                                  step='0.1'
+                                  className='input'
+                                  value={plantFormData.cooling_ph_max}
+                                  onChange={(e) =>
+                                    setPlantFormData({
+                                      ...plantFormData,
+                                      cooling_ph_max: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                    })
+                                  }
+                                />
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* TDS - toggleable */}
+                        <div className='border border-gray-200 rounded-lg p-4'>
+                          <div className='flex items-center mb-3'>
+                            <label className='flex items-center'>
+                              <input
+                                type='checkbox'
+                                className='rounded border-gray-300 text-primary-600 focus:ring-primary-500'
+                                checked={plantUI.cooling_tds_enabled}
+                                onChange={(e) => {
+                                  const checked = e.target.checked;
+                                  setPlantUI({ ...plantUI, cooling_tds_enabled: checked });
+                                  if (!checked) {
+                                    setPlantFormData({ ...plantFormData, cooling_tds_min: '', cooling_tds_max: '' });
+                                  }
+                                }}
+                              />
+                              <span className='ml-2 text-sm font-medium text-gray-700'>TDS Monitoring</span>
+                            </label>
+                          </div>
+                          {plantUI.cooling_tds_enabled && (
+                            <div className='grid grid-cols-2 gap-4'>
+                              <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>TDS Min (ppm)</label>
+                                <input
+                                  type='number'
+                                  step='1'
+                                  className='input'
+                                  value={plantFormData.cooling_tds_min}
+                                  onChange={(e) =>
+                                    setPlantFormData({
+                                      ...plantFormData,
+                                      cooling_tds_min: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                    })
+                                  }
+                                />
+                              </div>
+                              <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>TDS Max (ppm)</label>
+                                <input
+                                  type='number'
+                                  step='1'
+                                  className='input'
+                                  value={plantFormData.cooling_tds_max}
+                                  onChange={(e) =>
+                                    setPlantFormData({
+                                      ...plantFormData,
+                                      cooling_tds_max: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                    })
+                                  }
+                                />
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Hardness - toggleable */}
+                        <div className='border border-gray-2 00 rounded-lg p-4'>
+                          <div className='flex items-center mb-3'>
+                            <label className='flex items-center'>
+                              <input
+                                type='checkbox'
+                                className='rounded border-gray-300 text-primary-600 focus:ring-primary-500'
+                                checked={plantUI.cooling_hardness_enabled}
+                                onChange={(e) => {
+                                  const checked = e.target.checked;
+                                  setPlantUI({ ...plantUI, cooling_hardness_enabled: checked });
+                                  if (!checked) {
+                                    setPlantFormData({ ...plantFormData, cooling_hardness_max: '' });
+                                  }
+                                }}
+                              />
+                              <span className='ml-2 text-sm font-medium text-gray-700'>Hardness Monitoring</span>
+                            </label>
+                          </div>
+                          {plantUI.cooling_hardness_enabled && (
+                            <div>
+                              <label className='block text-sm font-medium text-gray-700 mb-1'>Hardness Max (ppm)</label>
+                              <input
+                                type='number'
+                                step='1'
+                                className='input'
+                                value={plantFormData.cooling_hardness_max}
+                                onChange={(e) =>
+                                  setPlantFormData({
+                                    ...plantFormData,
+                                    cooling_hardness_max: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                  })
+                                }
+                              />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Alkalinity - toggleable */}
+                        <div className='border border-gray-200 rounded-lg p-4'>
+                          <div className='flex items-center mb-3'>
+                            <label className='flex items-center'>
+                              <input
+                                type='checkbox'
+                                className='rounded border-gray-300 text-primary-600 focus:ring-primary-500'
+                                checked={plantUI.cooling_alkalinity_enabled}
+                                onChange={(e) => {
+                                  const checked = e.target.checked;
+                                  setPlantUI({ ...plantUI, cooling_alkalinity_enabled: checked });
+                                  if (!checked) {
+                                    setPlantFormData({ ...plantFormData, cooling_alkalinity_max: '' });
+                                  }
+                                }}
+                              />
+                              <span className='ml-2 text-sm font-medium text-gray-700'>Alkalinity Monitoring</span>
+                            </label>
+                          </div>
+                          {plantUI.cooling_alkalinity_enabled && (
+                            <div>
+                              <label className='block text-sm font-medium text-gray-700 mb-1'>Alkalinity Max (ppm)</label>
+                              <input
+                                type='number'
+                                step='1'
+                                className='input'
+                                value={plantFormData.cooling_alkalinity_max}
+                                onChange={(e) =>
+                                  setPlantFormData({
+                                    ...plantFormData,
+                                    cooling_alkalinity_max: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                  })
+                                }
+                              />
+                            </div>
+                          )}
+                        </div>
                         {/* Chloride */}
                         <div className='border border-gray-200 rounded-lg p-4'>
                           <div className='flex items-center mb-3'>
@@ -1134,7 +1271,7 @@ const DataEntry = () => {
                                 onChange={(e) =>
                                   setPlantFormData({
                                     ...plantFormData,
-                                    cooling_chloride_max: parseFloat(e.target.value),
+                                    cooling_chloride_max: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
                                   })
                                 }
                               />
@@ -1174,7 +1311,7 @@ const DataEntry = () => {
                                   onChange={(e) =>
                                     setPlantFormData({
                                       ...plantFormData,
-                                      cooling_cycle_min: parseFloat(e.target.value),
+                                      cooling_cycle_min: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
                                     })
                                   }
                                 />
@@ -1191,7 +1328,7 @@ const DataEntry = () => {
                                   onChange={(e) =>
                                     setPlantFormData({
                                       ...plantFormData,
-                                      cooling_cycle_max: parseFloat(e.target.value),
+                                      cooling_cycle_max: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
                                     })
                                   }
                                 />
@@ -1231,7 +1368,7 @@ const DataEntry = () => {
                                 onChange={(e) =>
                                   setPlantFormData({
                                     ...plantFormData,
-                                    cooling_iron_max: parseFloat(e.target.value),
+                                    cooling_iron_max: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
                                   })
                                 }
                               />
@@ -1271,7 +1408,7 @@ const DataEntry = () => {
                                   onChange={(e) =>
                                     setPlantFormData({
                                       ...plantFormData,
-                                      cooling_lsi_min: parseFloat(e.target.value),
+                                      cooling_lsi_min: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
                                     })
                                   }
                                 />
@@ -1288,7 +1425,7 @@ const DataEntry = () => {
                                   onChange={(e) =>
                                     setPlantFormData({
                                       ...plantFormData,
-                                      cooling_lsi_max: parseFloat(e.target.value),
+                                      cooling_lsi_max: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
                                     })
                                   }
                                 />
@@ -1329,7 +1466,7 @@ const DataEntry = () => {
                                   onChange={(e) =>
                                     setPlantFormData({
                                       ...plantFormData,
-                                      cooling_rsi_min: parseFloat(e.target.value),
+                                      cooling_rsi_min: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
                                     })
                                   }
                                 />
@@ -1346,7 +1483,7 @@ const DataEntry = () => {
                                   onChange={(e) =>
                                     setPlantFormData({
                                       ...plantFormData,
-                                      cooling_rsi_max: parseFloat(e.target.value),
+                                      cooling_rsi_max: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
                                     })
                                   }
                                 />
@@ -1360,135 +1497,20 @@ const DataEntry = () => {
                 </div>
 
                 {/* Boiler Water Parameters */}
-                <div className='border-t pt-6'>
-                  <h4 className='text-md font-medium text-gray-900 mb-4'>
-                    Boiler Water Parameters
-                  </h4>
-                  <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2'>
-                    <div>
-                      <label className='block text-sm font-medium text-gray-700 mb-1'>
-                        pH Min
-                      </label>
-                      <input
-                        type='number'
-                        step='0.1'
-                        className='input'
-                        value={plantFormData.boiler_ph_min}
-                        onChange={(e) =>
-                          setPlantFormData({
-                            ...plantFormData,
-                            boiler_ph_min: parseFloat(e.target.value),
-                          })
-                        }
-                      />
-                    </div>
-                    <div>
-                      <label className='block text-sm font-medium text-gray-700 mb-1'>
-                        pH Max
-                      </label>
-                      <input
-                        type='number'
-                        step='0.1'
-                        className='input'
-                        value={plantFormData.boiler_ph_max}
-                        onChange={(e) =>
-                          setPlantFormData({
-                            ...plantFormData,
-                            boiler_ph_max: parseFloat(e.target.value),
-                          })
-                        }
-                      />
-                    </div>
-                    <div>
-                      <label className='block text-sm font-medium text-gray-700 mb-1'>
-                        TDS Min (ppm)
-                      </label>
-                      <input
-                        type='number'
-                        step='1'
-                        className='input'
-                        value={plantFormData.boiler_tds_min}
-                        onChange={(e) =>
-                          setPlantFormData({
-                            ...plantFormData,
-                            boiler_tds_min: parseFloat(e.target.value),
-                          })
-                        }
-                      />
-                    </div>
-                    <div>
-                      <label className='block text-sm font-medium text-gray-700 mb-1'>
-                        TDS Max (ppm)
-                      </label>
-                      <input
-                        type='number'
-                        step='1'
-                        className='input'
-                        value={plantFormData.boiler_tds_max}
-                        onChange={(e) =>
-                          setPlantFormData({
-                            ...plantFormData,
-                            boiler_tds_max: parseFloat(e.target.value),
-                          })
-                        }
-                      />
-                    </div>
+                <div className='border-t  shadow-md px-4 py-4 rounded-lg'>
+                  <h4 className='text-md font-bold text-gray-900 mb-4'>
+<Thermometer className='w-4 h-4 inline mr-2 text-blue-600' />
+                    Boiler Water Parameters 
 
-                    <div>
-                      <label className='block text-sm font-medium text-gray-700 mb-1'>
-                        Alkalinity Min (ppm)
-                      </label>
-                      <input
-                        type='number'
-                        step='1'
-                        className='input'
-                        value={plantFormData.boiler_alkalinity_min}
-                        onChange={(e) =>
-                          setPlantFormData({
-                            ...plantFormData,
-                            boiler_alkalinity_min: parseFloat(e.target.value),
-                          })
-                        }
-                      />
-                    </div>
-                    <div>
-                      <label className='block text-sm font-medium text-gray-700 mb-1'>
-                        Alkalinity Max (ppm)
-                      </label>
-                      <input
-                        type='number'
-                        step='1'
-                        className='input'
-                        value={plantFormData.boiler_alkalinity_max}
-                        onChange={(e) =>
-                          setPlantFormData({
-                            ...plantFormData,
-                            boiler_alkalinity_max: parseFloat(e.target.value),
-                          })
-                        }
-                      />
-                    </div>
-                    <div>
-                      <label className='block text-sm font-medium text-gray-700 mb-1'>
-                        Hardness Max (ppm)
-                      </label>
-                      <input
-                        type='number'
-                        step='0.1'
-                        className='input'
-                        value={plantFormData.boiler_hardness_max}
-                        onChange={(e) =>
-                          setPlantFormData({
-                            ...plantFormData,
-                            boiler_hardness_max: parseFloat(e.target.value),
-                          })
-                        }
-                      />
-                    </div>
-                  </div>
+                  </h4>
+                  <p className='text-xs text-gray-500 mb-3 italic'>
+                    All boiler water fields below are optional. Provide any parameters you track.
+                    At least one parameter (cooling or boiler) is required to create a plant.
+                  </p>
+                  {/* Move all boiler inputs under "Optional Boiler Water Parameters" section for consistent visual grouping */}
                   
                                      {/* Boiler Water Optional Parameters */}
-                   {user?.can_create_plants && (
+                  {user?.can_create_plants && (
                      <div className='mt-6 pt-6 border-t border-gray-200'>
                       <h5 className='text-sm font-medium text-gray-900 mb-4'>
                         Optional Boiler Water Parameters
@@ -1496,6 +1518,208 @@ const DataEntry = () => {
                       
                       {/* Enable/Disable Checkboxes and Input Fields for Optional Parameters */}
                       <div className='mt-6 space-y-6'>
+                        {/* pH - toggleable */}
+                        <div className='border border-gray-200 rounded-lg p-4'>
+                          <div className='flex items-center mb-3'>
+                            <label className='flex items-center'>
+                              <input
+                                type='checkbox'
+                                className='rounded border-gray-300 text-primary-600 focus:ring-primary-500'
+                                checked={plantUI.boiler_ph_enabled}
+                                onChange={(e) => {
+                                  const checked = e.target.checked;
+                                  setPlantUI({ ...plantUI, boiler_ph_enabled: checked });
+                                  if (!checked) {
+                                    setPlantFormData({ ...plantFormData, boiler_ph_min: '', boiler_ph_max: '' });
+                                  }
+                                }}
+                              />
+                              <span className='ml-2 text-sm font-medium text-gray-700'>pH Monitoring</span>
+                            </label>
+                          </div>
+                          {plantUI.boiler_ph_enabled && (
+                            <div className='grid grid-cols-2 gap-4'>
+                              <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>pH Min</label>
+                                <input
+                                  type='number'
+                                  step='0.1'
+                                  className='input'
+                                  value={plantFormData.boiler_ph_min}
+                                  onChange={(e) =>
+                                    setPlantFormData({
+                                      ...plantFormData,
+                                      boiler_ph_min: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                    })
+                                  }
+                                />
+                              </div>
+                              <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>pH Max</label>
+                                <input
+                                  type='number'
+                                  step='0.1'
+                                  className='input'
+                                  value={plantFormData.boiler_ph_max}
+                                  onChange={(e) =>
+                                    setPlantFormData({
+                                      ...plantFormData,
+                                      boiler_ph_max: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                    })
+                                  }
+                                />
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* TDS - toggleable */}
+                        <div className='border border-gray-200 rounded-lg p-4'>
+                          <div className='flex items-center mb-3'>
+                            <label className='flex items-center'>
+                              <input
+                                type='checkbox'
+                                className='rounded border-gray-300 text-primary-600 focus:ring-primary-500'
+                                checked={plantUI.boiler_tds_enabled}
+                                onChange={(e) => {
+                                  const checked = e.target.checked;
+                                  setPlantUI({ ...plantUI, boiler_tds_enabled: checked });
+                                  if (!checked) {
+                                    setPlantFormData({ ...plantFormData, boiler_tds_min: '', boiler_tds_max: '' });
+                                  }
+                                }}
+                              />
+                              <span className='ml-2 text-sm font-medium text-gray-700'>TDS Monitoring</span>
+                            </label>
+                          </div>
+                          {plantUI.boiler_tds_enabled && (
+                            <div className='grid grid-cols-2 gap-4'>
+                              <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>TDS Min (ppm)</label>
+                                <input
+                                  type='number'
+                                  step='1'
+                                  className='input'
+                                  value={plantFormData.boiler_tds_min}
+                                  onChange={(e) =>
+                                    setPlantFormData({
+                                      ...plantFormData,
+                                      boiler_tds_min: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                    })
+                                  }
+                                />
+                              </div>
+                              <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>TDS Max (ppm)</label>
+                                <input
+                                  type='number'
+                                  step='1'
+                                  className='input'
+                                  value={plantFormData.boiler_tds_max}
+                                  onChange={(e) =>
+                                    setPlantFormData({
+                                      ...plantFormData,
+                                      boiler_tds_max: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                    })
+                                  }
+                                />
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Alkalinity - toggleable */}
+                        <div className='border border-gray-200 rounded-lg p-4'>
+                          <div className='flex items-center mb-3'>
+                            <label className='flex items-center'>
+                              <input
+                                type='checkbox'
+                                className='rounded border-gray-300 text-primary-600 focus:ring-primary-500'
+                                checked={plantUI.boiler_alkalinity_enabled}
+                                onChange={(e) => {
+                                  const checked = e.target.checked;
+                                  setPlantUI({ ...plantUI, boiler_alkalinity_enabled: checked });
+                                  if (!checked) {
+                                    setPlantFormData({ ...plantFormData, boiler_alkalinity_min: '', boiler_alkalinity_max: '' });
+                                  }
+                                }}
+                              />
+                              <span className='ml-2 text-sm font-medium text-gray-700'>Alkalinity Monitoring</span>
+                            </label>
+                          </div>
+                          {plantUI.boiler_alkalinity_enabled && (
+                            <div className='grid grid-cols-2 gap-4'>
+                              <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>Alkalinity Min (ppm)</label>
+                                <input
+                                  type='number'
+                                  step='1'
+                                  className='input'
+                                  value={plantFormData.boiler_alkalinity_min}
+                                  onChange={(e) =>
+                                    setPlantFormData({
+                                      ...plantFormData,
+                                      boiler_alkalinity_min: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                    })
+                                  }
+                                />
+                              </div>
+                              <div>
+                                <label className='block text-sm font-medium text-gray-700 mb-1'>Alkalinity Max (ppm)</label>
+                                <input
+                                  type='number'
+                                  step='1'
+                                  className='input'
+                                  value={plantFormData.boiler_alkalinity_max}
+                                  onChange={(e) =>
+                                    setPlantFormData({
+                                      ...plantFormData,
+                                      boiler_alkalinity_max: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                    })
+                                  }
+                                />
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Hardness - toggleable */}
+                        <div className='border border-gray-200 rounded-lg p-4'>
+                          <div className='flex items-center mb-3'>
+                            <label className='flex items-center'>
+                              <input
+                                type='checkbox'
+                                className='rounded border-gray-300 text-primary-600 focus:ring-primary-500'
+                                checked={plantUI.boiler_hardness_enabled}
+                                onChange={(e) => {
+                                  const checked = e.target.checked;
+                                  setPlantUI({ ...plantUI, boiler_hardness_enabled: checked });
+                                  if (!checked) {
+                                    setPlantFormData({ ...plantFormData, boiler_hardness_max: '' });
+                                  }
+                                }}
+                              />
+                              <span className='ml-2 text-sm font-medium text-gray-700'>Hardness Monitoring</span>
+                            </label>
+                          </div>
+                          {plantUI.boiler_hardness_enabled && (
+                            <div>
+                              <label className='block text-sm font-medium text-gray-700 mb-1'>Hardness Max (ppm)</label>
+                              <input
+                                type='number'
+                                step='0.1'
+                                className='input'
+                                value={plantFormData.boiler_hardness_max}
+                                onChange={(e) =>
+                                  setPlantFormData({
+                                    ...plantFormData,
+                                    boiler_hardness_max: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                  })
+                                }
+                              />
+                            </div>
+                          )}
+                        </div>
                         {/* P-Alkalinity */}
                         <div className='border border-gray-200 rounded-lg p-4'>
                           <div className='flex items-center mb-3'>
@@ -1528,7 +1752,7 @@ const DataEntry = () => {
                                   onChange={(e) =>
                                     setPlantFormData({
                                       ...plantFormData,
-                                      boiler_p_alkalinity_min: parseFloat(e.target.value),
+                                      boiler_p_alkalinity_min: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
                                     })
                                   }
                                 />
@@ -1545,7 +1769,7 @@ const DataEntry = () => {
                                   onChange={(e) =>
                                     setPlantFormData({
                                       ...plantFormData,
-                                      boiler_p_alkalinity_max: parseFloat(e.target.value),
+                                      boiler_p_alkalinity_max: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
                                     })
                                   }
                                 />
@@ -1586,7 +1810,7 @@ const DataEntry = () => {
                                   onChange={(e) =>
                                     setPlantFormData({
                                       ...plantFormData,
-                                      boiler_oh_alkalinity_min: parseFloat(e.target.value),
+                                      boiler_oh_alkalinity_min: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
                                     })
                                   }
                                 />
@@ -1603,7 +1827,7 @@ const DataEntry = () => {
                                   onChange={(e) =>
                                     setPlantFormData({
                                       ...plantFormData,
-                                      boiler_oh_alkalinity_max: parseFloat(e.target.value),
+                                      boiler_oh_alkalinity_max: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
                                     })
                                   }
                                 />
@@ -1644,7 +1868,7 @@ const DataEntry = () => {
                                   onChange={(e) =>
                                     setPlantFormData({
                                       ...plantFormData,
-                                      boiler_sulphite_min: parseFloat(e.target.value),
+                                      boiler_sulphite_min: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
                                     })
                                   }
                                 />
@@ -1661,7 +1885,7 @@ const DataEntry = () => {
                                   onChange={(e) =>
                                     setPlantFormData({
                                       ...plantFormData,
-                                      boiler_sulphite_max: parseFloat(e.target.value),
+                                      boiler_sulphite_max: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
                                     })
                                   }
                                 />
@@ -1701,7 +1925,7 @@ const DataEntry = () => {
                                 onChange={(e) =>
                                   setPlantFormData({
                                     ...plantFormData,
-                                    boiler_sodium_chloride_max: parseFloat(e.target.value),
+                                    boiler_sodium_chloride_max: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
                                   })
                                 }
                               />
@@ -1741,7 +1965,7 @@ const DataEntry = () => {
                                   onChange={(e) =>
                                     setPlantFormData({
                                       ...plantFormData,
-                                      boiler_do_min: parseFloat(e.target.value),
+                                      boiler_do_min: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
                                     })
                                   }
                                 />
@@ -1758,7 +1982,7 @@ const DataEntry = () => {
                                   onChange={(e) =>
                                     setPlantFormData({
                                       ...plantFormData,
-                                      boiler_do_max: parseFloat(e.target.value),
+                                      boiler_do_max: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
                                     })
                                   }
                                 />
@@ -1799,7 +2023,7 @@ const DataEntry = () => {
                                   onChange={(e) =>
                                     setPlantFormData({
                                       ...plantFormData,
-                                      boiler_phosphate_min: parseFloat(e.target.value),
+                                      boiler_phosphate_min: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
                                     })
                                   }
                                 />
@@ -1816,7 +2040,7 @@ const DataEntry = () => {
                                   onChange={(e) =>
                                     setPlantFormData({
                                       ...plantFormData,
-                                      boiler_phosphate_max: parseFloat(e.target.value),
+                                      boiler_phosphate_max: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
                                     })
                                   }
                                 />
@@ -1856,7 +2080,7 @@ const DataEntry = () => {
                                 onChange={(e) =>
                                   setPlantFormData({
                                     ...plantFormData,
-                                    boiler_iron_max: parseFloat(e.target.value),
+                                    boiler_iron_max: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
                                   })
                                 }
                               />

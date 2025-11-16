@@ -117,56 +117,41 @@ const WaterAnalysis = () => {
     resetLoadingStates();
   }, [resetLoadingStates]);
 
-  // Check if all required fields are filled
+  // Check if all required fields are filled (only for parameters available for the selected plant)
   const areRequiredFieldsFilled = useCallback(() => {
     if (!selectedPlant) return false;
     
+    // Build required fields from plantParameters (only available fields)
+    const requiredFields = [];
     if (analysisType === 'cooling') {
-      // For cooling water, check core required fields
-      let requiredFields = ['ph', 'tds', 'total_alkalinity', 'hardness', 'temperature', 'hot_temperature'];
-      
-      // Add optional fields only if they're enabled for this plant
-      if (selectedPlant?.cooling_chloride_enabled) {
-        requiredFields.push('chloride');
+      if (plantParameters?.ph) requiredFields.push('ph');
+      if (plantParameters?.tds) requiredFields.push('tds');
+      if (plantParameters?.alkalinity) requiredFields.push('total_alkalinity');
+      if (plantParameters?.hardness) requiredFields.push('hardness');
+      // Temperature inputs are required only if we can compute indices (need all four above)
+      const needsTemp = plantParameters?.ph && plantParameters?.tds && plantParameters?.alkalinity && plantParameters?.hardness;
+      if (needsTemp) {
+        requiredFields.push('temperature', 'hot_temperature');
       }
-      if (selectedPlant?.cooling_cycle_enabled) {
-        requiredFields.push('cycle');
-      }
-      if (selectedPlant?.cooling_iron_enabled) {
-        requiredFields.push('iron');
-      }
-      
-      return requiredFields.every(field => inputData[field] !== '' && inputData[field] !== null && inputData[field] !== undefined);
-          } else {
-        // For boiler water, check core required fields
-        let requiredFields = ['ph', 'tds', 'hardness', 'm_alkalinity'];
-        
-        // Add optional fields only if they're enabled for this plant
-        if (selectedPlant?.boiler_p_alkalinity_enabled) {
-          requiredFields.push('p_alkalinity');
-        }
-        if (selectedPlant?.boiler_oh_alkalinity_enabled) {
-          requiredFields.push('oh_alkalinity');
-        }
-        if (selectedPlant?.boiler_sulphite_enabled) {
-          requiredFields.push('sulphite');
-        }
-        if (selectedPlant?.boiler_sodium_chloride_enabled) {
-          requiredFields.push('sodium_chloride');
-        }
-        if (selectedPlant?.boiler_iron_enabled) {
-          requiredFields.push('iron');
-        }
-        if (selectedPlant?.boiler_do_enabled) {
-          requiredFields.push('do');
-        }
-        if (selectedPlant?.boiler_phosphate_enabled) {
-          requiredFields.push('boiler_phosphate');
-        }
-        
-        return requiredFields.every(field => inputData[field] !== '' && inputData[field] !== null && inputData[field] !== undefined);
-      }
-  }, [selectedPlant, analysisType, inputData]);
+      if (plantParameters?.chloride) requiredFields.push('chloride');
+      if (plantParameters?.cycle) requiredFields.push('cycle');
+      if (plantParameters?.iron) requiredFields.push('iron');
+    } else {
+      if (plantParameters?.ph) requiredFields.push('ph');
+      if (plantParameters?.tds) requiredFields.push('tds');
+      if (plantParameters?.hardness) requiredFields.push('hardness');
+      if (plantParameters?.alkalinity) requiredFields.push('m_alkalinity');
+      if (plantParameters?.p_alkalinity) requiredFields.push('p_alkalinity');
+      if (plantParameters?.oh_alkalinity) requiredFields.push('oh_alkalinity');
+      if (plantParameters?.sulphite) requiredFields.push('sulphite');
+      if (plantParameters?.sodium_chloride) requiredFields.push('sodium_chloride');
+      if (plantParameters?.iron) requiredFields.push('iron');
+      if (plantParameters?.do) requiredFields.push('do');
+      if (plantParameters?.boiler_phosphate) requiredFields.push('boiler_phosphate');
+    }
+    if (requiredFields.length === 0) return false;
+    return requiredFields.every(field => inputData[field] !== '' && inputData[field] !== null && inputData[field] !== undefined);
+  }, [selectedPlant, analysisType, inputData, plantParameters]);
 
   const loadPlants = useCallback(async () => {
     try {
@@ -291,27 +276,29 @@ const WaterAnalysis = () => {
     try {
       const plantDetails = selectedPlant;
       const params = analysisType === 'cooling' ? {
-        ph: { min: plantDetails.cooling_ph_min, max: plantDetails.cooling_ph_max },
-        tds: { min: plantDetails.cooling_tds_min, max: plantDetails.cooling_tds_max },
-        hardness: { max: plantDetails.cooling_hardness_max },
-        alkalinity: { max: plantDetails.cooling_alkalinity_max },
-        ...(plantDetails.cooling_chloride_enabled && { chloride: { max: plantDetails.cooling_chloride_max } }),
-        ...(plantDetails.cooling_cycle_enabled && { cycle: { min: plantDetails.cooling_cycle_min, max: plantDetails.cooling_cycle_max } }),
-        ...(plantDetails.cooling_iron_enabled && { iron: { max: plantDetails.cooling_iron_max } }),
-        ...(plantDetails.cooling_lsi_enabled && { lsi: { min: plantDetails.cooling_lsi_min, max: plantDetails.cooling_lsi_max } }),
-        ...(plantDetails.cooling_rsi_enabled && { rsi: { min: plantDetails.cooling_rsi_min, max: plantDetails.cooling_rsi_max } })
+        // Only include parameters that have values
+        ...(plantDetails.cooling_ph_min != null && plantDetails.cooling_ph_max != null && { ph: { min: plantDetails.cooling_ph_min, max: plantDetails.cooling_ph_max } }),
+        ...(plantDetails.cooling_tds_min != null && plantDetails.cooling_tds_max != null && { tds: { min: plantDetails.cooling_tds_min, max: plantDetails.cooling_tds_max } }),
+        ...(plantDetails.cooling_hardness_max != null && { hardness: { max: plantDetails.cooling_hardness_max } }),
+        ...(plantDetails.cooling_alkalinity_max != null && { alkalinity: { max: plantDetails.cooling_alkalinity_max } }),
+        ...(plantDetails.cooling_chloride_enabled && plantDetails.cooling_chloride_max != null && { chloride: { max: plantDetails.cooling_chloride_max } }),
+        ...(plantDetails.cooling_cycle_enabled && plantDetails.cooling_cycle_min != null && plantDetails.cooling_cycle_max != null && { cycle: { min: plantDetails.cooling_cycle_min, max: plantDetails.cooling_cycle_max } }),
+        ...(plantDetails.cooling_iron_enabled && plantDetails.cooling_iron_max != null && { iron: { max: plantDetails.cooling_iron_max } }),
+        ...(plantDetails.cooling_lsi_enabled && plantDetails.cooling_lsi_min != null && plantDetails.cooling_lsi_max != null && { lsi: { min: plantDetails.cooling_lsi_min, max: plantDetails.cooling_lsi_max } }),
+        ...(plantDetails.cooling_rsi_enabled && plantDetails.cooling_rsi_min != null && plantDetails.cooling_rsi_max != null && { rsi: { min: plantDetails.cooling_rsi_min, max: plantDetails.cooling_rsi_max } })
       } : {
-        ph: { min: plantDetails.boiler_ph_min, max: plantDetails.boiler_ph_max },
-        tds: { min: plantDetails.boiler_tds_min, max: plantDetails.boiler_tds_max },
-        hardness: { max: plantDetails.boiler_hardness_max },
-        alkalinity: { min: plantDetails.boiler_alkalinity_min, max: plantDetails.boiler_alkalinity_max },
-        ...(plantDetails.boiler_p_alkalinity_enabled && { p_alkalinity: { min: plantDetails.boiler_p_alkalinity_min, max: plantDetails.boiler_p_alkalinity_max } }),
-        ...(plantDetails.boiler_oh_alkalinity_enabled && { oh_alkalinity: { min: plantDetails.boiler_oh_alkalinity_min, max: plantDetails.boiler_oh_alkalinity_max } }),
-        ...(plantDetails.boiler_sulphite_enabled && { sulphite: { min: plantDetails.boiler_sulphite_min, max: plantDetails.boiler_sulphite_max } }),
-        ...(plantDetails.boiler_sodium_chloride_enabled && { sodium_chloride: { max: plantDetails.boiler_sodium_chloride_max } }),
-        ...(plantDetails.boiler_iron_enabled && { iron: { max: plantDetails.boiler_iron_max } }),
-        ...(plantDetails.boiler_do_enabled && { do: { max: plantDetails.boiler_do_max } }),
-        ...(plantDetails.boiler_phosphate_enabled && { boiler_phosphate: { min: plantDetails.boiler_phosphate_min, max: plantDetails.boiler_phosphate_max } })
+        // Only include parameters that have values
+        ...(plantDetails.boiler_ph_min != null && plantDetails.boiler_ph_max != null && { ph: { min: plantDetails.boiler_ph_min, max: plantDetails.boiler_ph_max } }),
+        ...(plantDetails.boiler_tds_min != null && plantDetails.boiler_tds_max != null && { tds: { min: plantDetails.boiler_tds_min, max: plantDetails.boiler_tds_max } }),
+        ...(plantDetails.boiler_hardness_max != null && { hardness: { max: plantDetails.boiler_hardness_max } }),
+        ...(plantDetails.boiler_alkalinity_min != null && plantDetails.boiler_alkalinity_max != null && { alkalinity: { min: plantDetails.boiler_alkalinity_min, max: plantDetails.boiler_alkalinity_max } }),
+        ...(plantDetails.boiler_p_alkalinity_enabled && plantDetails.boiler_p_alkalinity_min != null && plantDetails.boiler_p_alkalinity_max != null && { p_alkalinity: { min: plantDetails.boiler_p_alkalinity_min, max: plantDetails.boiler_p_alkalinity_max } }),
+        ...(plantDetails.boiler_oh_alkalinity_enabled && plantDetails.boiler_oh_alkalinity_min != null && plantDetails.boiler_oh_alkalinity_max != null && { oh_alkalinity: { min: plantDetails.boiler_oh_alkalinity_min, max: plantDetails.boiler_oh_alkalinity_max } }),
+        ...(plantDetails.boiler_sulphite_enabled && plantDetails.boiler_sulphite_min != null && plantDetails.boiler_sulphite_max != null && { sulphite: { min: plantDetails.boiler_sulphite_min, max: plantDetails.boiler_sulphite_max } }),
+        ...(plantDetails.boiler_sodium_chloride_enabled && plantDetails.boiler_sodium_chloride_max != null && { sodium_chloride: { max: plantDetails.boiler_sodium_chloride_max } }),
+        ...(plantDetails.boiler_iron_enabled && plantDetails.boiler_iron_max != null && { iron: { max: plantDetails.boiler_iron_max } }),
+        ...(plantDetails.boiler_do_enabled && plantDetails.boiler_do_min != null && plantDetails.boiler_do_max != null && { do: { max: plantDetails.boiler_do_max } }),
+        ...(plantDetails.boiler_phosphate_enabled && plantDetails.boiler_phosphate_min != null && plantDetails.boiler_phosphate_max != null && { boiler_phosphate: { min: plantDetails.boiler_phosphate_min, max: plantDetails.boiler_phosphate_max } })
       };
       setPlantParameters(params);
     } catch (e) {
@@ -470,17 +457,22 @@ const WaterAnalysis = () => {
             }
           }
         }),
-        ...(plantParameters.rsi && {
-          rsi: {
-            target: `${plantParameters.rsi.min} – ${plantParameters.rsi.max}`,
-            actions: {
-              [`<${plantParameters.rsi.min}`]: "Heavy Scale tendency.",
-              [`${plantParameters.rsi.min}-${plantParameters.rsi.max}`]: "Light Scale or corrosion tendency.",
-              [`>${plantParameters.rsi.max}`]: "Heavy corrosion tendency.",
-              [`>${plantParameters.rsi.max + 2}`]: "Intolerable corrosion tendency"
+        ...(plantParameters.rsi && (() => {
+          const rsiMinNum = parseFloat(plantParameters.rsi.min);
+          const rsiMaxNum = parseFloat(plantParameters.rsi.max);
+          if (!Number.isFinite(rsiMinNum) || !Number.isFinite(rsiMaxNum)) return {};
+          return {
+            rsi: {
+              target: `${rsiMinNum} – ${rsiMaxNum}`,
+              actions: {
+                [`<${rsiMinNum}`]: "Heavy Scale tendency.",
+                [`${rsiMinNum}-${rsiMaxNum}`]: "Light Scale or corrosion tendency.",
+                [`>${rsiMaxNum}`]: "Heavy corrosion tendency.",
+                [`>${rsiMaxNum + 2}`]: "Intolerable corrosion tendency"
+              }
             }
-          }
-        })
+          };
+        })())
       };
     }
     
@@ -635,29 +627,29 @@ const WaterAnalysis = () => {
     const plantDetails = await dataService.getPlant(plant.id);
     setSelectedPlant(plantDetails);
     
-    // Get plant-specific parameters from the detailed data
+    // Get plant-specific parameters from the detailed data (only include parameters that have values)
     const params = analysisType === 'cooling' ? {
-      ph: { min: plantDetails.cooling_ph_min, max: plantDetails.cooling_ph_max },
-      tds: { min: plantDetails.cooling_tds_min, max: plantDetails.cooling_tds_max },
-      hardness: { max: plantDetails.cooling_hardness_max },
-      alkalinity: { max: plantDetails.cooling_alkalinity_max },
-      ...(plantDetails.cooling_chloride_enabled && { chloride: { max: plantDetails.cooling_chloride_max } }),
-      ...(plantDetails.cooling_cycle_enabled && { cycle: { min: plantDetails.cooling_cycle_min, max: plantDetails.cooling_cycle_max } }),
-      ...(plantDetails.cooling_iron_enabled && { iron: { max: plantDetails.cooling_iron_max } }),
-      ...(plantDetails.cooling_lsi_enabled && { lsi: { min: plantDetails.cooling_lsi_min, max: plantDetails.cooling_lsi_max } }),
-      ...(plantDetails.cooling_rsi_enabled && { rsi: { min: plantDetails.cooling_rsi_min, max: plantDetails.cooling_rsi_max } })
+      ...(plantDetails.cooling_ph_min != null && plantDetails.cooling_ph_max != null && { ph: { min: plantDetails.cooling_ph_min, max: plantDetails.cooling_ph_max } }),
+      ...(plantDetails.cooling_tds_min != null && plantDetails.cooling_tds_max != null && { tds: { min: plantDetails.cooling_tds_min, max: plantDetails.cooling_tds_max } }),
+      ...(plantDetails.cooling_hardness_max != null && { hardness: { max: plantDetails.cooling_hardness_max } }),
+      ...(plantDetails.cooling_alkalinity_max != null && { alkalinity: { max: plantDetails.cooling_alkalinity_max } }),
+      ...(plantDetails.cooling_chloride_enabled && plantDetails.cooling_chloride_max != null && { chloride: { max: plantDetails.cooling_chloride_max } }),
+      ...(plantDetails.cooling_cycle_enabled && plantDetails.cooling_cycle_min != null && plantDetails.cooling_cycle_max != null && { cycle: { min: plantDetails.cooling_cycle_min, max: plantDetails.cooling_cycle_max } }),
+      ...(plantDetails.cooling_iron_enabled && plantDetails.cooling_iron_max != null && { iron: { max: plantDetails.cooling_iron_max } }),
+      ...(plantDetails.cooling_lsi_enabled && plantDetails.cooling_lsi_min != null && plantDetails.cooling_lsi_max != null && { lsi: { min: plantDetails.cooling_lsi_min, max: plantDetails.cooling_lsi_max } }),
+      ...(plantDetails.cooling_rsi_enabled && plantDetails.cooling_rsi_min != null && plantDetails.cooling_rsi_max != null && { rsi: { min: plantDetails.cooling_rsi_min, max: plantDetails.cooling_rsi_max } })
     } : {
-      ph: { min: plantDetails.boiler_ph_min, max: plantDetails.boiler_ph_max },
-      tds: { min: plantDetails.boiler_tds_min, max: plantDetails.boiler_tds_max },
-      hardness: { max: plantDetails.boiler_hardness_max },
-      alkalinity: { min: plantDetails.boiler_alkalinity_min, max: plantDetails.boiler_alkalinity_max },
-      ...(plantDetails.boiler_p_alkalinity_enabled && { p_alkalinity: { min: plantDetails.boiler_p_alkalinity_min, max: plantDetails.boiler_p_alkalinity_max } }),
-      ...(plantDetails.boiler_oh_alkalinity_enabled && { oh_alkalinity: { min: plantDetails.boiler_oh_alkalinity_min, max: plantDetails.boiler_oh_alkalinity_max } }),
-      ...(plantDetails.boiler_sulphite_enabled && { sulphite: { min: plantDetails.boiler_sulphite_min, max: plantDetails.boiler_sulphite_max } }),
-      ...(plantDetails.boiler_sodium_chloride_enabled && { sodium_chloride: { max: plantDetails.boiler_sodium_chloride_max } }),
-      ...(plantDetails.boiler_iron_enabled && { iron: { max: plantDetails.boiler_iron_max } }),
-      ...(plantDetails.boiler_do_enabled && { do: { max: plantDetails.boiler_do_max } }),
-      ...(plantDetails.boiler_phosphate_enabled && { boiler_phosphate: { min: plantDetails.boiler_phosphate_min, max: plantDetails.boiler_phosphate_max } })
+      ...(plantDetails.boiler_ph_min != null && plantDetails.boiler_ph_max != null && { ph: { min: plantDetails.boiler_ph_min, max: plantDetails.boiler_ph_max } }),
+      ...(plantDetails.boiler_tds_min != null && plantDetails.boiler_tds_max != null && { tds: { min: plantDetails.boiler_tds_min, max: plantDetails.boiler_tds_max } }),
+      ...(plantDetails.boiler_hardness_max != null && { hardness: { max: plantDetails.boiler_hardness_max } }),
+      ...(plantDetails.boiler_alkalinity_min != null && plantDetails.boiler_alkalinity_max != null && { alkalinity: { min: plantDetails.boiler_alkalinity_min, max: plantDetails.boiler_alkalinity_max } }),
+      ...(plantDetails.boiler_p_alkalinity_enabled && plantDetails.boiler_p_alkalinity_min != null && plantDetails.boiler_p_alkalinity_max != null && { p_alkalinity: { min: plantDetails.boiler_p_alkalinity_min, max: plantDetails.boiler_p_alkalinity_max } }),
+      ...(plantDetails.boiler_oh_alkalinity_enabled && plantDetails.boiler_oh_alkalinity_min != null && plantDetails.boiler_oh_alkalinity_max != null && { oh_alkalinity: { min: plantDetails.boiler_oh_alkalinity_min, max: plantDetails.boiler_oh_alkalinity_max } }),
+      ...(plantDetails.boiler_sulphite_enabled && plantDetails.boiler_sulphite_min != null && plantDetails.boiler_sulphite_max != null && { sulphite: { min: plantDetails.boiler_sulphite_min, max: plantDetails.boiler_sulphite_max } }),
+      ...(plantDetails.boiler_sodium_chloride_enabled && plantDetails.boiler_sodium_chloride_max != null && { sodium_chloride: { max: plantDetails.boiler_sodium_chloride_max } }),
+      ...(plantDetails.boiler_iron_enabled && plantDetails.boiler_iron_max != null && { iron: { max: plantDetails.boiler_iron_max } }),
+      ...(plantDetails.boiler_do_enabled && plantDetails.boiler_do_min != null && plantDetails.boiler_do_max != null && { do: { max: plantDetails.boiler_do_max } }),
+      ...(plantDetails.boiler_phosphate_enabled && plantDetails.boiler_phosphate_min != null && plantDetails.boiler_phosphate_max != null && { boiler_phosphate: { min: plantDetails.boiler_phosphate_min, max: plantDetails.boiler_phosphate_max } })
     };
     setPlantParameters(params);
     } catch (error) {
@@ -720,16 +712,55 @@ const WaterAnalysis = () => {
     // Special handling for LSI and RSI with complex range conditions
     if (parameter === 'lsi') {
       const numValue = parseFloat(value);
-      if (numValue < -0.5) return parameterActions.actions["< -0.5"];
-      if (numValue >= -0.5 && numValue < 0) return parameterActions.actions["-0.5<0"];
-      if (numValue === 0) return parameterActions.actions["0"];
-      if (numValue > 0 && numValue <= 0.5) return parameterActions.actions["0<0.5"];
-      if (numValue > 2) return parameterActions.actions[">2"];
+      // If plant-specific LSI bounds exist, evaluate against them
+      const plantLsi = plantParameters?.lsi;
+      if (plantLsi && plantLsi.min != null && plantLsi.max != null) {
+        const min = parseFloat(plantLsi.min);
+        const max = parseFloat(plantLsi.max);
+        if (!Number.isNaN(min) && !Number.isNaN(max)) {
+          if (numValue < min) return parameterActions.actions[`< ${min}`];
+          // within plant target range → no action
+          if (numValue >= min && numValue <= max) return null;
+          if (numValue > max) return parameterActions.actions[`>${max}`];
+          // Handle shape around 0 if target spans it
+          if (numValue >= min && numValue < 0 && parameterActions.actions[`${min}-0`]) {
+            return parameterActions.actions[`${min}-0`];
+          }
+          if (numValue === 0 && parameterActions.actions["0"]) {
+            return parameterActions.actions["0"];
+          }
+          if (numValue > 0 && numValue <= max && parameterActions.actions[`0-${max}`]) {
+            return parameterActions.actions[`0-${max}`];
+          }
+          return null;
+        }
+      }
+      // Default banding if no plant-specific bounds provided
+      // if (numValue < -0.5) return parameterActions.actions["< -0.5"];
+      // if (numValue >= -0.5 && numValue < 0) return parameterActions.actions["-0.5<0"];
+      // if (numValue === 0) return parameterActions.actions["0"];
+      // if (numValue > 0 && numValue <= 0.5) return parameterActions.actions["0<0.5"];
+      // if (numValue > 2) return parameterActions.actions[">2"];
       return null; // Within balanced range
     }
     
     if (parameter === 'rsi') {
       const numValue = parseFloat(value);
+      // If plant-specific RSI bounds exist, use them for decision and keys
+      const plantRsi = plantParameters?.rsi;
+      if (plantRsi && plantRsi.min != null && plantRsi.max != null) {
+        const min = parseFloat(plantRsi.min);
+        const max = parseFloat(plantRsi.max);
+        if (!Number.isNaN(min) && !Number.isNaN(max)) {
+          if (numValue < min) return parameterActions.actions[`<${min}`];
+          // within plant target range → no action
+          if (numValue >= min && numValue <= max) return null;
+          if (numValue > max + 2) return parameterActions.actions[`>${max + 2}`];
+          if (numValue > max) return parameterActions.actions[`>${max}`];
+          return null; // default to no action
+        }
+      }
+      // Fallback to default RSI bands if no plant-specific bounds
       if (numValue <= 4.8) return parameterActions.actions["4.8"];
       if (numValue > 4.8 && numValue <= 6.0) return parameterActions.actions["5.0-6.0"];
       if (numValue > 6.0 && numValue <= 7.0) return parameterActions.actions["6.0-7.0"];
@@ -1044,7 +1075,8 @@ const WaterAnalysis = () => {
     if (!status) return 'text-gray-500';
     
     if (status.includes('Near Balance') || status.includes('Little scale or corrosion') || 
-        status.includes('Water is in optimal range') || status.includes('will not interfere')) {
+        status.includes('Water is in optimal range') || status.includes('will not interfere') ||
+        status.includes('Within target range')) {
         return 'text-green-600';
     } else if (status.includes('Corrosion') || status.includes('corrode') || 
                status.includes('Scale') || status.includes('scale') || 
@@ -1072,7 +1104,8 @@ const WaterAnalysis = () => {
   
   const getStatusIcon = (status) => {
     if (status.includes('Near Balance') || status.includes('Little scale or corrosion') || 
-        status.includes('Water is in optimal range') || status.includes('will not interfere')) {
+        status.includes('Water is in optimal range') || status.includes('will not interfere') ||
+        status.includes('Within target range')) {
         return <CheckCircle className="w-5 h-5 text-green-600" />;
     } else if (status.includes('Corrosion') || status.includes('corrode') || 
                status.includes('Scale') || status.includes('scale') || 
@@ -1088,6 +1121,25 @@ const WaterAnalysis = () => {
     if (score >= 70) return 'text-green-600';
     if (score >= 50) return 'text-yellow-600';
     return 'text-red-600';
+  };
+
+  // Prefer plant targets for index display status when available
+  const getDisplayedIndexStatus = (parameter, value, industryStatus) => {
+    if (parameter === 'rsi' && plantParameters?.rsi && value != null) {
+      const min = parseFloat(plantParameters.rsi.min);
+      const max = parseFloat(plantParameters.rsi.max);
+      if (Number.isFinite(min) && Number.isFinite(max)) {
+        if (value >= min && value <= max) return 'Within target range';
+      }
+    }
+    if (parameter === 'lsi' && plantParameters?.lsi && value != null) {
+      const min = parseFloat(plantParameters.lsi.min);
+      const max = parseFloat(plantParameters.lsi.max);
+      if (Number.isFinite(min) && Number.isFinite(max)) {
+        if (value >= min && value <= max) return 'Within target range';
+      }
+    }
+    return industryStatus || 'Not calculated';
   };
   
   return (
@@ -1192,6 +1244,7 @@ const WaterAnalysis = () => {
             </div>
             
             <div className='space-y-4'>
+              {plantParameters?.ph && (
               <div>
                 <label className='block text-sm font-medium text-gray-700 mb-1'>
                   pH
@@ -1211,7 +1264,9 @@ const WaterAnalysis = () => {
                   className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
                 />
               </div>
+              )}
               
+              {plantParameters?.tds && (
               <div>
                 <label className='block text-sm font-medium text-gray-700 mb-1'>
                   TDS (ppm)
@@ -1230,9 +1285,11 @@ const WaterAnalysis = () => {
                   className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
                 />
               </div>
+              )}
               
               {analysisType === "cooling" && (
                 <>
+              {plantParameters?.alkalinity && (
               <div>
                     <label className='block text-sm font-medium text-gray-700 mb-1'>
                       Total Alkalinity as CaCO₃ (ppm)
@@ -1253,7 +1310,9 @@ const WaterAnalysis = () => {
                       className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
                 />
               </div>
+              )}
               
+              {plantParameters?.hardness && (
               <div>
                     <label className='block text-sm font-medium text-gray-700 mb-1'>
                       Hardness as CaCO₃ (ppm)
@@ -1274,11 +1333,13 @@ const WaterAnalysis = () => {
                       className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
                 />
               </div>
+              )}
                 </>
               )}
               
               {analysisType === "boiler" && (
                 <>
+                  {plantParameters?.hardness && (
                   <div>
                     <label className='block text-sm font-medium text-gray-700 mb-1'>
                       Hardness as CaCO₃ (ppm)
@@ -1299,8 +1360,9 @@ const WaterAnalysis = () => {
                       className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
                     />
                   </div>
+                  )}
                   
-                  {selectedPlant?.boiler_p_alkalinity_enabled && (
+                  {plantParameters?.p_alkalinity && (
                     <div>
                       <label className='block text-sm font-medium text-gray-700 mb-1'>
                         P-Alkalinity as CaCO₃ (ppm)
@@ -1323,7 +1385,7 @@ const WaterAnalysis = () => {
                     </div>
                   )}
                   
-                  {selectedPlant?.boiler_oh_alkalinity_enabled && (
+                  {plantParameters?.oh_alkalinity && (
                     <div>
                       <label className='block text-sm font-medium text-gray-700 mb-1'>
                         OH-Alkalinity as CaCO₃ (ppm)
@@ -1346,7 +1408,7 @@ const WaterAnalysis = () => {
                     </div>
                   )}
                   
-                  {selectedPlant?.boiler_sulphite_enabled && (
+                  {plantParameters?.sulphite && (
                     <div>
                       <label className='block text-sm font-medium text-gray-700 mb-1'>
                         Sulphite as SO₃ (ppm)
@@ -1369,7 +1431,7 @@ const WaterAnalysis = () => {
                     </div>
                   )}
                   
-                  {selectedPlant?.boiler_sodium_chloride_enabled && (
+                  {plantParameters?.sodium_chloride && (
                     <div>
                       <label className='block text-sm font-medium text-gray-700 mb-1'>
                         Sodium Chloride (ppm)
@@ -1392,7 +1454,7 @@ const WaterAnalysis = () => {
                     </div>
                   )}
                   
-                  {selectedPlant?.boiler_do_enabled && (
+                  {plantParameters?.do && (
                     <div>
                       <label className='block text-sm font-medium text-gray-700 mb-1'>
                         DO (Dissolved Oxygen) (ppm)
@@ -1415,7 +1477,7 @@ const WaterAnalysis = () => {
                     </div>
                   )}
                   
-                  {selectedPlant?.boiler_phosphate_enabled && (
+                  {plantParameters?.boiler_phosphate && (
                     <div>
                       <label className='block text-sm font-medium text-gray-700 mb-1'>
                         Phosphate (ppm)
@@ -1438,7 +1500,7 @@ const WaterAnalysis = () => {
                     </div>
                   )}
                   
-                  {selectedPlant?.boiler_iron_enabled && (
+                  {plantParameters?.iron && (
                     <div>
                       <label className='block text-sm font-medium text-gray-700 mb-1'>
                         Iron as Fe (ppm)
@@ -1465,7 +1527,7 @@ const WaterAnalysis = () => {
               
               {analysisType === "cooling" && (
                 <>
-              {selectedPlant?.cooling_chloride_enabled && (
+              {plantParameters?.chloride && (
                 <div>
                       <label className='block text-sm font-medium text-gray-700 mb-1'>
                         Chloride as NaCl (ppm)
@@ -1488,6 +1550,7 @@ const WaterAnalysis = () => {
                 </div>
               )}
                   
+                  {plantParameters?.ph && plantParameters?.tds && plantParameters?.alkalinity && plantParameters?.hardness && (
                   <div>
                     <label className='block text-sm font-medium text-gray-700 mb-1'>
                       Basin Temperature (°C)
@@ -1508,7 +1571,9 @@ const WaterAnalysis = () => {
                       className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
                 />
               </div>
+                  )}
                   
+                  {plantParameters?.ph && plantParameters?.tds && plantParameters?.alkalinity && plantParameters?.hardness && (
                   <div>
                     <label className='block text-sm font-medium text-gray-700 mb-1'>
                       Hot Side Temperature (°C)
@@ -1529,8 +1594,9 @@ const WaterAnalysis = () => {
                       className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
                     />
                   </div>
+                  )}
                   
-                  {selectedPlant?.cooling_cycle_enabled && (
+                  {plantParameters?.cycle && (
                     <div>
                       <label className='block text-sm font-medium text-gray-700 mb-1'>
                         Cycle of Concentration (as Cl)
@@ -1553,7 +1619,7 @@ const WaterAnalysis = () => {
                     </div>
                   )}
                   
-                  {selectedPlant?.cooling_iron_enabled && (
+                  {plantParameters?.iron && (
                     <div>
                       <label className='block text-sm font-medium text-gray-700 mb-1'>
                         Iron as Fe (ppm)
@@ -1576,7 +1642,7 @@ const WaterAnalysis = () => {
                     </div>
                   )}
                   
-                  {selectedPlant?.cooling_phosphate_enabled && (
+                  {plantParameters?.phosphate && (
                     <div>
                       <label className='block text-sm font-medium text-gray-700 mb-1'>
                         Phosphate (ppm)
@@ -1603,6 +1669,7 @@ const WaterAnalysis = () => {
 
               {analysisType === "boiler" && (
                 <>
+                  {plantParameters?.alkalinity && (
                   <div>
                     <label className='block text-sm font-medium text-gray-700 mb-1'>
                       M-Alkalinity as CaCO₃ (ppm)
@@ -1623,6 +1690,7 @@ const WaterAnalysis = () => {
                       className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
                     />
                   </div>
+                  )}
                 </>
               )}
               
@@ -1686,10 +1754,10 @@ const WaterAnalysis = () => {
                       </span>
                       <span
                         className={`text-sm font-medium ${getStatusColor(
-                          results.lsi_status
+                          getDisplayedIndexStatus('lsi', results.lsi, results.lsi_status)
                         )} leading-tight`}
                       >
-                        {results.lsi_status || "Not calculated"}
+                        {getDisplayedIndexStatus('lsi', results.lsi, results.lsi_status)}
                   </span>
                 </div>
               </div>
@@ -1707,10 +1775,10 @@ const WaterAnalysis = () => {
                       </span>
                       <span
                         className={`text-sm font-medium ${getStatusColor(
-                          results.rsi_status
+                          getDisplayedIndexStatus('rsi', results.rsi, results.rsi_status)
                         )} leading-tight`}
                       >
-                        {results.rsi_status || "Not calculated"}
+                        {getDisplayedIndexStatus('rsi', results.rsi, results.rsi_status)}
                   </span>
                 </div>
               </div>
