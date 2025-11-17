@@ -1,20 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { useAppSelector, useAppDispatch } from '../hooks/useAppSelector';
+import { useAppSelector } from '../hooks/useAppSelector';
 import { dataService } from '../services/dataService';
 import { 
-  Users, 
   UserPlus, 
   Edit, 
   Trash2, 
   Shield, 
-  User, 
   Eye,
-  EyeOff,
   Search,
-  Filter,
   RefreshCw
 } from 'lucide-react';
-import { ButtonLoader, ContentLoader, DNALoader } from '../components/Loader';
+import { ButtonLoader, ContentLoader } from '../components/Loader';
 import toast from 'react-hot-toast';
 
 const Admin = () => {

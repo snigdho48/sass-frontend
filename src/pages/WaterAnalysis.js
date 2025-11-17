@@ -29,6 +29,7 @@ const WaterAnalysis = () => {
   const [loading, setLoading] = useState(false);
   const [calculating, setCalculating] = useState(false);
   const [trends, setTrends] = useState({});
+  // eslint-disable-next-line no-unused-vars
   const [recommendations, setRecommendations] = useState([]);
   const [analysisType, setAnalysisType] = useState('cooling'); // 'cooling' or 'boiler'
   const [plants, setPlants] = useState([]);
