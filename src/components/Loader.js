@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Dna, Grid, Oval, Rings, TailSpin } from 'react-loader-spinner';
+import { DNA, Grid, Oval, Rings, TailSpin } from 'react-loader-spinner';
 
 // DNA Loader for main loading states
 export const DNALoader = ({ visible = true, size = 80, color = '#3B82F6' }) => (
   <div className="flex items-center justify-center">
-    <Dna
+    <DNA
       visible={visible}
       height={size}
       width={size}
