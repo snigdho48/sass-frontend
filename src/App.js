@@ -196,7 +196,7 @@ function AppRoutes() {
         }>
           <Route index element={<Dashboard />} />
           <Route path="dashboard" element={<Dashboard />} />
-          <Route path="data-entry" element={<DataEntryRoute />} />
+          <Route path="plant-manage" element={<DataEntryRoute />} />
           <Route path="water-analysis" element={<WaterAnalysisRoute />} />
           <Route path="reports" element={<Reports />} />
           <Route path="profile" element={<Profile />} />

@@ -2,8 +2,9 @@ import React, { useEffect } from 'react';
 import { Outlet, useLocation, Link } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from '../hooks/useAppSelector';
 import { logout, resetStore } from '../store/slices/authSlice';
-import { setSidebarOpen } from '../store/slices/uiSlice';
+import { setSidebarOpen, setNavigationLoading } from '../store/slices/uiSlice';
 import { authService } from '../services/authService';
+import { useNavigationLoading } from '../hooks/useNavigationLoading';
 import {
   BarChart3,
   Database,
@@ -25,12 +26,15 @@ const Layout = () => {
   const { sidebarOpen, navigationLoading } = useAppSelector(state => state.ui);
   const dispatch = useAppDispatch();
   const location = useLocation();
+  
+  // Use navigation loading hook to automatically clear loader on route changes
+  useNavigationLoading();
 
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: BarChart3 },
     // Data Entry is hidden for General Users, but Water Analysis is available
     ...(user?.is_general_user ? [] : [
-      { name: 'Data Entry', href: '/data-entry', icon: Database }
+      { name: 'Plant Management', href: '/plant-manage', icon: Database }
     ]),
     { name: 'Water Analysis', href: '/water-analysis', icon: Droplets },
     { name: 'Reports', href: '/reports', icon: FileText },
@@ -42,17 +46,17 @@ const Layout = () => {
     navigation.push({ name: 'Admin Panel', href: '/admin', icon: Shield });
   }
 
-  // Handle navigation loading timeout for dashboard
+  // Clear navigation loading when user becomes authenticated (after login)
   useEffect(() => {
-    if (navigationLoading && location.pathname === '/dashboard') {
+    if (isAuthenticated && user && navigationLoading) {
+      // Small delay to ensure smooth transition
       const timer = setTimeout(() => {
-        // The loader will be automatically removed by the navigation completion
-        // This is just a fallback to ensure it doesn't stay forever
-      }, 300);
+        dispatch(setNavigationLoading(false));
+      }, 100);
       
       return () => clearTimeout(timer);
     }
-  }, [navigationLoading, location.pathname]);
+  }, [isAuthenticated, user, navigationLoading, dispatch]);
 
   const handleLogout = async () => {
     try {

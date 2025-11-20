@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from '../hooks/useAppSelector';
 import { loginUser, clearError, resetLoading } from '../store/slices/authSlice';
+import { setNavigationLoading } from '../store/slices/uiSlice';
 import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
 import { ButtonLoader } from '../components/Loader';
 import InactiveAccountModal from '../components/InactiveAccountModal';
@@ -29,6 +30,8 @@ const Login = () => {
       } else {
         // User is active or super admin, proceed to dashboard
         setShowInactiveModal(false);
+        // Clear navigation loading before navigating
+        dispatch(setNavigationLoading(false));
         navigate('/dashboard');
       }
     }
