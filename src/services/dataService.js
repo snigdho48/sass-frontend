@@ -249,4 +249,59 @@ export const dataService = {
       throw new Error('Failed to fetch admin users for plant creation');
     }
   },
+
+  // Water System services
+  async getWaterSystems(params = {}) {
+    try {
+      const response = await api.get('/water-systems/', { params });
+      return response.data;
+    } catch (error) {
+      throw new Error('Failed to fetch water systems');
+    }
+  },
+
+  async getWaterSystemsByPlant(plantId) {
+    try {
+      const response = await api.get('/water-systems/', { params: { plant_id: plantId } });
+      return response.data.results || response.data || [];
+    } catch (error) {
+      throw new Error('Failed to fetch water systems for plant');
+    }
+  },
+
+  async createWaterSystem(waterSystemData) {
+    try {
+      const response = await api.post('/water-systems/', waterSystemData);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to create water system');
+    }
+  },
+
+  async updateWaterSystem(waterSystemId, waterSystemData) {
+    try {
+      const response = await api.patch(`/water-systems/${waterSystemId}/`, waterSystemData);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to update water system');
+    }
+  },
+
+  async deleteWaterSystem(waterSystemId) {
+    try {
+      const response = await api.delete(`/water-systems/${waterSystemId}/`);
+      return response.data;
+    } catch (error) {
+      throw new Error('Failed to delete water system');
+    }
+  },
+
+  async assignUsersToWaterSystem(waterSystemId, userIds) {
+    try {
+      const response = await api.post(`/water-systems/${waterSystemId}/assign-users/`, { user_ids: userIds });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.error || 'Failed to assign users to water system');
+    }
+  },
 }; 

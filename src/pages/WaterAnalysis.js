@@ -31,10 +31,13 @@ const WaterAnalysis = () => {
   const [trends, setTrends] = useState({});
   // eslint-disable-next-line no-unused-vars
   const [recommendations, setRecommendations] = useState([]);
-  const [analysisType, setAnalysisType] = useState('cooling'); // 'cooling' or 'boiler'
+  const [analysisType, setAnalysisType] = useState(null); // 'cooling' or 'boiler' - no default, must be selected
   const [plants, setPlants] = useState([]);
   const [plantsLoading, setPlantsLoading] = useState(true);
   const [selectedPlant, setSelectedPlant] = useState(null);
+  const [selectedWaterSystem, setSelectedWaterSystem] = useState(null);
+  const [waterSystems, setWaterSystems] = useState([]);
+  const [waterSystemsLoading, setWaterSystemsLoading] = useState(false);
   const [plantParameters, setPlantParameters] = useState(null);
   const [plantDetailsLoading, setPlantDetailsLoading] = useState(false);
   
@@ -118,9 +121,9 @@ const WaterAnalysis = () => {
     resetLoadingStates();
   }, [resetLoadingStates]);
 
-  // Check if all required fields are filled (only for parameters available for the selected plant)
+  // Check if all required fields are filled (only for parameters available for the selected water system)
   const areRequiredFieldsFilled = useCallback(() => {
-    if (!selectedPlant) return false;
+    if (!selectedPlant || !analysisType || !selectedWaterSystem) return false;
     
     // Build required fields from plantParameters (only available fields)
     const requiredFields = [];
@@ -152,7 +155,7 @@ const WaterAnalysis = () => {
     }
     if (requiredFields.length === 0) return false;
     return requiredFields.every(field => inputData[field] !== '' && inputData[field] !== null && inputData[field] !== undefined);
-  }, [selectedPlant, analysisType, inputData, plantParameters]);
+  }, [selectedPlant, selectedWaterSystem, analysisType, inputData, plantParameters]);
 
   const loadPlants = useCallback(async () => {
     try {
@@ -273,7 +276,7 @@ const WaterAnalysis = () => {
 
   // Recompute plantParameters when analysis type changes (if a plant is selected)
   useEffect(() => {
-    if (!selectedPlant) return;
+    if (!selectedPlant || !analysisType) return;
     try {
       const plantDetails = selectedPlant;
       const params = analysisType === 'cooling' ? {
@@ -618,44 +621,93 @@ const WaterAnalysis = () => {
   const handlePlantChange = async (plant) => {
     if (!plant) {
       setSelectedPlant(null);
+      setAnalysisType(null);
+      setSelectedWaterSystem(null);
+      setWaterSystems([]);
       setPlantParameters(null);
       return;
     }
 
     try {
       setPlantDetailsLoading(true);
-          // Get full plant details from API
-    const plantDetails = await dataService.getPlant(plant.id);
-    setSelectedPlant(plantDetails);
-    
-    // Get plant-specific parameters from the detailed data (only include parameters that have values)
-    const params = analysisType === 'cooling' ? {
-      ...(plantDetails.cooling_ph_min != null && plantDetails.cooling_ph_max != null && { ph: { min: plantDetails.cooling_ph_min, max: plantDetails.cooling_ph_max } }),
-      ...(plantDetails.cooling_tds_min != null && plantDetails.cooling_tds_max != null && { tds: { min: plantDetails.cooling_tds_min, max: plantDetails.cooling_tds_max } }),
-      ...(plantDetails.cooling_hardness_max != null && { hardness: { max: plantDetails.cooling_hardness_max } }),
-      ...(plantDetails.cooling_alkalinity_max != null && { alkalinity: { max: plantDetails.cooling_alkalinity_max } }),
-      ...(plantDetails.cooling_chloride_enabled && plantDetails.cooling_chloride_max != null && { chloride: { max: plantDetails.cooling_chloride_max } }),
-      ...(plantDetails.cooling_cycle_enabled && plantDetails.cooling_cycle_min != null && plantDetails.cooling_cycle_max != null && { cycle: { min: plantDetails.cooling_cycle_min, max: plantDetails.cooling_cycle_max } }),
-      ...(plantDetails.cooling_iron_enabled && plantDetails.cooling_iron_max != null && { iron: { max: plantDetails.cooling_iron_max } }),
-      ...(plantDetails.cooling_lsi_enabled && plantDetails.cooling_lsi_min != null && plantDetails.cooling_lsi_max != null && { lsi: { min: plantDetails.cooling_lsi_min, max: plantDetails.cooling_lsi_max } }),
-      ...(plantDetails.cooling_rsi_enabled && plantDetails.cooling_rsi_min != null && plantDetails.cooling_rsi_max != null && { rsi: { min: plantDetails.cooling_rsi_min, max: plantDetails.cooling_rsi_max } })
-    } : {
-      ...(plantDetails.boiler_ph_min != null && plantDetails.boiler_ph_max != null && { ph: { min: plantDetails.boiler_ph_min, max: plantDetails.boiler_ph_max } }),
-      ...(plantDetails.boiler_tds_min != null && plantDetails.boiler_tds_max != null && { tds: { min: plantDetails.boiler_tds_min, max: plantDetails.boiler_tds_max } }),
-      ...(plantDetails.boiler_hardness_max != null && { hardness: { max: plantDetails.boiler_hardness_max } }),
-      ...(plantDetails.boiler_alkalinity_min != null && plantDetails.boiler_alkalinity_max != null && { alkalinity: { min: plantDetails.boiler_alkalinity_min, max: plantDetails.boiler_alkalinity_max } }),
-      ...(plantDetails.boiler_p_alkalinity_enabled && plantDetails.boiler_p_alkalinity_min != null && plantDetails.boiler_p_alkalinity_max != null && { p_alkalinity: { min: plantDetails.boiler_p_alkalinity_min, max: plantDetails.boiler_p_alkalinity_max } }),
-      ...(plantDetails.boiler_oh_alkalinity_enabled && plantDetails.boiler_oh_alkalinity_min != null && plantDetails.boiler_oh_alkalinity_max != null && { oh_alkalinity: { min: plantDetails.boiler_oh_alkalinity_min, max: plantDetails.boiler_oh_alkalinity_max } }),
-      ...(plantDetails.boiler_sulphite_enabled && plantDetails.boiler_sulphite_min != null && plantDetails.boiler_sulphite_max != null && { sulphite: { min: plantDetails.boiler_sulphite_min, max: plantDetails.boiler_sulphite_max } }),
-      ...(plantDetails.boiler_sodium_chloride_enabled && plantDetails.boiler_sodium_chloride_max != null && { sodium_chloride: { max: plantDetails.boiler_sodium_chloride_max } }),
-      ...(plantDetails.boiler_iron_enabled && plantDetails.boiler_iron_max != null && { iron: { max: plantDetails.boiler_iron_max } }),
-      ...(plantDetails.boiler_do_enabled && plantDetails.boiler_do_min != null && plantDetails.boiler_do_max != null && { do: { max: plantDetails.boiler_do_max } }),
-      ...(plantDetails.boiler_phosphate_enabled && plantDetails.boiler_phosphate_min != null && plantDetails.boiler_phosphate_max != null && { boiler_phosphate: { min: plantDetails.boiler_phosphate_min, max: plantDetails.boiler_phosphate_max } })
-    };
-    setPlantParameters(params);
+      setWaterSystemsLoading(true);
+      
+      // Get full plant details from API
+      const plantDetails = await dataService.getPlant(plant.id);
+      setSelectedPlant(plantDetails);
+      
+      // Reset analysis type and water system when plant changes
+      setAnalysisType(null);
+      setSelectedWaterSystem(null);
+      setPlantParameters(null);
+      
+      // Load water systems for this plant (don't filter yet - wait for analysis type selection)
+      try {
+        const systems = await dataService.getWaterSystemsByPlant(plant.id);
+        setWaterSystems(systems);
+      } catch (error) {
+        console.error('Error loading water systems:', error);
+        setWaterSystems([]);
+      }
     } catch (error) {
       handleError(error, 'Loading plant details');
       setSelectedPlant(null);
+      setAnalysisType(null);
+      setSelectedWaterSystem(null);
+      setPlantParameters(null);
+    } finally {
+      setPlantDetailsLoading(false);
+      setWaterSystemsLoading(false);
+    }
+  };
+
+  const handleWaterSystemChange = async (waterSystem) => {
+    if (!waterSystem) {
+      setSelectedWaterSystem(null);
+      setPlantParameters(null);
+      return;
+    }
+
+    try {
+      setPlantDetailsLoading(true);
+      setSelectedWaterSystem(waterSystem);
+      
+      // Get parameters from the water system based on system type
+      const params = waterSystem.system_type === 'cooling' 
+        ? waterSystem.get_cooling_parameters?.() || {
+            ...(waterSystem.cooling_ph_min != null && waterSystem.cooling_ph_max != null && { ph: { min: waterSystem.cooling_ph_min, max: waterSystem.cooling_ph_max } }),
+            ...(waterSystem.cooling_tds_min != null && waterSystem.cooling_tds_max != null && { tds: { min: waterSystem.cooling_tds_min, max: waterSystem.cooling_tds_max } }),
+            ...(waterSystem.cooling_hardness_max != null && { hardness: { max: waterSystem.cooling_hardness_max } }),
+            ...(waterSystem.cooling_alkalinity_max != null && { alkalinity: { max: waterSystem.cooling_alkalinity_max } }),
+            ...(waterSystem.cooling_chloride_enabled && waterSystem.cooling_chloride_max != null && { chloride: { max: waterSystem.cooling_chloride_max } }),
+            ...(waterSystem.cooling_cycle_enabled && waterSystem.cooling_cycle_min != null && waterSystem.cooling_cycle_max != null && { cycle: { min: waterSystem.cooling_cycle_min, max: waterSystem.cooling_cycle_max } }),
+            ...(waterSystem.cooling_iron_enabled && waterSystem.cooling_iron_max != null && { iron: { max: waterSystem.cooling_iron_max } }),
+            ...(waterSystem.cooling_phosphate_enabled && waterSystem.cooling_phosphate_max != null && { phosphate: { max: waterSystem.cooling_phosphate_max } }),
+            ...(waterSystem.cooling_lsi_enabled && waterSystem.cooling_lsi_min != null && waterSystem.cooling_lsi_max != null && { lsi: { min: waterSystem.cooling_lsi_min, max: waterSystem.cooling_lsi_max } }),
+            ...(waterSystem.cooling_rsi_enabled && waterSystem.cooling_rsi_min != null && waterSystem.cooling_rsi_max != null && { rsi: { min: waterSystem.cooling_rsi_min, max: waterSystem.cooling_rsi_max } })
+          }
+        : waterSystem.get_boiler_parameters?.() || {
+            ...(waterSystem.boiler_ph_min != null && waterSystem.boiler_ph_max != null && { ph: { min: waterSystem.boiler_ph_min, max: waterSystem.boiler_ph_max } }),
+            ...(waterSystem.boiler_tds_min != null && waterSystem.boiler_tds_max != null && { tds: { min: waterSystem.boiler_tds_min, max: waterSystem.boiler_tds_max } }),
+            ...(waterSystem.boiler_hardness_max != null && { hardness: { max: waterSystem.boiler_hardness_max } }),
+            ...(waterSystem.boiler_alkalinity_min != null && waterSystem.boiler_alkalinity_max != null && { alkalinity: { min: waterSystem.boiler_alkalinity_min, max: waterSystem.boiler_alkalinity_max } }),
+            ...(waterSystem.boiler_p_alkalinity_enabled && waterSystem.boiler_p_alkalinity_min != null && waterSystem.boiler_p_alkalinity_max != null && { p_alkalinity: { min: waterSystem.boiler_p_alkalinity_min, max: waterSystem.boiler_p_alkalinity_max } }),
+            ...(waterSystem.boiler_oh_alkalinity_enabled && waterSystem.boiler_oh_alkalinity_min != null && waterSystem.boiler_oh_alkalinity_max != null && { oh_alkalinity: { min: waterSystem.boiler_oh_alkalinity_min, max: waterSystem.boiler_oh_alkalinity_max } }),
+            ...(waterSystem.boiler_sulphite_enabled && waterSystem.boiler_sulphite_min != null && waterSystem.boiler_sulphite_max != null && { sulphite: { min: waterSystem.boiler_sulphite_min, max: waterSystem.boiler_sulphite_max } }),
+            ...(waterSystem.boiler_sodium_chloride_enabled && waterSystem.boiler_sodium_chloride_max != null && { sodium_chloride: { max: waterSystem.boiler_sodium_chloride_max } }),
+            ...(waterSystem.boiler_iron_enabled && waterSystem.boiler_iron_max != null && { iron: { max: waterSystem.boiler_iron_max } }),
+            ...(waterSystem.boiler_do_enabled && waterSystem.boiler_do_min != null && waterSystem.boiler_do_max != null && { do: { min: waterSystem.boiler_do_min, max: waterSystem.boiler_do_max } }),
+            ...(waterSystem.boiler_phosphate_enabled && waterSystem.boiler_phosphate_min != null && waterSystem.boiler_phosphate_max != null && { boiler_phosphate: { min: waterSystem.boiler_phosphate_min, max: waterSystem.boiler_phosphate_max } })
+          };
+      
+      setPlantParameters(params);
+      // Update analysis type based on water system type
+      if (waterSystem.system_type !== analysisType) {
+        setAnalysisType(waterSystem.system_type);
+      }
+    } catch (error) {
+      handleError(error, 'Loading water system details');
+      setSelectedWaterSystem(null);
       setPlantParameters(null);
     } finally {
       setPlantDetailsLoading(false);
@@ -665,6 +717,9 @@ const WaterAnalysis = () => {
   // Clear results when switching analysis types
   const handleAnalysisTypeChange = (newType) => {
     setAnalysisType(newType);
+    // Clear water system selection when switching types
+    setSelectedWaterSystem(null);
+    setPlantParameters(null);
     // Clear input data when switching types
     setInputData({
       ph: '',
@@ -677,12 +732,15 @@ const WaterAnalysis = () => {
       cycle: '',
       iron: '',
       sulphate: '',
+      phosphate: '',
       // Boiler water specific parameters
       m_alkalinity: '',
       p_alkalinity: '',
       oh_alkalinity: '',
       sulphite: '',
       sodium_chloride: '',
+      do: '',
+      boiler_phosphate: '',
       analysis_name: 'Water Analysis',
       notes: ''
     });
@@ -792,9 +850,17 @@ const WaterAnalysis = () => {
   };
   
   const calculateAnalysis = async () => {
-    // Validate that a plant is selected
+    // Validate that a plant, analysis type, and water system are selected
     if (!selectedPlant) {
       toast.error('Please select a plant before calculating analysis');
+      return;
+    }
+    if (!analysisType) {
+      toast.error('Please select an analysis type (Cooling or Boiler Water) before calculating analysis');
+      return;
+    }
+    if (!selectedWaterSystem) {
+      toast.error('Please select a water system before calculating analysis');
       return;
     }
     
@@ -803,7 +869,8 @@ const WaterAnalysis = () => {
       // Prepare request data based on analysis type
       let requestData = {
         analysis_type: analysisType,
-        plant_id: selectedPlant.id
+        plant_id: selectedPlant.id,
+        water_system_id: selectedWaterSystem.id
       };
       
       if (analysisType === 'boiler') {
@@ -816,20 +883,26 @@ const WaterAnalysis = () => {
           m_alkalinity: inputData.m_alkalinity || 0
         };
         
-        // Only include optional fields if they're enabled for this plant
-        if (selectedPlant?.boiler_p_alkalinity_enabled) {
+        // Only include optional fields if they're enabled for this water system
+        if (selectedWaterSystem?.boiler_p_alkalinity_enabled) {
           requestData.p_alkalinity = inputData.p_alkalinity || 0;
         }
-        if (selectedPlant?.boiler_oh_alkalinity_enabled) {
+        if (selectedWaterSystem?.boiler_oh_alkalinity_enabled) {
           requestData.oh_alkalinity = inputData.oh_alkalinity || 0;
         }
-        if (selectedPlant?.boiler_sulphite_enabled) {
+        if (selectedWaterSystem?.boiler_sulphite_enabled) {
           requestData.sulphite = inputData.sulphite || 0;
         }
-        if (selectedPlant?.boiler_sodium_chloride_enabled) {
+        if (selectedWaterSystem?.boiler_sodium_chloride_enabled) {
           requestData.sodium_chloride = inputData.sodium_chloride || 0;
         }
-        if (selectedPlant?.boiler_iron_enabled) {
+        if (selectedWaterSystem?.boiler_do_enabled) {
+          requestData.do = inputData.do || 0;
+        }
+        if (selectedWaterSystem?.boiler_phosphate_enabled) {
+          requestData.boiler_phosphate = inputData.boiler_phosphate || 0;
+        }
+        if (selectedWaterSystem?.boiler_iron_enabled) {
           requestData.iron = inputData.iron || 0;
         }
       } else {
@@ -844,15 +917,18 @@ const WaterAnalysis = () => {
           sulphate: inputData.sulphate || 0
         };
         
-        // Add optional fields only if they're enabled for this plant
-        if (selectedPlant?.cooling_chloride_enabled) {
+        // Add optional fields only if they're enabled for this water system
+        if (selectedWaterSystem?.cooling_chloride_enabled) {
           coolingData.chloride = inputData.chloride || 0;
         }
-        if (selectedPlant?.cooling_cycle_enabled) {
+        if (selectedWaterSystem?.cooling_cycle_enabled) {
           coolingData.cycle = inputData.cycle || 0;
         }
-        if (selectedPlant?.cooling_iron_enabled) {
+        if (selectedWaterSystem?.cooling_iron_enabled) {
           coolingData.iron = inputData.iron || 0;
+        }
+        if (selectedWaterSystem?.cooling_phosphate_enabled) {
+          coolingData.phosphate = inputData.phosphate || 0;
         }
         
         requestData = {
@@ -904,9 +980,17 @@ const WaterAnalysis = () => {
   };
   
   const saveAnalysis = async () => {
-    // Validate that a plant is selected
+    // Validate that a plant, analysis type, and water system are selected
     if (!selectedPlant) {
       toast.error('Please select a plant before saving analysis');
+      return;
+    }
+    if (!analysisType) {
+      toast.error('Please select an analysis type (Cooling or Boiler Water) before saving analysis');
+      return;
+    }
+    if (!selectedWaterSystem) {
+      toast.error('Please select a water system before saving analysis');
       return;
     }
     
@@ -930,15 +1014,18 @@ const WaterAnalysis = () => {
         // For cooling water, check core required fields
         let requiredFields = ['ph', 'tds', 'total_alkalinity', 'hardness', 'temperature', 'hot_temperature'];
         
-        // Add optional fields only if they're enabled for this plant
-        if (selectedPlant?.cooling_chloride_enabled) {
+        // Add optional fields only if they're enabled for this water system
+        if (selectedWaterSystem?.cooling_chloride_enabled) {
           requiredFields.push('chloride');
         }
-        if (selectedPlant?.cooling_cycle_enabled) {
+        if (selectedWaterSystem?.cooling_cycle_enabled) {
           requiredFields.push('cycle');
         }
-        if (selectedPlant?.cooling_iron_enabled) {
+        if (selectedWaterSystem?.cooling_iron_enabled) {
           requiredFields.push('iron');
+        }
+        if (selectedWaterSystem?.cooling_phosphate_enabled) {
+          requiredFields.push('phosphate');
         }
         
         for (const field of requiredFields) {
@@ -952,26 +1039,26 @@ const WaterAnalysis = () => {
           // For boiler water, check core required fields
           let requiredFields = ['ph', 'tds', 'hardness', 'm_alkalinity'];
           
-          // Add optional fields only if they're enabled for this plant
-          if (selectedPlant?.boiler_p_alkalinity_enabled) {
+          // Add optional fields only if they're enabled for this water system
+          if (selectedWaterSystem?.boiler_p_alkalinity_enabled) {
             requiredFields.push('p_alkalinity');
           }
-          if (selectedPlant?.boiler_oh_alkalinity_enabled) {
+          if (selectedWaterSystem?.boiler_oh_alkalinity_enabled) {
             requiredFields.push('oh_alkalinity');
           }
-          if (selectedPlant?.boiler_sulphite_enabled) {
+          if (selectedWaterSystem?.boiler_sulphite_enabled) {
             requiredFields.push('sulphite');
           }
-          if (selectedPlant?.boiler_sodium_chloride_enabled) {
+          if (selectedWaterSystem?.boiler_sodium_chloride_enabled) {
             requiredFields.push('sodium_chloride');
           }
-          if (selectedPlant?.boiler_iron_enabled) {
+          if (selectedWaterSystem?.boiler_iron_enabled) {
             requiredFields.push('iron');
           }
-          if (selectedPlant?.boiler_do_enabled) {
+          if (selectedWaterSystem?.boiler_do_enabled) {
             requiredFields.push('do');
           }
-          if (selectedPlant?.boiler_phosphate_enabled) {
+          if (selectedWaterSystem?.boiler_phosphate_enabled) {
             requiredFields.push('boiler_phosphate');
           }
           
@@ -994,7 +1081,8 @@ const WaterAnalysis = () => {
       const calculationResponse = await api.post('/calculate-water-analysis-with-recommendations/', {
         ...calculationData,
         analysis_type: analysisType,
-        plant_id: selectedPlant.id
+        plant_id: selectedPlant.id,
+        water_system_id: selectedWaterSystem.id
       });
 
       let calculatedResults = {};
@@ -1027,7 +1115,7 @@ const WaterAnalysis = () => {
         ...cleanInputData,
         ...calculatedResults,
         analysis_type: analysisType,
-        plant: selectedPlant.id,
+        water_system: selectedWaterSystem.id,
         analysis_date: new Date().toISOString().split('T')[0], // Add current date
         analysis_name: 'Water Analysis', // Add analysis name
         notes: '', // Add empty notes field
@@ -1160,41 +1248,6 @@ const WaterAnalysis = () => {
           </p>
         </div>
 
-        {/* Analysis Type Selector */}
-        <div className='mb-6'>
-          <div className='bg-white rounded-lg shadow-md p-4'>
-            <div className='flex items-center space-x-4'>
-              <span className='text-sm font-medium text-gray-700'>
-                Analysis Type:
-              </span>
-              <div className='flex space-x-2'>
-                <button
-                  onClick={() => handleAnalysisTypeChange("cooling")}
-                  className={`px-4 py-2 rounded-md text-sm font-medium ${
-                    analysisType === "cooling"
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                  }`}
-                >
-                  <Droplets className='w-4 h-4 inline mr-2' />
-                  Cooling Water
-                </button>
-                <button
-                  onClick={() => handleAnalysisTypeChange("boiler")}
-                  className={`px-4 py-2 rounded-md text-sm font-medium ${
-                    analysisType === "boiler"
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                  }`}
-                >
-                  <Thermometer className='w-4 h-4 inline mr-2' />
-                  Boiler Water
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* Plant Selection */}
         <div className='mb-6'>
           <div className='bg-white rounded-lg shadow-md p-4'>
@@ -1220,15 +1273,104 @@ const WaterAnalysis = () => {
               </div>
             )}
             {selectedPlant && !plantDetailsLoading && (
-              <div className='mt-2 text-sm text-gray-600'>
-                <p>
-                  Selected: <strong>{selectedPlant.name}</strong>
-                </p>
+              <div className='mt-4 space-y-4'>
+                {/* <div className='text-sm text-gray-600'>
+                  <p>
+                    Selected Plant: <strong>{selectedPlant.name}</strong>
+                  </p>
+                </div> */}
+                
+                {/* Analysis Type Selector - Only shown after plant is selected */}
+                <div className='flex items-center space-x-4'>
+                  <span className='text-sm font-medium text-gray-700'>
+                    Analysis Type: <span className='text-red-500'>*</span>
+                  </span>
+                  <div className='flex space-x-2'>
+                    <button
+                      onClick={() => handleAnalysisTypeChange("cooling")}
+                      className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                        analysisType === "cooling"
+                          ? "bg-blue-600 text-white"
+                          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                      }`}
+                    >
+                      <Droplets className='w-4 h-4 inline mr-2' />
+                      Cooling Water
+                    </button>
+                    <button
+                      onClick={() => handleAnalysisTypeChange("boiler")}
+                      className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                        analysisType === "boiler"
+                          ? "bg-blue-600 text-white"
+                          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                      }`}
+                    >
+                      <Thermometer className='w-4 h-4 inline mr-2' />
+                      Boiler Water
+                    </button>
+                  </div>
+                </div>
+                
+                {/* Water System Selection - Only shown after analysis type is selected */}
+                {analysisType && (
+                  <>
+                    {waterSystemsLoading ? (
+                      <div className='text-sm text-gray-500'>Loading water systems...</div>
+                    ) : waterSystems.length > 0 ? (
+                      <div className='flex items-center space-x-4'>
+                        <span className='text-sm font-medium text-gray-700'>
+                          Select Water System: <span className='text-red-500'>*</span>
+                        </span>
+                        <div className='flex-1 max-w-md'>
+                          <SearchableSelect
+                            options={waterSystems
+                              .filter(ws => ws.system_type === analysisType)
+                              .map(ws => ({
+                                ...ws,
+                                name: `${ws.name} (${ws.system_type_display || (ws.system_type === 'cooling' ? 'Cooling Water' : 'Boiler Water')})`
+                              }))}
+                            value={selectedWaterSystem ? {
+                              ...selectedWaterSystem,
+                              name: `${selectedWaterSystem.name} (${selectedWaterSystem.system_type_display || (selectedWaterSystem.system_type === 'cooling' ? 'Cooling Water' : 'Boiler Water')})`
+                            } : null}
+                            onChange={handleWaterSystemChange}
+                            placeholder='Search and select a water system...'
+                            loading={waterSystemsLoading}
+                            searchPlaceholder='Type to search water systems...'
+                            noOptionsMessage={`No ${analysisType} water systems found for this plant`}
+                          />
+                        </div>
+                      </div>
+                    ) : (
+                      <div className='text-sm text-yellow-600'>
+                        <p>⚠️ No water systems found for this plant. Please add water systems in Plant Management.</p>
+                      </div>
+                    )}
+                    
+                    {/* {selectedWaterSystem && (
+                      <div className='text-sm text-gray-600'>
+                        <p>
+                          Selected: <strong>{selectedWaterSystem.name}</strong> ({selectedWaterSystem.system_type_display || (selectedWaterSystem.system_type === 'cooling' ? 'Cooling Water' : 'Boiler Water')})
+                        </p>
+                      </div>
+                    )} */}
+                  </>
+                )}
               </div>
             )}
             {!selectedPlant && !plantDetailsLoading && (
               <div className='mt-2 text-sm text-red-600'>
-                <p>⚠️ Please select a plant to calculate water analysis</p>
+                <p>⚠️ Please select a plant to continue</p>
+              </div>
+            )}
+            {selectedPlant && !analysisType && (
+              <div className='mt-2 text-sm text-red-600'>
+                <p>⚠️ Please select an analysis type (Cooling or Boiler Water)</p>
+              </div>
+            )}
+            {selectedPlant && analysisType && !selectedWaterSystem && !waterSystemsLoading && waterSystems.length > 0 && (
+              <div className='mt-2 text-sm text-red-600'>
+                <p>⚠️ Please select a water system to calculate water analysis</p>
               </div>
             )}
           </div>
