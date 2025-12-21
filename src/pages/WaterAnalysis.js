@@ -907,14 +907,15 @@ const WaterAnalysis = () => {
         }
       } else {
         // For cooling water, send all required fields
+        // Use null instead of 0 for empty values to allow backend to properly check for missing data
         const coolingData = {
-          ph: inputData.ph || 0,
-          tds: inputData.tds || 0,
-          total_alkalinity: inputData.total_alkalinity || 0,
-          hardness: inputData.hardness || 0,
-          temperature: inputData.temperature || 0,
-          hot_temperature: inputData.hot_temperature || 0,
-          sulphate: inputData.sulphate || 0
+          ph: inputData.ph !== '' && inputData.ph != null ? parseFloat(inputData.ph) : null,
+          tds: inputData.tds !== '' && inputData.tds != null ? parseFloat(inputData.tds) : null,
+          total_alkalinity: inputData.total_alkalinity !== '' && inputData.total_alkalinity != null ? parseFloat(inputData.total_alkalinity) : null,
+          hardness: inputData.hardness !== '' && inputData.hardness != null ? parseFloat(inputData.hardness) : null,
+          temperature: inputData.temperature !== '' && inputData.temperature != null ? parseFloat(inputData.temperature) : (inputData.hot_temperature !== '' && inputData.hot_temperature != null ? parseFloat(inputData.hot_temperature) : null),
+          hot_temperature: inputData.hot_temperature !== '' && inputData.hot_temperature != null ? parseFloat(inputData.hot_temperature) : null,
+          sulphate: inputData.sulphate !== '' && inputData.sulphate != null ? parseFloat(inputData.sulphate) : null
         };
         
         // Add optional fields only if they're enabled for this water system
@@ -966,9 +967,24 @@ const WaterAnalysis = () => {
         });
         
         setResults(validResults);
-      setRecommendations(response.data.recommendations);
+        setRecommendations(response.data.recommendations);
         // Only load trends for cooling water
         await loadTrends();
+        
+        // Check if LSI/RSI are missing and show a helpful message
+        if (analysisType === 'cooling' && (!validResults.lsi || !validResults.rsi)) {
+          const missingFields = [];
+          if (!inputData.total_alkalinity || inputData.total_alkalinity === '') {
+            missingFields.push('Total Alkalinity');
+          }
+          if ((!inputData.temperature || inputData.temperature === '') && 
+              (!inputData.hot_temperature || inputData.hot_temperature === '')) {
+            missingFields.push('Temperature (Basin or Hot Side)');
+          }
+          if (missingFields.length > 0) {
+            toast.warning(`LSI and RSI cannot be calculated. Missing: ${missingFields.join(', ')}`);
+          }
+        }
       }
       
       toast.success('Analysis calculated successfully!');
@@ -996,6 +1012,16 @@ const WaterAnalysis = () => {
     
     setLoading(true);
     try {
+      // Validate pH range before processing
+      if (inputData.ph !== '' && inputData.ph != null) {
+        const phValue = parseFloat(inputData.ph);
+        if (isNaN(phValue) || phValue < 0 || phValue > 14) {
+          toast.error('pH must be between 0 and 14');
+          setLoading(false);
+          return;
+        }
+      }
+      
       // Clean the data - convert empty strings to null and ensure proper types
       const cleanInputData = {};
       Object.keys(inputData).forEach(key => {
@@ -1145,9 +1171,26 @@ const WaterAnalysis = () => {
       if (error.response?.data) {
         // Show specific validation errors
         const errorData = error.response.data;
-        if (typeof errorData === 'object') {
+        
+        // Handle field-specific validation errors
+        if (errorData.ph) {
+          const phErrors = Array.isArray(errorData.ph) ? errorData.ph : [errorData.ph];
+          phErrors.forEach(err => {
+            if (typeof err === 'string' && err.includes('less than or equal to 14')) {
+              toast.error('pH must be between 0 and 14. Please correct the value and try again.');
+            } else if (typeof err === 'string') {
+              toast.error(`pH Error: ${err}`);
+            }
+          });
+        } else if (typeof errorData === 'object') {
           const errorMessages = Object.values(errorData).flat();
-          toast.error(`Validation Error: ${errorMessages.join(', ')}`);
+          const errorText = errorMessages.join(', ');
+          // Check if it's a pH validation error
+          if (errorText.includes('less than or equal to 14') || errorText.includes('pH')) {
+            toast.error('pH must be between 0 and 14. Please correct the value and try again.');
+          } else {
+            toast.error(`Validation Error: ${errorText}`);
+          }
         } else {
           toast.error(`Error: ${errorData}`);
         }
@@ -1390,7 +1433,7 @@ const WaterAnalysis = () => {
               {plantParameters?.ph && (
               <div>
                 <label className='block text-sm font-medium text-gray-700 mb-1'>
-                  pH
+                  pH <span className='text-red-500'>*</span>
                 </label>
                 <input
                   type='number'
@@ -1398,14 +1441,21 @@ const WaterAnalysis = () => {
                   min='0'
                   max='14'
                   value={inputData.ph}
-                  onChange={(e) =>
-                    handleInputChange(
-                      "ph",
-                      e.target.value === "" ? "" : parseFloat(e.target.value)
-                    )
-                  }
+                  onChange={(e) => {
+                    const value = e.target.value === "" ? "" : parseFloat(e.target.value);
+                    // Validate pH range
+                    if (value !== "" && (value < 0 || value > 14)) {
+                      toast.error('pH must be between 0 and 14');
+                      return;
+                    }
+                    handleInputChange("ph", value);
+                  }}
                   className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                  placeholder='0-14'
                 />
+                {inputData.ph !== '' && inputData.ph != null && (inputData.ph < 0 || inputData.ph > 14) && (
+                  <p className='text-red-500 text-xs mt-1'>pH must be between 0 and 14</p>
+                )}
               </div>
               )}
               
