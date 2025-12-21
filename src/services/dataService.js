@@ -88,9 +88,36 @@ export const dataService = {
   // Generate report
   async generateReport(reportData) {
     try {
-      const response = await api.post('/reports/generate/', reportData);
-      return response.data;
+      const response = await api.post('/reports/generate/', reportData, {
+        responseType: 'blob', // Expect PDF blob response
+      });
+      
+      // Create blob URL (don't auto-download)
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      
+      // Get filename from response headers or use default
+      const contentDisposition = response.headers['content-disposition'];
+      let filename = 'report.pdf';
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="?(.+)"?/i);
+        if (filenameMatch) {
+          filename = filenameMatch[1];
+        }
+      }
+      
+      return { success: true, filename, blobUrl: url, blob: blob };
     } catch (error) {
+      // Try to parse error message from blob if it's a JSON error response
+      if (error.response?.data instanceof Blob) {
+        try {
+          const text = await error.response.data.text();
+          const errorData = JSON.parse(text);
+          throw new Error(errorData.error || 'Failed to generate report');
+        } catch (parseError) {
+          throw new Error('Failed to generate report');
+        }
+      }
       throw new Error(error.response?.data?.error || 'Failed to generate report');
     }
   },
@@ -254,8 +281,11 @@ export const dataService = {
   async getWaterSystems(params = {}) {
     try {
       const response = await api.get('/water-systems/', { params });
-      return response.data;
+      // Handle paginated response (if API returns {results: [...], count: ...})
+      // or direct array response
+      return Array.isArray(response.data) ? response.data : (response.data.results || response.data || []);
     } catch (error) {
+      console.error('Error fetching water systems:', error);
       throw new Error('Failed to fetch water systems');
     }
   },

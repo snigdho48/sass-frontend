@@ -130,12 +130,22 @@ const WaterAnalysis = () => {
     if (analysisType === 'cooling') {
       if (plantParameters?.ph) requiredFields.push('ph');
       if (plantParameters?.tds) requiredFields.push('tds');
-      if (plantParameters?.alkalinity) requiredFields.push('total_alkalinity');
+      if (plantParameters?.total_alkalinity || plantParameters?.alkalinity) requiredFields.push('total_alkalinity');
       if (plantParameters?.hardness) requiredFields.push('hardness');
-      // Temperature inputs are required only if we can compute indices (need all four above)
-      const needsTemp = plantParameters?.ph && plantParameters?.tds && plantParameters?.alkalinity && plantParameters?.hardness;
+      // Temperature inputs are required if we can compute LSI/RSI (need all four above: ph, tds, alkalinity, hardness)
+      // At least one temperature (basin or hot side) is required for LSI/RSI calculation
+      const needsTemp = plantParameters?.ph && plantParameters?.tds && (plantParameters?.total_alkalinity || plantParameters?.alkalinity) && plantParameters?.hardness;
       if (needsTemp) {
-        requiredFields.push('temperature', 'hot_temperature');
+        // If basin_temperature is available, require it; otherwise require hot_temperature if available
+        if (plantParameters?.basin_temperature) {
+          requiredFields.push('temperature');
+        } else if (plantParameters?.hot_temperature) {
+          requiredFields.push('hot_temperature');
+        } else {
+          // If neither is explicitly configured but we can calculate LSI/RSI, require at least one
+          // This handles the auto-enabled case
+          requiredFields.push('temperature'); // Require basin temperature as default
+        }
       }
       if (plantParameters?.chloride) requiredFields.push('chloride');
       if (plantParameters?.cycle) requiredFields.push('cycle');
@@ -679,10 +689,13 @@ const WaterAnalysis = () => {
             ...(waterSystem.cooling_tds_min != null && waterSystem.cooling_tds_max != null && { tds: { min: waterSystem.cooling_tds_min, max: waterSystem.cooling_tds_max } }),
             ...(waterSystem.cooling_hardness_max != null && { hardness: { max: waterSystem.cooling_hardness_max } }),
             ...(waterSystem.cooling_alkalinity_max != null && { alkalinity: { max: waterSystem.cooling_alkalinity_max } }),
+            ...(waterSystem.cooling_total_alkalinity_min != null || waterSystem.cooling_total_alkalinity_max != null ? { total_alkalinity: { min: waterSystem.cooling_total_alkalinity_min, max: waterSystem.cooling_total_alkalinity_max } } : {}),
             ...(waterSystem.cooling_chloride_enabled && waterSystem.cooling_chloride_max != null && { chloride: { max: waterSystem.cooling_chloride_max } }),
             ...(waterSystem.cooling_cycle_enabled && waterSystem.cooling_cycle_min != null && waterSystem.cooling_cycle_max != null && { cycle: { min: waterSystem.cooling_cycle_min, max: waterSystem.cooling_cycle_max } }),
             ...(waterSystem.cooling_iron_enabled && waterSystem.cooling_iron_max != null && { iron: { max: waterSystem.cooling_iron_max } }),
             ...(waterSystem.cooling_phosphate_enabled && waterSystem.cooling_phosphate_max != null && { phosphate: { max: waterSystem.cooling_phosphate_max } }),
+            ...(waterSystem.cooling_temperature_enabled && (waterSystem.cooling_temperature_min != null || waterSystem.cooling_temperature_max != null) && { basin_temperature: { min: waterSystem.cooling_temperature_min, max: waterSystem.cooling_temperature_max } }),
+            ...(waterSystem.cooling_hot_temperature_enabled && (waterSystem.cooling_hot_temperature_min != null || waterSystem.cooling_hot_temperature_max != null) && { hot_temperature: { min: waterSystem.cooling_hot_temperature_min, max: waterSystem.cooling_hot_temperature_max } }),
             ...(waterSystem.cooling_lsi_enabled && waterSystem.cooling_lsi_min != null && waterSystem.cooling_lsi_max != null && { lsi: { min: waterSystem.cooling_lsi_min, max: waterSystem.cooling_lsi_max } }),
             ...(waterSystem.cooling_rsi_enabled && waterSystem.cooling_rsi_min != null && waterSystem.cooling_rsi_max != null && { rsi: { min: waterSystem.cooling_rsi_min, max: waterSystem.cooling_rsi_max } })
           }
@@ -699,6 +712,36 @@ const WaterAnalysis = () => {
             ...(waterSystem.boiler_do_enabled && waterSystem.boiler_do_min != null && waterSystem.boiler_do_max != null && { do: { min: waterSystem.boiler_do_min, max: waterSystem.boiler_do_max } }),
             ...(waterSystem.boiler_phosphate_enabled && waterSystem.boiler_phosphate_min != null && waterSystem.boiler_phosphate_max != null && { boiler_phosphate: { min: waterSystem.boiler_phosphate_min, max: waterSystem.boiler_phosphate_max } })
           };
+      
+      // Auto-enable temperature parameters if LSI/RSI can be calculated
+      // LSI/RSI requires: ph, tds, total_alkalinity (or alkalinity), hardness, and temperature
+      if (waterSystem.system_type === 'cooling') {
+        const hasPh = params.ph != null;
+        const hasTds = params.tds != null;
+        const hasAlkalinity = (params.total_alkalinity != null || params.alkalinity != null);
+        const hasHardness = params.hardness != null;
+        const canCalculateLSI = hasPh && hasTds && hasAlkalinity && hasHardness;
+        
+        // If we can calculate LSI/RSI but temperature params are not enabled, auto-enable them
+        if (canCalculateLSI) {
+          if (!params.basin_temperature && (waterSystem.cooling_temperature_min != null || waterSystem.cooling_temperature_max != null)) {
+            params.basin_temperature = { 
+              min: waterSystem.cooling_temperature_min, 
+              max: waterSystem.cooling_temperature_max 
+            };
+          }
+          if (!params.hot_temperature && (waterSystem.cooling_hot_temperature_min != null || waterSystem.cooling_hot_temperature_max != null)) {
+            params.hot_temperature = { 
+              min: waterSystem.cooling_hot_temperature_min, 
+              max: waterSystem.cooling_hot_temperature_max 
+            };
+          }
+          // If neither temperature is configured but we need it, enable at least basin_temperature with default range
+          if (!params.basin_temperature && !params.hot_temperature) {
+            params.basin_temperature = { min: null, max: null }; // Enable without range, user can input
+          }
+        }
+      }
       
       setPlantParameters(params);
       // Update analysis type based on water system type
@@ -1038,7 +1081,26 @@ const WaterAnalysis = () => {
       // Validate required fields for the analysis type
       if (analysisType === 'cooling') {
         // For cooling water, check core required fields
-        let requiredFields = ['ph', 'tds', 'total_alkalinity', 'hardness', 'temperature', 'hot_temperature'];
+        let requiredFields = ['ph', 'tds', 'total_alkalinity', 'hardness'];
+        
+        // Temperature: require at least one (basin or hot side) if LSI/RSI can be calculated
+        const needsTemp = plantParameters?.ph && plantParameters?.tds && (plantParameters?.total_alkalinity || plantParameters?.alkalinity) && plantParameters?.hardness;
+        if (needsTemp) {
+          // If basin_temperature is available, require it; otherwise require hot_temperature if available
+          if (plantParameters?.basin_temperature) {
+            requiredFields.push('temperature');
+          } else if (plantParameters?.hot_temperature) {
+            requiredFields.push('hot_temperature');
+          } else {
+            // If neither is explicitly configured but we can calculate LSI/RSI, require at least one
+            // Check if user has provided at least one temperature
+            const hasTemperature = (inputData.temperature !== '' && inputData.temperature != null) || 
+                                   (inputData.hot_temperature !== '' && inputData.hot_temperature != null);
+            if (!hasTemperature) {
+              requiredFields.push('temperature'); // Require basin temperature as default
+            }
+          }
+        }
         
         // Add optional fields only if they're enabled for this water system
         if (selectedWaterSystem?.cooling_chloride_enabled) {
@@ -1054,14 +1116,41 @@ const WaterAnalysis = () => {
           requiredFields.push('phosphate');
         }
         
+        // Check required fields - for temperature, at least one must be provided
+        const missingFields = [];
         for (const field of requiredFields) {
+          // Special handling for temperature fields - at least one must be provided
+          if (field === 'temperature' || field === 'hot_temperature') {
+            const hasTemperature = (inputData.temperature !== '' && inputData.temperature != null) || 
+                                   (inputData.hot_temperature !== '' && inputData.hot_temperature != null);
+            if (!hasTemperature) {
+              missingFields.push(field === 'temperature' ? 'Basin Temperature' : 'Hot Side Temperature');
+            }
+            continue; // Skip the normal check for temperature fields
+          }
+          
+          // Normal check for other fields
           if (cleanInputData[field] === null || cleanInputData[field] === undefined) {
-            toast.error(`Please fill in all required fields. Missing: ${field}`);
-            setLoading(false);
-            return;
+            const fieldNames = {
+              ph: 'pH',
+              tds: 'TDS',
+              total_alkalinity: 'Total Alkalinity',
+              hardness: 'Hardness',
+              chloride: 'Chloride',
+              cycle: 'Cycle of Concentration',
+              iron: 'Iron',
+              phosphate: 'Phosphate'
+            };
+            missingFields.push(fieldNames[field] || field);
           }
         }
-              } else {
+        
+        if (missingFields.length > 0) {
+          toast.error(`Please fill in all required fields. Missing: ${missingFields.join(', ')}`);
+          setLoading(false);
+          return;
+        }
+      } else {
           // For boiler water, check core required fields
           let requiredFields = ['ph', 'tds', 'hardness', 'm_alkalinity'];
           
@@ -1137,26 +1226,27 @@ const WaterAnalysis = () => {
         };
       }
 
+      // Create analysisData with proper field mapping
+      // Exclude frontend field names that need to be mapped
+      const { temperature: frontendTemperature, hot_temperature: frontendHotTemperature, ...otherInputData } = cleanInputData;
+      
       const analysisData = {
-        ...cleanInputData,
+        ...otherInputData,  // All other fields as-is
         ...calculatedResults,
         analysis_type: analysisType,
         water_system: selectedWaterSystem.id,
         analysis_date: new Date().toISOString().split('T')[0], // Add current date
         analysis_name: 'Water Analysis', // Add analysis name
-        notes: '', // Add empty notes field
+        notes: cleanInputData.notes || '', // Add notes field
         // Map frontend field names to model field names
-        basin_temperature: cleanInputData.temperature, // Basin Temperature
-        temperature: cleanInputData.hot_temperature,    // Hot Side Temperature
-        // Add missing fields that exist in the model
+        basin_temperature: frontendTemperature || null, // Basin Temperature (frontend 'temperature' -> model 'basin_temperature')
+        temperature: frontendHotTemperature || null,    // Hot Side Temperature (frontend 'hot_temperature' -> model 'temperature')
+        // Ensure all optional fields are included even if null
         sulphate: cleanInputData.sulphate || null,
         m_alkalinity: cleanInputData.m_alkalinity || null,
         psi: null, // PSI is not calculated anymore
         psi_status: '', // PSI status is not calculated anymore
       };
-      
-      // Remove the old field names to avoid confusion
-      delete analysisData.hot_temperature;
       
       
       await api.post('/water-analysis/', analysisData);
@@ -1482,7 +1572,7 @@ const WaterAnalysis = () => {
               
               {analysisType === "cooling" && (
                 <>
-              {plantParameters?.alkalinity && (
+              {(plantParameters?.total_alkalinity || plantParameters?.alkalinity) && (
               <div>
                     <label className='block text-sm font-medium text-gray-700 mb-1'>
                       Total Alkalinity as CaCO₃ (ppm)
@@ -1743,7 +1833,7 @@ const WaterAnalysis = () => {
                 </div>
               )}
                   
-                  {plantParameters?.ph && plantParameters?.tds && plantParameters?.alkalinity && plantParameters?.hardness && (
+                  {plantParameters?.basin_temperature && (
                   <div>
                     <label className='block text-sm font-medium text-gray-700 mb-1'>
                       Basin Temperature (°C)
@@ -1766,7 +1856,7 @@ const WaterAnalysis = () => {
               </div>
                   )}
                   
-                  {plantParameters?.ph && plantParameters?.tds && plantParameters?.alkalinity && plantParameters?.hardness && (
+                  {plantParameters?.hot_temperature && (
                   <div>
                     <label className='block text-sm font-medium text-gray-700 mb-1'>
                       Hot Side Temperature (°C)

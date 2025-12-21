@@ -50,8 +50,16 @@ const DataEntry = () => {
     cooling_tds_max: '',
     cooling_hardness_max: '',
     cooling_alkalinity_max: '',
+    cooling_total_alkalinity_min: '',
+    cooling_total_alkalinity_max: '',
     cooling_chloride_max: '',
     cooling_chloride_enabled: false,
+    cooling_temperature_min: '',
+    cooling_temperature_max: '',
+    cooling_temperature_enabled: false,
+    cooling_hot_temperature_min: '',
+    cooling_hot_temperature_max: '',
+    cooling_hot_temperature_enabled: false,
     cooling_cycle_min: '',
     cooling_cycle_max: '',
     cooling_cycle_enabled: false,
@@ -245,7 +253,15 @@ const DataEntry = () => {
         cooling_tds_max: '',
         cooling_hardness_max: '',
         cooling_alkalinity_max: '',
+        cooling_total_alkalinity_min: '',
+        cooling_total_alkalinity_max: '',
         cooling_chloride_max: '',
+        cooling_temperature_min: '',
+        cooling_temperature_max: '',
+        cooling_temperature_enabled: false,
+        cooling_hot_temperature_min: '',
+        cooling_hot_temperature_max: '',
+        cooling_hot_temperature_enabled: false,
         cooling_chloride_enabled: false,
         cooling_cycle_min: '',
         cooling_cycle_max: '',
@@ -369,9 +385,15 @@ const DataEntry = () => {
         system_type: 'cooling',
         is_active: true,
         cooling_ph_min: '', cooling_ph_max: '', cooling_tds_min: '', cooling_tds_max: '',
-        cooling_hardness_max: '', cooling_alkalinity_max: '', cooling_chloride_max: '',
+        cooling_hardness_max: '', cooling_alkalinity_max: '', 
+        cooling_total_alkalinity_min: '', cooling_total_alkalinity_max: '',
+        cooling_chloride_max: '',
         cooling_chloride_enabled: false, cooling_cycle_min: '', cooling_cycle_max: '',
         cooling_cycle_enabled: false, cooling_iron_max: '', cooling_iron_enabled: false,
+        cooling_temperature_min: '', cooling_temperature_max: '',
+        cooling_temperature_enabled: false,
+        cooling_hot_temperature_min: '', cooling_hot_temperature_max: '',
+        cooling_hot_temperature_enabled: false,
         cooling_phosphate_max: '', cooling_phosphate_enabled: false,
         cooling_lsi_min: '', cooling_lsi_max: '', cooling_lsi_enabled: false,
         cooling_rsi_min: '', cooling_rsi_max: '', cooling_rsi_enabled: false,
@@ -686,9 +708,13 @@ const DataEntry = () => {
       name: '',
       system_type: 'cooling',
       is_active: true,
-      cooling_ph_min: '', cooling_ph_max: '', cooling_tds_min: '', cooling_tds_max: '',
-      cooling_hardness_max: '', cooling_alkalinity_max: '', cooling_chloride_max: '',
-      cooling_chloride_enabled: false, cooling_cycle_min: '', cooling_cycle_max: '',
+        cooling_ph_min: '', cooling_ph_max: '', cooling_tds_min: '', cooling_tds_max: '',
+        cooling_hardness_max: '', cooling_alkalinity_max: '', 
+        cooling_total_alkalinity_min: '', cooling_total_alkalinity_max: '',
+        cooling_temperature_min: '', cooling_temperature_max: '',
+        cooling_hot_temperature_min: '', cooling_hot_temperature_max: '',
+        cooling_chloride_max: '',
+        cooling_chloride_enabled: false, cooling_cycle_min: '', cooling_cycle_max: '',
       cooling_cycle_enabled: false, cooling_iron_max: '', cooling_iron_enabled: false,
       cooling_phosphate_max: '', cooling_phosphate_enabled: false,
       cooling_lsi_min: '', cooling_lsi_max: '', cooling_lsi_enabled: false,
@@ -728,8 +754,16 @@ const DataEntry = () => {
       cooling_tds_max: waterSystem.cooling_tds_max ?? '',
       cooling_hardness_max: waterSystem.cooling_hardness_max ?? '',
       cooling_alkalinity_max: waterSystem.cooling_alkalinity_max ?? '',
+      cooling_total_alkalinity_min: waterSystem.cooling_total_alkalinity_min ?? '',
+      cooling_total_alkalinity_max: waterSystem.cooling_total_alkalinity_max ?? '',
       cooling_chloride_max: waterSystem.cooling_chloride_max ?? '',
       cooling_chloride_enabled: waterSystem.cooling_chloride_enabled || false,
+      cooling_temperature_min: waterSystem.cooling_temperature_min ?? '',
+      cooling_temperature_max: waterSystem.cooling_temperature_max ?? '',
+      cooling_temperature_enabled: (waterSystem.cooling_temperature_min != null || waterSystem.cooling_temperature_max != null),
+      cooling_hot_temperature_min: waterSystem.cooling_hot_temperature_min ?? '',
+      cooling_hot_temperature_max: waterSystem.cooling_hot_temperature_max ?? '',
+      cooling_hot_temperature_enabled: (waterSystem.cooling_hot_temperature_min != null || waterSystem.cooling_hot_temperature_max != null),
       cooling_cycle_min: waterSystem.cooling_cycle_min ?? '',
       cooling_cycle_max: waterSystem.cooling_cycle_max ?? '',
       cooling_cycle_enabled: waterSystem.cooling_cycle_enabled || false,
@@ -817,10 +851,14 @@ const DataEntry = () => {
       // Add cooling parameters
       const coolingFields = [
         'cooling_ph_min', 'cooling_ph_max', 'cooling_tds_min', 'cooling_tds_max',
-        'cooling_hardness_max', 'cooling_alkalinity_max', 'cooling_chloride_max',
-        'cooling_chloride_enabled', 'cooling_cycle_min', 'cooling_cycle_max',
-        'cooling_cycle_enabled', 'cooling_iron_max', 'cooling_iron_enabled',
+        'cooling_hardness_max', 'cooling_alkalinity_max', 
+        'cooling_total_alkalinity_min', 'cooling_total_alkalinity_max',
+        'cooling_chloride_max', 'cooling_chloride_enabled', 
+        'cooling_cycle_min', 'cooling_cycle_max', 'cooling_cycle_enabled', 
+        'cooling_iron_max', 'cooling_iron_enabled',
         'cooling_phosphate_max', 'cooling_phosphate_enabled',
+        'cooling_temperature_min', 'cooling_temperature_max', 'cooling_temperature_enabled',
+        'cooling_hot_temperature_min', 'cooling_hot_temperature_max', 'cooling_hot_temperature_enabled',
         'cooling_lsi_min', 'cooling_lsi_max', 'cooling_lsi_enabled',
         'cooling_rsi_min', 'cooling_rsi_max', 'cooling_rsi_enabled',
       ];
@@ -828,8 +866,25 @@ const DataEntry = () => {
         if (field.includes('enabled')) {
           submitData[field] = waterSystemFormData[field] || false;
         } else {
-          const value = waterSystemFormData[field];
-          submitData[field] = (value === '' || value === null || value === undefined) ? null : parseFloat(value);
+          // For temperature fields, check if they're enabled before including
+          if (field === 'cooling_temperature_min' || field === 'cooling_temperature_max') {
+            if (!waterSystemFormData.cooling_temperature_enabled) {
+              submitData[field] = null;
+            } else {
+              const value = waterSystemFormData[field];
+              submitData[field] = (value === '' || value === null || value === undefined) ? null : parseFloat(value);
+            }
+          } else if (field === 'cooling_hot_temperature_min' || field === 'cooling_hot_temperature_max') {
+            if (!waterSystemFormData.cooling_hot_temperature_enabled) {
+              submitData[field] = null;
+            } else {
+              const value = waterSystemFormData[field];
+              submitData[field] = (value === '' || value === null || value === undefined) ? null : parseFloat(value);
+            }
+          } else {
+            const value = waterSystemFormData[field];
+            submitData[field] = (value === '' || value === null || value === undefined) ? null : parseFloat(value);
+          }
         }
       });
     } else {
@@ -1366,6 +1421,36 @@ const DataEntry = () => {
                               }
                             />
                           </div>
+                          <div>
+                            <label className='block text-sm font-medium text-gray-700 mb-1'>Total Alkalinity Min (ppm)</label>
+                            <input
+                              type='number'
+                              step='0.01'
+                              className='input'
+                              value={waterSystemFormData.cooling_total_alkalinity_min}
+                              onChange={(e) =>
+                                setWaterSystemFormData({
+                                  ...waterSystemFormData,
+                                  cooling_total_alkalinity_min: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                })
+                              }
+                            />
+                          </div>
+                          <div>
+                            <label className='block text-sm font-medium text-gray-700 mb-1'>Total Alkalinity Max (ppm)</label>
+                            <input
+                              type='number'
+                              step='0.01'
+                              className='input'
+                              value={waterSystemFormData.cooling_total_alkalinity_max}
+                              onChange={(e) =>
+                                setWaterSystemFormData({
+                                  ...waterSystemFormData,
+                                  cooling_total_alkalinity_max: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                })
+                              }
+                            />
+                          </div>
                         </div>
                       </div>
 
@@ -1534,6 +1619,114 @@ const DataEntry = () => {
                                     })
                                   }
                                 />
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Basin Temperature */}
+                          <div className='border rounded-lg p-4 bg-gray-50'>
+                            <div className='flex items-center justify-between mb-2'>
+                              <label className='flex items-center text-sm font-medium text-gray-700'>
+                                <input
+                                  type='checkbox'
+                                  className='mr-2'
+                                  checked={waterSystemFormData.cooling_temperature_enabled}
+                                  onChange={(e) =>
+                                    setWaterSystemFormData({
+                                      ...waterSystemFormData,
+                                      cooling_temperature_enabled: e.target.checked,
+                                    })
+                                  }
+                                />
+                                Basin Temperature Monitoring
+                              </label>
+                            </div>
+                            {waterSystemFormData.cooling_temperature_enabled && (
+                              <div className='grid grid-cols-2 gap-4'>
+                                <div>
+                                  <label className='block text-xs text-gray-600 mb-1'>Basin Temperature Min (°C)</label>
+                                  <input
+                                    type='number'
+                                    step='0.1'
+                                    className='input'
+                                    value={waterSystemFormData.cooling_temperature_min}
+                                    onChange={(e) =>
+                                      setWaterSystemFormData({
+                                        ...waterSystemFormData,
+                                        cooling_temperature_min: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                      })
+                                    }
+                                  />
+                                </div>
+                                <div>
+                                  <label className='block text-xs text-gray-600 mb-1'>Basin Temperature Max (°C)</label>
+                                  <input
+                                    type='number'
+                                    step='0.1'
+                                    className='input'
+                                    value={waterSystemFormData.cooling_temperature_max}
+                                    onChange={(e) =>
+                                      setWaterSystemFormData({
+                                        ...waterSystemFormData,
+                                        cooling_temperature_max: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                      })
+                                    }
+                                  />
+                                </div>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Hot Side Temperature */}
+                          <div className='border rounded-lg p-4 bg-gray-50'>
+                            <div className='flex items-center justify-between mb-2'>
+                              <label className='flex items-center text-sm font-medium text-gray-700'>
+                                <input
+                                  type='checkbox'
+                                  className='mr-2'
+                                  checked={waterSystemFormData.cooling_hot_temperature_enabled}
+                                  onChange={(e) =>
+                                    setWaterSystemFormData({
+                                      ...waterSystemFormData,
+                                      cooling_hot_temperature_enabled: e.target.checked,
+                                    })
+                                  }
+                                />
+                                Hot Side Temperature Monitoring
+                              </label>
+                            </div>
+                            {waterSystemFormData.cooling_hot_temperature_enabled && (
+                              <div className='grid grid-cols-2 gap-4'>
+                                <div>
+                                  <label className='block text-xs text-gray-600 mb-1'>Hot Side Temperature Min (°C)</label>
+                                  <input
+                                    type='number'
+                                    step='0.1'
+                                    className='input'
+                                    value={waterSystemFormData.cooling_hot_temperature_min}
+                                    onChange={(e) =>
+                                      setWaterSystemFormData({
+                                        ...waterSystemFormData,
+                                        cooling_hot_temperature_min: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                      })
+                                    }
+                                  />
+                                </div>
+                                <div>
+                                  <label className='block text-xs text-gray-600 mb-1'>Hot Side Temperature Max (°C)</label>
+                                  <input
+                                    type='number'
+                                    step='0.1'
+                                    className='input'
+                                    value={waterSystemFormData.cooling_hot_temperature_max}
+                                    onChange={(e) =>
+                                      setWaterSystemFormData({
+                                        ...waterSystemFormData,
+                                        cooling_hot_temperature_max: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                      })
+                                    }
+                                  />
+                                </div>
                               </div>
                             )}
                           </div>
