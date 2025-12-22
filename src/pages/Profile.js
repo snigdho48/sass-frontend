@@ -79,21 +79,21 @@ const Profile = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Profile Settings</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Profile Settings</h1>
+        <p className="mt-1 text-xs sm:text-sm text-gray-500">
           Manage your account information and preferences.
         </p>
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-gray-200">
-        <nav className="-mb-px flex space-x-8">
+      <div className="border-b border-gray-200 overflow-x-auto">
+        <nav className="-mb-px flex space-x-4 sm:space-x-8 min-w-max sm:min-w-0">
           <button
             onClick={() => setActiveTab('profile')}
-            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+            className={`py-2 px-1 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap ${
               activeTab === 'profile'
                 ? 'border-primary-500 text-primary-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -103,7 +103,7 @@ const Profile = () => {
           </button>
           <button
             onClick={() => setActiveTab('password')}
-            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+            className={`py-2 px-1 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap ${
               activeTab === 'password'
                 ? 'border-primary-500 text-primary-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -118,23 +118,23 @@ const Profile = () => {
       {activeTab === 'profile' && (
         <div className="card">
           <div className="card-header">
-            <h3 className="text-lg font-medium text-gray-900">Profile Information</h3>
+            <h3 className="text-base sm:text-lg font-medium text-gray-900">Profile Information</h3>
           </div>
           <div className="card-body">
-            <form onSubmit={handleProfileSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <form onSubmit={handleProfileSubmit} className="space-y-4 sm:space-y-6">
+              <div className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                     First Name
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <User className="h-5 w-5 text-gray-400" />
+                      <User className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
                     </div>
                     <input
                       type="text"
                       name="first_name"
-                      className="input pl-10"
+                      className="input pl-9 sm:pl-10 text-sm sm:text-base"
                       value={profileData.first_name}
                       onChange={handleProfileChange}
                     />
@@ -142,17 +142,17 @@ const Profile = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                     Last Name
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <User className="h-5 w-5 text-gray-400" />
+                      <User className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
                     </div>
                     <input
                       type="text"
                       name="last_name"
-                      className="input pl-10"
+                      className="input pl-9 sm:pl-10 text-sm sm:text-base"
                       value={profileData.last_name}
                       onChange={handleProfileChange}
                     />
@@ -161,17 +161,17 @@ const Profile = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                   Email Address
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Mail className="h-5 w-5 text-gray-400" />
+                    <Mail className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
                   </div>
                   <input
                     type="email"
                     name="email"
-                    className="input pl-10"
+                    className="input pl-9 sm:pl-10 text-sm sm:text-base"
                     value={profileData.email}
                     onChange={handleProfileChange}
                   />
@@ -179,17 +179,17 @@ const Profile = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                   Company
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Building className="h-5 w-5 text-gray-400" />
+                    <Building className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
                   </div>
                   <input
                     type="text"
                     name="company"
-                    className="input pl-10"
+                    className="input pl-9 sm:pl-10 text-sm sm:text-base"
                     value={profileData.company}
                     onChange={handleProfileChange}
                   />
@@ -197,17 +197,17 @@ const Profile = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                   Phone Number
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Phone className="h-5 w-5 text-gray-400" />
+                    <Phone className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
                   </div>
                   <input
                     type="tel"
                     name="phone"
-                    className="input pl-10"
+                    className="input pl-9 sm:pl-10 text-sm sm:text-base"
                     value={profileData.phone}
                     onChange={handleProfileChange}
                   />
@@ -215,7 +215,7 @@ const Profile = () => {
               </div>
 
               <div className="flex justify-end">
-                <button type="submit" className="btn btn-primary flex items-center">
+                <button type="submit" className="btn btn-primary flex items-center w-full sm:w-auto justify-center">
                   <Save className="h-4 w-4 mr-2" />
                   Save Changes
                 </button>
@@ -229,23 +229,23 @@ const Profile = () => {
       {activeTab === 'password' && (
         <div className="card">
           <div className="card-header">
-            <h3 className="text-lg font-medium text-gray-900">Change Password</h3>
+            <h3 className="text-base sm:text-lg font-medium text-gray-900">Change Password</h3>
           </div>
           <div className="card-body">
-            <form onSubmit={handlePasswordSubmit} className="space-y-6">
+            <form onSubmit={handlePasswordSubmit} className="space-y-4 sm:space-y-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                   Current Password
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Key className="h-5 w-5 text-gray-400" />
+                    <Key className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
                   </div>
                   <input
                     type="password"
                     name="old_password"
                     required
-                    className="input pl-10"
+                    className="input pl-9 sm:pl-10 text-sm sm:text-base"
                     value={passwordData.old_password}
                     onChange={handlePasswordChange}
                   />
@@ -253,18 +253,18 @@ const Profile = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                   New Password
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Key className="h-5 w-5 text-gray-400" />
+                    <Key className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
                   </div>
                   <input
                     type="password"
                     name="new_password"
                     required
-                    className="input pl-10"
+                    className="input pl-9 sm:pl-10 text-sm sm:text-base"
                     value={passwordData.new_password}
                     onChange={handlePasswordChange}
                   />
@@ -272,18 +272,18 @@ const Profile = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                   Confirm New Password
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Key className="h-5 w-5 text-gray-400" />
+                    <Key className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
                   </div>
                   <input
                     type="password"
                     name="confirm_password"
                     required
-                    className="input pl-10"
+                    className="input pl-9 sm:pl-10 text-sm sm:text-base"
                     value={passwordData.confirm_password}
                     onChange={handlePasswordChange}
                   />
@@ -291,7 +291,7 @@ const Profile = () => {
               </div>
 
               <div className="flex justify-end">
-                <button type="submit" className="btn btn-primary flex items-center">
+                <button type="submit" className="btn btn-primary flex items-center w-full sm:w-auto justify-center">
                   <Key className="h-4 w-4 mr-2" />
                   Update Password
                 </button>

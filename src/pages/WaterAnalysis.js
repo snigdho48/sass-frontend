@@ -1365,30 +1365,30 @@ const WaterAnalysis = () => {
   };
   
   return (
-    <div className='min-h-screen bg-gray-50 p-6'>
+    <div className='min-h-screen bg-gray-50 p-3 sm:p-4 md:p-6'>
       <div className='relative max-w-7xl mx-auto'>
         <LoadingOverlay
           show={plantsLoading || plantDetailsLoading || calculating || loading}
         />
         {/* Header */}
-        <div className='mb-8'>
-          <h1 className='text-3xl font-bold text-gray-900 mb-2'>
+        <div className='mb-4 sm:mb-6 md:mb-8'>
+          <h1 className='text-2xl sm:text-3xl font-bold text-gray-900 mb-1 sm:mb-2'>
             Water Stability Analysis
           </h1>
-          <p className='text-gray-600'>
+          <p className='text-sm sm:text-base text-gray-600'>
             Analyze water parameters and calculate stability indices using
             WaterS8 standards
           </p>
         </div>
 
         {/* Plant Selection */}
-        <div className='mb-6'>
-          <div className='bg-white rounded-lg shadow-md p-4'>
-            <div className='flex items-center space-x-4'>
-              <span className='text-sm font-medium text-gray-700'>
+        <div className='mb-4 sm:mb-6'>
+          <div className='bg-white rounded-lg shadow-md p-3 sm:p-4'>
+            <div className='flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 sm:space-x-4'>
+              <span className='text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap'>
                 Select Plant: <span className='text-red-500'>*</span>
               </span>
-              <div className='flex-1 max-w-md'>
+              <div className='flex-1 w-full sm:max-w-md'>
                 <SearchableSelect
                   options={plants}
                   value={selectedPlant}
@@ -1406,7 +1406,7 @@ const WaterAnalysis = () => {
               </div>
             )}
             {selectedPlant && !plantDetailsLoading && (
-              <div className='mt-4 space-y-4'>
+              <div className='mt-3 sm:mt-4 space-y-3 sm:space-y-4'>
                 {/* <div className='text-sm text-gray-600'>
                   <p>
                     Selected Plant: <strong>{selectedPlant.name}</strong>
@@ -1414,31 +1414,31 @@ const WaterAnalysis = () => {
                 </div> */}
                 
                 {/* Analysis Type Selector - Only shown after plant is selected */}
-                <div className='flex items-center space-x-4'>
-                  <span className='text-sm font-medium text-gray-700'>
+                <div className='flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 sm:space-x-4'>
+                  <span className='text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap'>
                     Analysis Type: <span className='text-red-500'>*</span>
                   </span>
-                  <div className='flex space-x-2'>
+                  <div className='flex flex-col sm:flex-row gap-2 sm:space-x-2'>
                     <button
                       onClick={() => handleAnalysisTypeChange("cooling")}
-                      className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                      className={`px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-medium transition-colors ${
                         analysisType === "cooling"
                           ? "bg-blue-600 text-white"
                           : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                       }`}
                     >
-                      <Droplets className='w-4 h-4 inline mr-2' />
+                      <Droplets className='w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2' />
                       Cooling Water
                     </button>
                     <button
                       onClick={() => handleAnalysisTypeChange("boiler")}
-                      className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                      className={`px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-medium transition-colors ${
                         analysisType === "boiler"
                           ? "bg-blue-600 text-white"
                           : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                       }`}
                     >
-                      <Thermometer className='w-4 h-4 inline mr-2' />
+                      <Thermometer className='w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2' />
                       Boiler Water
                     </button>
                   </div>
@@ -1448,13 +1448,13 @@ const WaterAnalysis = () => {
                 {analysisType && (
                   <>
                     {waterSystemsLoading ? (
-                      <div className='text-sm text-gray-500'>Loading water systems...</div>
+                      <div className='text-xs sm:text-sm text-gray-500'>Loading water systems...</div>
                     ) : waterSystems.length > 0 ? (
-                      <div className='flex items-center space-x-4'>
-                        <span className='text-sm font-medium text-gray-700'>
+                      <div className='flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 sm:space-x-4'>
+                        <span className='text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap'>
                           Select Water System: <span className='text-red-500'>*</span>
                         </span>
-                        <div className='flex-1 max-w-md'>
+                        <div className='flex-1 w-full sm:max-w-md'>
                           <SearchableSelect
                             options={waterSystems
                               .filter(ws => ws.system_type === analysisType)
@@ -1509,20 +1509,20 @@ const WaterAnalysis = () => {
           </div>
         </div>
         
-        <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
+        <div className='grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6'>
           {/* Input Data */}
-          <div className='bg-white rounded-lg shadow-md p-6'>
-            <div className='flex items-center mb-4'>
-              <Calculator className='w-5 h-5 text-blue-600 mr-2' />
-              <h2 className='text-xl font-semibold text-gray-900'>
+          <div className='bg-white rounded-lg shadow-md p-4 sm:p-6'>
+            <div className='flex items-center mb-3 sm:mb-4'>
+              <Calculator className='w-4 h-4 sm:w-5 sm:h-5 text-blue-600 mr-2' />
+              <h2 className='text-lg sm:text-xl font-semibold text-gray-900'>
                 Input Data
               </h2>
             </div>
             
-            <div className='space-y-4'>
+            <div className='space-y-3 sm:space-y-4'>
               {plantParameters?.ph && (
               <div>
-                <label className='block text-sm font-medium text-gray-700 mb-1'>
+                <label className='block text-xs sm:text-sm font-medium text-gray-700 mb-1'>
                   pH <span className='text-red-500'>*</span>
                 </label>
                 <input
@@ -1540,7 +1540,7 @@ const WaterAnalysis = () => {
                     }
                     handleInputChange("ph", value);
                   }}
-                  className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                  className='w-full px-2.5 sm:px-3 py-1.5 sm:py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
                   placeholder='0-14'
                 />
                 {inputData.ph !== '' && inputData.ph != null && (inputData.ph < 0 || inputData.ph > 14) && (
@@ -1551,7 +1551,7 @@ const WaterAnalysis = () => {
               
               {plantParameters?.tds && (
               <div>
-                <label className='block text-sm font-medium text-gray-700 mb-1'>
+                <label className='block text-xs sm:text-sm font-medium text-gray-700 mb-1'>
                   TDS (ppm)
                 </label>
                 <input
@@ -1565,7 +1565,7 @@ const WaterAnalysis = () => {
                       e.target.value === "" ? "" : parseFloat(e.target.value)
                     )
                   }
-                  className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                  className='w-full px-2.5 sm:px-3 py-1.5 sm:py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
                 />
               </div>
               )}
@@ -1982,7 +1982,7 @@ const WaterAnalysis = () => {
                 disabled={
                   calculating || !selectedPlant || !areRequiredFieldsFilled()
                 }
-                className={`w-full py-2 px-4 rounded-md flex items-center justify-center ${
+                className={`w-full py-2 sm:py-2.5 px-3 sm:px-4 rounded-md flex items-center justify-center text-sm sm:text-base ${
                   !selectedPlant || !areRequiredFieldsFilled()
                     ? "bg-gray-400 text-gray-600 cursor-not-allowed"
                     : "bg-blue-600 text-white hover:bg-blue-700"
@@ -1990,22 +1990,22 @@ const WaterAnalysis = () => {
               >
                 {calculating ? (
                   <>
-                    <RefreshCw className='w-4 h-4 mr-2 animate-spin' />
+                    <RefreshCw className='w-3 h-3 sm:w-4 sm:h-4 mr-2 animate-spin' />
                     Calculating...
                   </>
                 ) : !selectedPlant ? (
                   <>
-                    <AlertTriangle className='w-4 h-4 mr-2' />
+                    <AlertTriangle className='w-3 h-3 sm:w-4 sm:h-4 mr-2' />
                     Select Plant First
                   </>
                 ) : !areRequiredFieldsFilled() ? (
                   <>
-                    <AlertTriangle className='w-4 h-4 mr-2' />
+                    <AlertTriangle className='w-3 h-3 sm:w-4 sm:h-4 mr-2' />
                     Fill All Required Fields
                   </>
                 ) : (
                   <>
-                    <Calculator className='w-4 h-4 mr-2' />
+                    <Calculator className='w-3 h-3 sm:w-4 sm:h-4 mr-2' />
                     Calculate
                   </>
                 )}
@@ -2014,29 +2014,29 @@ const WaterAnalysis = () => {
           </div>
           
           {/* Results */}
-          <div className='bg-white rounded-lg shadow-md p-6'>
-            <div className='flex items-center mb-4'>
-              <TrendingUp className='w-5 h-5 text-green-600 mr-2' />
-              <h2 className='text-xl font-semibold text-gray-900'>Results</h2>
+          <div className='bg-white rounded-lg shadow-md p-4 sm:p-6'>
+            <div className='flex items-center mb-3 sm:mb-4'>
+              <TrendingUp className='w-4 h-4 sm:w-5 sm:h-5 text-green-600 mr-2' />
+              <h2 className='text-lg sm:text-xl font-semibold text-gray-900'>Results</h2>
             </div>
             
-            <div className='space-y-4'>
+            <div className='space-y-3 sm:space-y-4'>
               {/* Show water indices only for cooling water */}
               {analysisType === "cooling" && (
                 <>
-                  <div className='border-b pb-4'>
+                  <div className='border-b pb-3 sm:pb-4'>
                     <div className='flex items-center justify-between mb-2'>
-                      <span className='text-sm font-medium text-gray-700'>
+                      <span className='text-xs sm:text-sm font-medium text-gray-700'>
                         LSI (Langelier Saturation Index)
                       </span>
                   {results.lsi_status && getStatusIcon(results.lsi_status)}
                 </div>
-                    <div className='flex flex-col space-y-2'>
-                      <span className='text-2xl font-bold'>
+                    <div className='flex flex-col space-y-1 sm:space-y-2'>
+                      <span className='text-xl sm:text-2xl font-bold'>
                         {results.lsi?.toFixed(1) || "--"}
                       </span>
                       <span
-                        className={`text-sm font-medium ${getStatusColor(
+                        className={`text-xs sm:text-sm font-medium ${getStatusColor(
                           getDisplayedIndexStatus('lsi', results.lsi, results.lsi_status)
                         )} leading-tight`}
                       >
@@ -2045,19 +2045,19 @@ const WaterAnalysis = () => {
                 </div>
               </div>
               
-                  <div className='border-b pb-4'>
+                  <div className='border-b pb-3 sm:pb-4'>
                     <div className='flex items-center justify-between mb-2'>
-                      <span className='text-sm font-medium text-gray-700'>
+                      <span className='text-xs sm:text-sm font-medium text-gray-700'>
                         RSI (Ryznar Stability Index)
                       </span>
                   {results.rsi_status && getStatusIcon(results.rsi_status)}
                 </div>
-                    <div className='flex flex-col space-y-2'>
-                      <span className='text-2xl font-bold'>
+                    <div className='flex flex-col space-y-1 sm:space-y-2'>
+                      <span className='text-xl sm:text-2xl font-bold'>
                         {results.rsi?.toFixed(1) || "--"}
                       </span>
                       <span
-                        className={`text-sm font-medium ${getStatusColor(
+                        className={`text-xs sm:text-sm font-medium ${getStatusColor(
                           getDisplayedIndexStatus('rsi', results.rsi, results.rsi_status)
                         )} leading-tight`}
                       >
@@ -2082,15 +2082,15 @@ const WaterAnalysis = () => {
               
               {/* Only show LR if chloride monitoring is enabled */}
               {selectedPlant?.cooling_chloride_enabled && (
-                    <div className='border-b pb-4'>
+                    <div className='border-b pb-3 sm:pb-4'>
                       <div className='flex items-center justify-between mb-2'>
-                        <span className='text-sm font-medium text-gray-700'>
+                        <span className='text-xs sm:text-sm font-medium text-gray-700'>
                           LR (Langelier Ratio)
                         </span>
                     {results.lr_status && getStatusIcon(results.lr_status)}
                   </div>
-                      <div className='flex flex-col space-y-2'>
-                        <span className='text-2xl font-bold'>
+                      <div className='flex flex-col space-y-1 sm:space-y-2'>
+                        <span className='text-xl sm:text-2xl font-bold'>
                           {results.lr
                             ? results.lr > 100 || results.lr < -100
                               ? "High Risk"

@@ -32,11 +32,11 @@ const Dashboard = () => {
 
 
   return (
-    <div className="space-y-6 pb-6">
+    <div className="space-y-4 sm:space-y-6 pb-4 sm:pb-6 px-2 sm:px-0">
       {/* Header */}
-      <div className="bg-gradient-to-r from-primary-50 to-primary-100 p-6 rounded-lg border border-primary-200">
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="mt-2 text-sm text-gray-600">
+      <div className="bg-gradient-to-r from-primary-50 to-primary-100 p-4 sm:p-6 rounded-lg border border-primary-200">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Dashboard</h1>
+        <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-gray-600">
           Welcome back! Here's what's happening with your technical data.
         </p>
         <p className="mt-1 text-xs text-gray-500">
@@ -51,9 +51,9 @@ const Dashboard = () => {
             <KPICards kpis={dashboardData.kpis} loading={loading} />
 
             {/* System Sections */}
-            <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:gap-8 lg:grid-cols-2">
               {/* Cooling Tower Section */}
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 <SystemHierarchy
                   systems={dashboardData.hierarchy?.cooling_tower?.systems || []}
                   systemType="cooling"
@@ -67,10 +67,10 @@ const Dashboard = () => {
                       loading={loading}
                       systemType="cooling"
                     />
-                    <div className="space-y-4">
-                      <div className="border-l-4 border-blue-500 pl-4">
-                        <h3 className="text-xl font-bold text-gray-900 mb-1">Parameters</h3>
-                        <p className="text-sm text-gray-600">Parameter trend area charts</p>
+                    <div className="space-y-3 sm:space-y-4">
+                      <div className="border-l-4 border-blue-500 pl-3 sm:pl-4">
+                        <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1">Parameters</h3>
+                        <p className="text-xs sm:text-sm text-gray-600">Parameter trend area charts</p>
                       </div>
                       <ParameterList
                         parameters={dashboardData.parameter_trends?.cooling_tower || {}}
@@ -101,7 +101,7 @@ const Dashboard = () => {
               </div>
 
               {/* Boiler Section */}
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 <SystemHierarchy
                   systems={dashboardData.hierarchy?.boiler?.systems || []}
                   systemType="boiler"
@@ -115,10 +115,10 @@ const Dashboard = () => {
                       loading={loading}
                       systemType="boiler"
                     />
-                    <div className="space-y-4">
-                      <div className="border-l-4 border-purple-500 pl-4">
-                        <h3 className="text-xl font-bold text-gray-900 mb-1">Parameters</h3>
-                        <p className="text-sm text-gray-600">Parameter trend area charts</p>
+                    <div className="space-y-3 sm:space-y-4">
+                      <div className="border-l-4 border-purple-500 pl-3 sm:pl-4">
+                        <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1">Parameters</h3>
+                        <p className="text-xs sm:text-sm text-gray-600">Parameter trend area charts</p>
                       </div>
                       <ParameterList
                         parameters={dashboardData.parameter_trends?.boiler || {}}

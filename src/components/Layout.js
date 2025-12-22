@@ -126,22 +126,23 @@ const Layout = () => {
           onClick={handleSidebarClose}
         />
         <div className='fixed inset-y-0 left-0 flex w-64 flex-col bg-white'>
-          <div className='flex h-16 items-center justify-between px-4'>
-            <div className='flex h-16 items-center px-4 justify-center'>
+          <div className='flex h-14 sm:h-16 items-center justify-between px-3 sm:px-4'>
+            <div className='flex h-14 sm:h-16 items-center px-3 sm:px-4 justify-center'>
               <img
                 src='/logo.png'
                 alt='WaterSight'
-                className='h-12 w-auto'
+                className='h-10 sm:h-12 w-auto'
               />
             </div>
             <button
               onClick={handleSidebarClose}
-              className='text-gray-400 hover:text-gray-600'
+              className='text-gray-400 hover:text-gray-600 p-1'
+              aria-label="Close sidebar"
             >
-              <X size={24} />
+              <X size={20} className="sm:w-6 sm:h-6" />
             </button>
           </div>
-          <nav className='flex-1 space-y-1 px-2 py-4'>
+          <nav className='flex-1 space-y-1 px-2 py-3 sm:py-4 overflow-y-auto'>
             {navigation.map((item) => {
               const isActive = location.pathname === item.href;
               return (
@@ -154,8 +155,8 @@ const Layout = () => {
                     handleSidebarClose();
                   }}
                 >
-                  <item.icon size={20} className='mr-3' />
-                  {item.name}
+                  <item.icon size={18} className='mr-2 sm:mr-3 sm:w-5 sm:h-5' />
+                  <span className="text-sm sm:text-base">{item.name}</span>
                 </Link>
               );
             })}
@@ -169,7 +170,7 @@ const Layout = () => {
           <div className='flex h-16 items-center px-4 justify-center'>
             <img src='/logo.png' alt='WaterSight' className='h-12 w-auto' />
           </div>
-          <nav className='flex-1 space-y-1 px-2 py-4'>
+          <nav className='flex-1 space-y-1 px-2 py-4 overflow-y-auto'>
             {navigation.map((item) => {
               const isActive = location.pathname === item.href;
               return (
@@ -191,13 +192,14 @@ const Layout = () => {
       {/* Main content */}
       <div className='lg:pl-64'>
         {/* Top header */}
-        <div className='sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8'>
+        <div className='sticky top-0 z-40 flex h-14 sm:h-16 shrink-0 items-center gap-x-2 sm:gap-x-4 border-b border-gray-200 bg-white px-3 sm:px-4 shadow-sm sm:gap-x-6 lg:px-8'>
           <button
             type='button'
-            className='-m-2.5 p-2.5 text-gray-700 lg:hidden'
+            className='-m-2.5 p-2 text-gray-700 lg:hidden'
             onClick={handleSidebarToggle}
+            aria-label="Toggle sidebar"
           >
-            <Menu size={24} />
+            <Menu size={20} className="sm:w-6 sm:h-6" />
           </button>
 
           {/* Logo */}
@@ -205,30 +207,29 @@ const Layout = () => {
             <img src='/logo.png' alt='WaterSight' className='h-14 w-auto' />
           </div> */}
 
-          <div className='flex flex-1 gap-x-4 self-stretch lg:gap-x-6'>
+          <div className='flex flex-1 gap-x-2 sm:gap-x-4 self-stretch lg:gap-x-6'>
             <div className='flex flex-1' />
-            <div className='flex items-center gap-x-4 lg:gap-x-6'>
-              <button className='text-gray-400 hover:text-gray-600'>
-                <Bell size={20} />
+            <div className='flex items-center gap-x-2 sm:gap-x-4 lg:gap-x-6'>
+              <button className='text-gray-400 hover:text-gray-600 p-1 sm:p-0' aria-label="Notifications">
+                <Bell size={18} className="sm:w-5 sm:h-5" />
               </button>
-              <button className='text-gray-400 hover:text-gray-600'>
-                <Settings size={20} />
+              <button className='text-gray-400 hover:text-gray-600 p-1 sm:p-0 hidden sm:block' aria-label="Settings">
+                <Settings size={18} className="sm:w-5 sm:h-5" />
               </button>
 
               {/* User menu */}
               <div className='relative'>
-                <div className='flex items-center gap-x-3'>
-                  <div className='flex flex-col text-right'>
-                    <span className='text-sm font-medium text-gray-900'>
+                <div className='flex items-center gap-x-2 sm:gap-x-3'>
+                  <div className='hidden sm:flex flex-col text-right'>
+                    <span className='text-xs sm:text-sm font-medium text-gray-900 truncate max-w-[120px] sm:max-w-none'>
                       {user?.get_full_name || user?.email}
                     </span>
                     <span className='text-xs text-gray-500'>
-                      {user?.role_display.replace('General User', 'User').replace('Administrator', 'Admin').replace('Super Administrator', 'Super Admin') || user?.role}
-            
+                      {user?.role_display?.replace('General User', 'User').replace('Administrator', 'Admin').replace('Super Administrator', 'Super Admin') || user?.role}
                     </span>
                   </div>
-                  <div className='h-8 w-8 rounded-full bg-primary-600 flex items-center justify-center'>
-                    <span className='text-sm font-medium text-white'>
+                  <div className='h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-primary-600 flex items-center justify-center flex-shrink-0'>
+                    <span className='text-xs sm:text-sm font-medium text-white'>
                       {user?.first_name?.[0]}
                       {user?.last_name?.[0]}
                     </span>
@@ -238,18 +239,19 @@ const Layout = () => {
 
               <button
                 onClick={handleLogout}
-                className='text-gray-400 hover:text-gray-600'
+                className='text-gray-400 hover:text-gray-600 p-1 sm:p-0'
                 title='Logout'
+                aria-label="Logout"
               >
-                <LogOut size={20} />
+                <LogOut size={18} className="sm:w-5 sm:h-5" />
               </button>
             </div>
           </div>
         </div>
 
         {/* Page content */}
-        <main className='py-6'>
-          <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
+        <main className='py-4 sm:py-6'>
+          <div className='mx-auto max-w-7xl px-2 sm:px-4 lg:px-6 xl:px-8'>
             <Outlet />
           </div>
         </main>

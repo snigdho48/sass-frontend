@@ -1,5 +1,5 @@
 import React from 'react';
-import { TrendingUp, TrendingDown, Database, BarChart3 } from 'lucide-react';
+import { Database, BarChart3 } from 'lucide-react';
 
 const StatCard = ({ title, value, change, icon: Icon, color = 'primary' }) => {
   const colorClasses = {
@@ -28,14 +28,14 @@ const StatCard = ({ title, value, change, icon: Icon, color = 'primary' }) => {
   return (
     <div className="card border-2 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
       {/* Gradient Header */}
-      <div className={`bg-gradient-to-r ${colors.gradient} px-6 py-4`}>
+      <div className={`bg-gradient-to-r ${colors.gradient} px-4 sm:px-6 py-3 sm:py-4`}>
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className={`p-2.5 rounded-lg ${colors.iconBg} bg-white bg-opacity-20 backdrop-blur-sm`}>
-              <Icon className={`h-6 w-6 text-white`} />
+          <div className="flex items-center space-x-2 sm:space-x-3">
+            <div className={`p-2 sm:p-2.5 rounded-lg ${colors.iconBg} bg-white bg-opacity-20 backdrop-blur-sm`}>
+              <Icon className={`h-5 w-5 sm:h-6 sm:w-6 text-white`} />
             </div>
             <div>
-              <p className="text-sm font-medium text-white text-opacity-90 uppercase tracking-wide">
+              <p className="text-xs sm:text-sm font-medium text-white text-opacity-90 uppercase tracking-wide">
                 {title}
               </p>
             </div>
@@ -44,10 +44,10 @@ const StatCard = ({ title, value, change, icon: Icon, color = 'primary' }) => {
       </div>
       
       {/* Content */}
-      <div className="card-body p-6">
+      <div className="card-body p-4 sm:p-6">
         <div className="flex items-end justify-center">
           <div>
-            <p className="text-4xl font-bold text-gray-900 mb-2">
+            <p className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
               {value}
             </p>
 

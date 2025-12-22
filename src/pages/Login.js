@@ -77,20 +77,20 @@ const Login = () => {
         }}
         user={user}
       />
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full space-y-8">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full space-y-6 sm:space-y-8">
         <div>
           <div className="mx-auto flex items-center justify-center">
             <img 
               src="/logo.png" 
               alt="SASS Platform" 
-              className="h-16 w-auto"
+              className="h-12 sm:h-16 w-auto"
             />
           </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <h2 className="mt-4 sm:mt-6 text-center text-2xl sm:text-3xl font-extrabold text-gray-900">
             Sign in to your account
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <p className="mt-2 text-center text-xs sm:text-sm text-gray-600">
             Or{' '}
             <Link
               to="/register"
@@ -100,21 +100,21 @@ const Login = () => {
             </Link>
           </p>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+        <form className="mt-6 sm:mt-8 space-y-4 sm:space-y-6" onSubmit={handleSubmit}>
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-md p-4">
-              <p className="text-sm text-red-600">{error}</p>
+            <div className="bg-red-50 border border-red-200 rounded-md p-3 sm:p-4">
+              <p className="text-xs sm:text-sm text-red-600">{error}</p>
             </div>
           )}
           
-          <div className="rounded-md shadow-sm -space-y-px flex flex-col gap-4">
+          <div className="rounded-md shadow-sm -space-y-px flex flex-col gap-3 sm:gap-4">
             <div>
               <label htmlFor="email" className="sr-only">
                 Email address
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-gray-400" />
+                  <Mail className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
                 </div>
                 <input
                   id="email"
@@ -122,7 +122,7 @@ const Login = () => {
                   type="email"
                   autoComplete="email"
                   required
-                  className="input pl-10"
+                  className="input pl-9 sm:pl-10 text-sm sm:text-base"
                   placeholder="Email address"
                   value={formData.email}
                   onChange={handleChange}
@@ -135,7 +135,7 @@ const Login = () => {
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-gray-400" />
+                  <Lock className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
                 </div>
                 <input
                   id="password"
@@ -143,7 +143,7 @@ const Login = () => {
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="current-password"
                   required
-                  className="input pl-10 pr-10"
+                  className="input pl-9 sm:pl-10 pr-9 sm:pr-10 text-sm sm:text-base"
                   placeholder="Password"
                   value={formData.password}
                   onChange={handleChange}
@@ -154,16 +154,16 @@ const Login = () => {
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
-                    <EyeOff className="h-5 w-5 text-gray-400" />
+                    <EyeOff className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
                   ) : (
-                    <Eye className="h-5 w-5 text-gray-400" />
+                    <Eye className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
                   )}
                 </button>
               </div>
             </div>
           </div>
 
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
             <div className="flex items-center">
               <input
                 id="remember-me"
@@ -171,12 +171,12 @@ const Login = () => {
                 type="checkbox"
                 className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
               />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
+              <label htmlFor="remember-me" className="ml-2 block text-xs sm:text-sm text-gray-900">
                 Remember me
               </label>
             </div>
 
-            <div className="text-sm">
+            <div className="text-xs sm:text-sm">
               <button
                 type="button"
                 className="font-medium text-primary-600 hover:text-primary-500"
@@ -191,7 +191,7 @@ const Login = () => {
             <ButtonLoader
               type="submit"
               loading={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="group relative w-full flex justify-center py-2.5 sm:py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Sign in
             </ButtonLoader>

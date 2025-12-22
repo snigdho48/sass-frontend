@@ -210,12 +210,12 @@ const Admin = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">User Management</h1>
+          <p className="mt-1 text-xs sm:text-sm text-gray-500">
             Manage users and their roles in the system.
           </p>
         </div>
@@ -223,7 +223,7 @@ const Admin = () => {
         {user?.is_admin && (user?.can_create_admin_users || user?.can_create_general_users) && (
           <button
             onClick={() => setShowCreateForm(true)}
-            className="btn btn-primary flex items-center"
+            className="btn btn-primary flex items-center w-full sm:w-auto justify-center"
           >
             <UserPlus className="h-4 w-4 mr-2" />
             Add User
@@ -267,23 +267,23 @@ const Admin = () => {
       {/* Users Table */}
       <ContentLoader loading={loading} error={null}>
         <div className="card">
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto -mx-2 sm:mx-0">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     User
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Role
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="hidden sm:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Company
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Status
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
@@ -291,22 +291,35 @@ const Admin = () => {
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredUsers.map((userItem) => (
                   <tr key={userItem.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4">
                       <div className="flex items-center">
-                        <div className="h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center">
-                          <span className="text-sm font-medium text-primary-700">
+                        <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
+                          <span className="text-xs sm:text-sm font-medium text-primary-700">
                             {userItem.first_name?.[0]}{userItem.last_name?.[0]}
                           </span>
                         </div>
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">
+                        <div className="ml-2 sm:ml-4 min-w-0">
+                          <div className="text-xs sm:text-sm font-medium text-gray-900 truncate">
                             {userItem.first_name} {userItem.last_name}
                           </div>
-                          <div className="text-sm text-gray-500">{userItem.email}</div>
+                          <div className="text-xs sm:text-sm text-gray-500 truncate">{userItem.email}</div>
+                          <div className="sm:hidden mt-1">
+                            <span className={`inline-flex px-2 py-0.5 text-xs font-semibold rounded-full ${
+                              userItem.role === 'super_admin' ? 'bg-purple-100 text-purple-800' :
+                              userItem.role === 'admin' ? 'bg-red-100 text-red-800' :
+                              userItem.role === 'general_user' ? 'bg-blue-100 text-blue-800' :
+                              'bg-gray-100 text-gray-800'
+                            }`}>
+                              {userItem.role_display || userItem.role}
+                            </span>
+                            {userItem.company && (
+                              <span className="ml-2 text-xs text-gray-600">{userItem.company}</span>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="hidden sm:table-cell px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                         userItem.role === 'super_admin' ? 'bg-purple-100 text-purple-800' :
                         userItem.role === 'admin' ? 'bg-red-100 text-red-800' :
@@ -316,15 +329,15 @@ const Admin = () => {
                         {userItem.role_display || userItem.role}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="hidden sm:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {userItem.company || '-'}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                       {user?.is_admin ? (
                         <button
                           onClick={() => handleToggleStatus(userItem)}
                           disabled={togglingStatus === userItem.id || userItem.id === user?.id}
-                          className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-full transition-all border-2 focus:outline-none focus:ring-2 focus:ring-offset-1 ${
+                          className={`inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 text-xs font-semibold rounded-full transition-all border-2 focus:outline-none focus:ring-2 focus:ring-offset-1 ${
                             togglingStatus === userItem.id 
                               ? 'opacity-50 cursor-not-allowed border-transparent' 
                               : userItem.id === user?.id
@@ -357,8 +370,8 @@ const Admin = () => {
                         </span>
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex space-x-2">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-sm font-medium">
+                      <div className="flex space-x-1 sm:space-x-2">
                         {/* Only show Edit/Delete buttons for Admin and Super Admin users */}
                         {user?.is_admin && (
                           <>
@@ -377,13 +390,15 @@ const Admin = () => {
                                   role: userItem.role
                                 });
                               }}
-                              className="text-primary-600 hover:text-primary-900"
+                              className="text-primary-600 hover:text-primary-900 p-1"
+                              aria-label="Edit user"
                             >
                               <Edit className="h-4 w-4" />
                             </button>
                             <button
                               onClick={() => handleDeleteUser(userItem.id)}
-                              className="text-red-600 hover:text-red-900"
+                              className="text-red-600 hover:text-red-900 p-1"
+                              aria-label="Delete user"
                             >
                               <Trash2 className="h-4 w-4" />
                             </button>

@@ -1041,7 +1041,7 @@ const DataEntry = () => {
   
 
   return (
-    <div className='space-y-6'>
+    <div className='space-y-4 sm:space-y-6 px-2 sm:px-0'>
       <div className='relative'>
         <LoadingOverlay
           show={
@@ -1061,19 +1061,19 @@ const DataEntry = () => {
       {/* Plant Management Section - Hidden for General Users */}
       {!user?.is_general_user && (
         <div className=''>
-        <div className='flex justify-between items-center mb-6'>
+        <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4 sm:mb-6'>
           <div>
-            <h2 className='text-2xl font-bold text-gray-900'>
+            <h2 className='text-xl sm:text-2xl font-bold text-gray-900'>
               Plant Management
             </h2>
-            <p className='mt-1 text-sm text-gray-500'>
+            <p className='mt-1 text-xs sm:text-sm text-gray-500'>
               Create and manage plant parameters for water analysis.
             </p>
           </div>
                      {user?.can_create_plants && (
              <button
                onClick={() => setShowPlantForm(true)}
-               className='btn btn-primary flex items-center'
+               className='btn btn-primary flex items-center w-full sm:w-auto justify-center'
              >
                <Plus className='h-4 w-4 mr-2' />
                Add Plant
@@ -1095,7 +1095,7 @@ const DataEntry = () => {
                </div>
              )}
              <div className='card-header'>
-              <h3 className='text-lg font-medium text-gray-900'>
+              <h3 className='text-base sm:text-lg font-medium text-gray-900'>
                                  {editingPlant
                    ? "Edit Plant"
                    : user?.can_create_plants
@@ -1104,17 +1104,17 @@ const DataEntry = () => {
               </h3>
             </div>
             <div className='card-body'>
-              <form onSubmit={handlePlantSubmit} className='space-y-6'>
+              <form onSubmit={handlePlantSubmit} className='space-y-4 sm:space-y-6'>
                 {/* Basic Information */}
-                <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
+                <div className='grid grid-cols-1 gap-3 sm:gap-4 sm:grid-cols-2'>
                   <div>
-                    <label className='block text-sm font-medium text-gray-700 mb-1'>
+                    <label className='block text-xs sm:text-sm font-medium text-gray-700 mb-1'>
                       Plant Name *
                     </label>
                     <input
                       type='text'
                       required
-                      className='input'
+                      className='input text-sm sm:text-base'
                       value={plantFormData.name}
                       onChange={(e) =>
                         setPlantFormData({
@@ -1140,19 +1140,19 @@ const DataEntry = () => {
                         }
                         disabled={user?.is_client && !editingPlant}
                       />
-                      <span className='ml-2 text-sm text-gray-700'>Active</span>
+                      <span className='ml-2 text-xs sm:text-sm text-gray-700'>Active</span>
                     </label>
                   </div>
                 </div>
 
                                   {/* Plant Owner (Super Admin Only) */}
                 {user?.can_create_plants && (
-                  <div className='border-t pt-6'>
-                    <h4 className='text-md font-medium text-gray-900 mb-4'>
+                  <div className='border-t pt-4 sm:pt-6'>
+                    <h4 className='text-sm sm:text-md font-medium text-gray-900 mb-3 sm:mb-4'>
                       Plant Owner
                     </h4>
-                    <div className='space-y-3'>
-                      <label className='block text-sm font-medium text-gray-700 mb-2'>
+                    <div className='space-y-2 sm:space-y-3'>
+                      <label className='block text-xs sm:text-sm font-medium text-gray-700 mb-2'>
                         Select Plant Owner *
                       </label>
                                               {adminUsersLoading ? (
@@ -1235,9 +1235,9 @@ const DataEntry = () => {
 
         {/* Water System Management Modal */}
         {showWaterSystemForm && (
-          <div className='fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-[60]'>
-            <div className='bg-white rounded-lg p-6 w-full max-w-5xl max-h-[90vh] overflow-y-auto'>
-              <div className='flex justify-between items-center mb-4'>
+          <div className='fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-[60] p-2 sm:p-4'>
+            <div className='bg-white rounded-lg p-4 sm:p-6 w-full max-w-5xl max-h-[90vh] overflow-y-auto'>
+              <div className='flex justify-between items-center mb-3 sm:mb-4'>
                 <h3 className='text-lg font-medium text-gray-900'>
                   {editingWaterSystem ? 'Edit Water System' : 'Add New Water System'}
                 </h3>
@@ -1329,14 +1329,14 @@ const DataEntry = () => {
                     <div className='space-y-6'>
                       {/* Basic Parameters */}
                       <div>
-                        <h5 className='text-sm font-semibold text-gray-800 mb-3'>Basic Parameters</h5>
-                        <div className='grid grid-cols-2 gap-4'>
+                        <h5 className='text-xs sm:text-sm font-semibold text-gray-800 mb-2 sm:mb-3'>Basic Parameters</h5>
+                        <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'>
                           <div>
-                            <label className='block text-sm font-medium text-gray-700 mb-1'>pH Min</label>
+                            <label className='block text-xs sm:text-sm font-medium text-gray-700 mb-1'>pH Min</label>
                             <input
                               type='number'
                               step='0.1'
-                              className='input'
+                              className='input text-sm sm:text-base'
                               value={waterSystemFormData.cooling_ph_min}
                               onChange={(e) =>
                                 setWaterSystemFormData({
@@ -1347,11 +1347,11 @@ const DataEntry = () => {
                             />
                           </div>
                           <div>
-                            <label className='block text-sm font-medium text-gray-700 mb-1'>pH Max</label>
+                            <label className='block text-xs sm:text-sm font-medium text-gray-700 mb-1'>pH Max</label>
                             <input
                               type='number'
                               step='0.1'
-                              className='input'
+                              className='input text-sm sm:text-base'
                               value={waterSystemFormData.cooling_ph_max}
                               onChange={(e) =>
                                 setWaterSystemFormData({
@@ -1514,7 +1514,7 @@ const DataEntry = () => {
                               </label>
                             </div>
                             {waterSystemFormData.cooling_cycle_enabled && (
-                              <div className='grid grid-cols-2 gap-4'>
+                              <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'>
                                 <div>
                                   <label className='block text-xs text-gray-600 mb-1'>Cycle Min</label>
                                   <input
@@ -1642,7 +1642,7 @@ const DataEntry = () => {
                               </label>
                             </div>
                             {waterSystemFormData.cooling_temperature_enabled && (
-                              <div className='grid grid-cols-2 gap-4'>
+                              <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'>
                                 <div>
                                   <label className='block text-xs text-gray-600 mb-1'>Basin Temperature Min (°C)</label>
                                   <input
@@ -1696,7 +1696,7 @@ const DataEntry = () => {
                               </label>
                             </div>
                             {waterSystemFormData.cooling_hot_temperature_enabled && (
-                              <div className='grid grid-cols-2 gap-4'>
+                              <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'>
                                 <div>
                                   <label className='block text-xs text-gray-600 mb-1'>Hot Side Temperature Min (°C)</label>
                                   <input
@@ -1750,7 +1750,7 @@ const DataEntry = () => {
                               </label>
                             </div>
                             {waterSystemFormData.cooling_lsi_enabled && (
-                              <div className='grid grid-cols-2 gap-4'>
+                              <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'>
                                 <div>
                                   <label className='block text-xs text-gray-600 mb-1'>LSI Min</label>
                                   <input
@@ -1804,7 +1804,7 @@ const DataEntry = () => {
                               </label>
                             </div>
                             {waterSystemFormData.cooling_rsi_enabled && (
-                              <div className='grid grid-cols-2 gap-4'>
+                              <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'>
                                 <div>
                                   <label className='block text-xs text-gray-600 mb-1'>RSI Min</label>
                                   <input
@@ -1855,7 +1855,7 @@ const DataEntry = () => {
                       {/* Basic Parameters */}
                       <div>
                         <h5 className='text-sm font-semibold text-gray-800 mb-3'>Basic Parameters</h5>
-                        <div className='grid grid-cols-2 gap-4'>
+                        <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'>
                           <div>
                             <label className='block text-sm font-medium text-gray-700 mb-1'>pH Min</label>
                             <input
@@ -1987,7 +1987,7 @@ const DataEntry = () => {
                               </label>
                             </div>
                             {waterSystemFormData.boiler_p_alkalinity_enabled && (
-                              <div className='grid grid-cols-2 gap-4'>
+                              <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'>
                                 <div>
                                   <label className='block text-xs text-gray-600 mb-1'>P-Alkalinity Min (ppm)</label>
                                   <input
@@ -2041,7 +2041,7 @@ const DataEntry = () => {
                               </label>
                             </div>
                             {waterSystemFormData.boiler_oh_alkalinity_enabled && (
-                              <div className='grid grid-cols-2 gap-4'>
+                              <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'>
                                 <div>
                                   <label className='block text-xs text-gray-600 mb-1'>OH-Alkalinity Min (ppm)</label>
                                   <input
@@ -2095,7 +2095,7 @@ const DataEntry = () => {
                               </label>
                             </div>
                             {waterSystemFormData.boiler_sulphite_enabled && (
-                              <div className='grid grid-cols-2 gap-4'>
+                              <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'>
                                 <div>
                                   <label className='block text-xs text-gray-600 mb-1'>Sulphite Min (ppm)</label>
                                   <input
@@ -2186,7 +2186,7 @@ const DataEntry = () => {
                               </label>
                             </div>
                             {waterSystemFormData.boiler_do_enabled && (
-                              <div className='grid grid-cols-2 gap-4'>
+                              <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'>
                                 <div>
                                   <label className='block text-xs text-gray-600 mb-1'>DO Min (ppm)</label>
                                   <input
@@ -2240,7 +2240,7 @@ const DataEntry = () => {
                               </label>
                             </div>
                             {waterSystemFormData.boiler_phosphate_enabled && (
-                              <div className='grid grid-cols-2 gap-4'>
+                              <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'>
                                 <div>
                                   <label className='block text-xs text-gray-600 mb-1'>Phosphate Min (ppm)</label>
                                   <input

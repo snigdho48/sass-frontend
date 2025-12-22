@@ -14,10 +14,10 @@ const PerformanceTrends = ({ data, loading, systemType }) => {
     return (
       <div className="card">
         <div className="card-header">
-          <h3 className="text-lg font-medium text-gray-900">Performance Trends</h3>
+          <h3 className="text-base sm:text-lg font-medium text-gray-900">Performance Trends</h3>
         </div>
         <div className="card-body">
-          <div className="h-64 bg-gray-100 animate-pulse rounded"></div>
+          <div className="h-48 sm:h-64 bg-gray-100 animate-pulse rounded"></div>
         </div>
       </div>
     );
@@ -27,11 +27,11 @@ const PerformanceTrends = ({ data, loading, systemType }) => {
     return (
       <div className="card">
         <div className="card-header">
-          <h3 className="text-lg font-medium text-gray-900">Performance Trends</h3>
+          <h3 className="text-base sm:text-lg font-medium text-gray-900">Performance Trends</h3>
         </div>
         <div className="card-body">
-          <div className="h-64 flex flex-col items-center justify-center text-gray-500 bg-gray-50 rounded-lg">
-            <p className="text-sm font-medium">Not Available</p>
+          <div className="h-48 sm:h-64 flex flex-col items-center justify-center text-gray-500 bg-gray-50 rounded-lg">
+            <p className="text-xs sm:text-sm font-medium">Not Available</p>
             <p className="text-xs mt-1 text-gray-400">No performance data available</p>
           </div>
         </div>
@@ -54,11 +54,11 @@ const PerformanceTrends = ({ data, loading, systemType }) => {
           ? 'from-blue-50 to-blue-100' 
           : 'from-purple-50 to-purple-100'
       }`}>
-        <h3 className="text-lg font-semibold text-gray-900">Performance Trends</h3>
+        <h3 className="text-base sm:text-lg font-semibold text-gray-900">Performance Trends</h3>
         <p className="text-xs text-gray-600 mt-1">Real-time performance trend score & curves</p>
       </div>
-      <div className="card-body p-4">
-        <ResponsiveContainer width="100%" height={300}>
+      <div className="card-body p-3 sm:p-4">
+        <ResponsiveContainer width="100%" height={250}>
           <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
             <defs>
               <linearGradient id={`colorScore-${systemType}`} x1="0" y1="0" x2="0" y2="1">
@@ -70,12 +70,14 @@ const PerformanceTrends = ({ data, loading, systemType }) => {
             <XAxis 
               dataKey="name" 
               stroke="#6b7280"
-              style={{ fontSize: '12px' }}
+              style={{ fontSize: '10px' }}
+              tick={{ fontSize: window.innerWidth < 640 ? 10 : 12 }}
             />
             <YAxis 
               domain={[0, 100]} 
               stroke="#6b7280"
-              style={{ fontSize: '12px' }}
+              style={{ fontSize: '10px' }}
+              tick={{ fontSize: window.innerWidth < 640 ? 10 : 12 }}
             />
             <Tooltip
               formatter={(value) => [`${value.toFixed(1)}`, 'Performance Score']}
