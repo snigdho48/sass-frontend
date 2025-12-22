@@ -2681,22 +2681,23 @@ const DataEntry = () => {
                                     key={ws.id}
                                     className='bg-white border border-gray-200 rounded-lg hover:border-blue-300 hover:shadow-md transition-all overflow-hidden'
                                   >
-                                    <div className='p-4 sm:p-5'>
+                                    {/* Mobile Layout - Stacked */}
+                                    <div className='md:hidden p-4'>
                                       {/* Header Section */}
                                       <div className='flex items-start justify-between mb-3'>
                                         <div className='flex items-start space-x-3 flex-1 min-w-0'>
                                           <div className='flex-shrink-0 mt-0.5'>
-                                            <div className='h-10 w-10 sm:h-12 sm:w-12 rounded-lg bg-blue-50 flex items-center justify-center'>
-                                              <Droplets className='h-5 w-5 sm:h-6 sm:w-6 text-blue-600' />
+                                            <div className='h-10 w-10 rounded-lg bg-blue-50 flex items-center justify-center'>
+                                              <Droplets className='h-5 w-5 text-blue-600' />
                                             </div>
                                           </div>
                                           <div className='flex-1 min-w-0'>
                                             <div className='flex items-center gap-2 flex-wrap mb-1'>
-                                              <h5 className='text-sm sm:text-base font-semibold text-gray-900 truncate'>
+                                              <h5 className='text-sm font-semibold text-gray-900 truncate'>
                                                 {ws.name}
                                               </h5>
                                               <span
-                                                className={`inline-flex items-center px-2 py-0.5 sm:px-2.5 sm:py-1 text-xs font-medium rounded-full flex-shrink-0 ${
+                                                className={`inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full flex-shrink-0 ${
                                                   ws.is_active
                                                     ? "bg-green-100 text-green-700"
                                                     : "bg-red-100 text-red-700"
@@ -2705,7 +2706,7 @@ const DataEntry = () => {
                                                 {ws.is_active ? "Active" : "Inactive"}
                                               </span>
                                             </div>
-                                            <p className='text-xs sm:text-sm text-gray-500'>
+                                            <p className='text-xs text-gray-500'>
                                               Cooling Water System
                                             </p>
                                           </div>
@@ -2751,7 +2752,7 @@ const DataEntry = () => {
                                               onClick={() => {
                                                 handleAssignUsersToWaterSystem(ws);
                                               }}
-                                              className='flex-1 sm:flex-initial inline-flex items-center justify-center px-3 py-2 text-xs sm:text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-md transition-colors'
+                                              className='flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-md transition-colors'
                                               title='Assign Users'
                                             >
                                               <UserPlus className='h-4 w-4 mr-1.5' />
@@ -2764,7 +2765,7 @@ const DataEntry = () => {
                                               onClick={() => {
                                                 handleWaterSystemEdit(ws);
                                               }}
-                                              className='flex-1 sm:flex-initial inline-flex items-center justify-center px-3 py-2 text-xs sm:text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-md transition-colors'
+                                              className='flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-md transition-colors'
                                               title='Edit Water System'
                                             >
                                               <Edit className='h-4 w-4 mr-1.5' />
@@ -2774,10 +2775,108 @@ const DataEntry = () => {
                                               onClick={() => {
                                                 handleWaterSystemDelete(ws);
                                               }}
-                                              className='flex-1 sm:flex-initial inline-flex items-center justify-center px-3 py-2 text-xs sm:text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 rounded-md transition-colors'
+                                              className='flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 rounded-md transition-colors'
                                               title='Delete Water System'
                                             >
                                               <Trash2 className='h-4 w-4 mr-1.5' />
+                                              Delete
+                                            </button>
+                                          </>
+                                        )}
+                                      </div>
+                                    </div>
+
+                                    {/* Desktop Layout - Single Row */}
+                                    <div className='hidden md:flex items-center justify-between p-4 gap-4'>
+                                      {/* Left: Icon and Name/Status */}
+                                      <div className='flex items-center space-x-3 flex-1 min-w-0'>
+                                        <div className='flex-shrink-0'>
+                                          <div className='h-10 w-10 rounded-lg bg-blue-50 flex items-center justify-center'>
+                                            <Droplets className='h-5 w-5 text-blue-600' />
+                                          </div>
+                                        </div>
+                                        <div className='flex-1 min-w-0'>
+                                          <div className='flex items-center gap-2 flex-wrap'>
+                                            <h5 className='text-sm font-semibold text-gray-900 truncate'>
+                                              {ws.name}
+                                            </h5>
+                                            <span
+                                              className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full flex-shrink-0 ${
+                                                ws.is_active
+                                                  ? "bg-green-100 text-green-700"
+                                                  : "bg-red-100 text-red-700"
+                                              }`}
+                                            >
+                                              {ws.is_active ? "Active" : "Inactive"}
+                                            </span>
+                                          </div>
+                                          <p className='text-xs text-gray-500 mt-0.5'>
+                                            Cooling Water System
+                                          </p>
+                                        </div>
+                                      </div>
+
+                                      {/* Center: Users */}
+                                      <div className='flex-1 items-center space-x-2 mx-4 min-w-0'>
+                                        {assignedUsersList.length > 0 ? (
+                                          <div className='flex items-center gap-1.5 flex-wrap'>
+                                            {displayedUsers.map((user) => (
+                                              <span
+                                                key={user.id}
+                                                className='inline-flex items-center px-2 py-1 text-xs font-medium bg-blue-50 text-blue-700 rounded border border-blue-200 whitespace-nowrap'
+                                              >
+                                                {user.name}
+                                              </span>
+                                            ))}
+                                            {remainingCount > 0 && (
+                                              <span className='inline-flex items-center px-2 py-1 text-xs font-medium text-gray-600 whitespace-nowrap'>
+                                                ... +{remainingCount} more
+                                              </span>
+                                            )}
+                                          </div>
+                                        ) : (
+                                          <span className='text-xs text-gray-400 italic'>
+                                            No users
+                                          </span>
+                                        )}
+                                      </div>
+
+                                      {/* Right: Actions */}
+                                      <div className='flex items-center space-x-2 flex-shrink-0'>
+                                        {/* Only regular admins (not super admin) can assign users */}
+                                        {user?.is_admin &&
+                                          !user?.can_create_plants && (
+                                            <button
+                                              onClick={() => {
+                                                handleAssignUsersToWaterSystem(ws);
+                                              }}
+                                              className='inline-flex items-center px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors'
+                                              title='Assign Users'
+                                            >
+                                              <UserPlus className='h-4 w-4 mr-1' />
+                                              Users
+                                            </button>
+                                          )}
+                                        {user?.can_create_plants && (
+                                          <>
+                                            <button
+                                              onClick={() => {
+                                                handleWaterSystemEdit(ws);
+                                              }}
+                                              className='inline-flex items-center px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors'
+                                              title='Edit Water System'
+                                            >
+                                              <Edit className='h-4 w-4 mr-1' />
+                                              Edit
+                                            </button>
+                                            <button
+                                              onClick={() => {
+                                                handleWaterSystemDelete(ws);
+                                              }}
+                                              className='inline-flex items-center px-3 py-1.5 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-md transition-colors'
+                                              title='Delete Water System'
+                                            >
+                                              <Trash2 className='h-4 w-4 mr-1' />
                                               Delete
                                             </button>
                                           </>
@@ -2860,22 +2959,23 @@ const DataEntry = () => {
                                     key={ws.id}
                                     className='bg-white border border-gray-200 rounded-lg hover:border-red-300 hover:shadow-md transition-all overflow-hidden'
                                   >
-                                    <div className='p-4 sm:p-5'>
+                                    {/* Mobile Layout - Stacked */}
+                                    <div className='md:hidden p-4'>
                                       {/* Header Section */}
                                       <div className='flex items-start justify-between mb-3'>
                                         <div className='flex items-start space-x-3 flex-1 min-w-0'>
                                           <div className='flex-shrink-0 mt-0.5'>
-                                            <div className='h-10 w-10 sm:h-12 sm:w-12 rounded-lg bg-red-50 flex items-center justify-center'>
-                                              <Thermometer className='h-5 w-5 sm:h-6 sm:w-6 text-red-600' />
+                                            <div className='h-10 w-10 rounded-lg bg-red-50 flex items-center justify-center'>
+                                              <Thermometer className='h-5 w-5 text-red-600' />
                                             </div>
                                           </div>
                                           <div className='flex-1 min-w-0'>
                                             <div className='flex items-center gap-2 flex-wrap mb-1'>
-                                              <h5 className='text-sm sm:text-base font-semibold text-gray-900 truncate'>
+                                              <h5 className='text-sm font-semibold text-gray-900 truncate'>
                                                 {ws.name}
                                               </h5>
                                               <span
-                                                className={`inline-flex items-center px-2 py-0.5 sm:px-2.5 sm:py-1 text-xs font-medium rounded-full flex-shrink-0 ${
+                                                className={`inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full flex-shrink-0 ${
                                                   ws.is_active
                                                     ? "bg-green-100 text-green-700"
                                                     : "bg-red-100 text-red-700"
@@ -2884,7 +2984,7 @@ const DataEntry = () => {
                                                 {ws.is_active ? "Active" : "Inactive"}
                                               </span>
                                             </div>
-                                            <p className='text-xs sm:text-sm text-gray-500'>
+                                            <p className='text-xs text-gray-500'>
                                               Boiler Water System
                                             </p>
                                           </div>
@@ -2930,7 +3030,7 @@ const DataEntry = () => {
                                               onClick={() => {
                                                 handleAssignUsersToWaterSystem(ws);
                                               }}
-                                              className='flex-1 sm:flex-initial inline-flex items-center justify-center px-3 py-2 text-xs sm:text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-md transition-colors'
+                                              className='flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-md transition-colors'
                                               title='Assign Users'
                                             >
                                               <UserPlus className='h-4 w-4 mr-1.5' />
@@ -2943,7 +3043,7 @@ const DataEntry = () => {
                                               onClick={() => {
                                                 handleWaterSystemEdit(ws);
                                               }}
-                                              className='flex-1 sm:flex-initial inline-flex items-center justify-center px-3 py-2 text-xs sm:text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-md transition-colors'
+                                              className='flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-md transition-colors'
                                               title='Edit Water System'
                                             >
                                               <Edit className='h-4 w-4 mr-1.5' />
@@ -2953,10 +3053,108 @@ const DataEntry = () => {
                                               onClick={() => {
                                                 handleWaterSystemDelete(ws);
                                               }}
-                                              className='flex-1 sm:flex-initial inline-flex items-center justify-center px-3 py-2 text-xs sm:text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 rounded-md transition-colors'
+                                              className='flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 rounded-md transition-colors'
                                               title='Delete Water System'
                                             >
                                               <Trash2 className='h-4 w-4 mr-1.5' />
+                                              Delete
+                                            </button>
+                                          </>
+                                        )}
+                                      </div>
+                                    </div>
+
+                                    {/* Desktop Layout - Single Row */}
+                                    <div className='hidden md:flex items-center justify-between p-4 gap-4'>
+                                      {/* Left: Icon and Name/Status */}
+                                      <div className='flex items-center space-x-3 flex-1 min-w-0'>
+                                        <div className='flex-shrink-0'>
+                                          <div className='h-10 w-10 rounded-lg bg-red-50 flex items-center justify-center'>
+                                            <Thermometer className='h-5 w-5 text-red-600' />
+                                          </div>
+                                        </div>
+                                        <div className='flex-1 min-w-0'>
+                                          <div className='flex items-center gap-2 flex-wrap'>
+                                            <h5 className='text-sm font-semibold text-gray-900 truncate'>
+                                              {ws.name}
+                                            </h5>
+                                            <span
+                                              className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full flex-shrink-0 ${
+                                                ws.is_active
+                                                  ? "bg-green-100 text-green-700"
+                                                  : "bg-red-100 text-red-700"
+                                              }`}
+                                            >
+                                              {ws.is_active ? "Active" : "Inactive"}
+                                            </span>
+                                          </div>
+                                          <p className='text-xs text-gray-500 mt-0.5'>
+                                            Boiler Water System
+                                          </p>
+                                        </div>
+                                      </div>
+
+                                      {/* Center: Users */}
+                                      <div className='flex-1 items-center space-x-2 mx-4 min-w-0'>
+                                        {assignedUsersList.length > 0 ? (
+                                          <div className='flex items-center gap-1.5 flex-wrap'>
+                                            {displayedUsers.map((user) => (
+                                              <span
+                                                key={user.id}
+                                                className='inline-flex items-center px-2 py-1 text-xs font-medium bg-red-50 text-red-700 rounded border border-red-200 whitespace-nowrap'
+                                              >
+                                                {user.name}
+                                              </span>
+                                            ))}
+                                            {remainingCount > 0 && (
+                                              <span className='inline-flex items-center px-2 py-1 text-xs font-medium text-gray-600 whitespace-nowrap'>
+                                                ... +{remainingCount} more
+                                              </span>
+                                            )}
+                                          </div>
+                                        ) : (
+                                          <span className='text-xs text-gray-400 italic'>
+                                            No users
+                                          </span>
+                                        )}
+                                      </div>
+
+                                      {/* Right: Actions */}
+                                      <div className='flex items-center space-x-2 flex-shrink-0'>
+                                        {/* Only regular admins (not super admin) can assign users */}
+                                        {user?.is_admin &&
+                                          !user?.can_create_plants && (
+                                            <button
+                                              onClick={() => {
+                                                handleAssignUsersToWaterSystem(ws);
+                                              }}
+                                              className='inline-flex items-center px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors'
+                                              title='Assign Users'
+                                            >
+                                              <UserPlus className='h-4 w-4 mr-1' />
+                                              Users
+                                            </button>
+                                          )}
+                                        {user?.can_create_plants && (
+                                          <>
+                                            <button
+                                              onClick={() => {
+                                                handleWaterSystemEdit(ws);
+                                              }}
+                                              className='inline-flex items-center px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors'
+                                              title='Edit Water System'
+                                            >
+                                              <Edit className='h-4 w-4 mr-1' />
+                                              Edit
+                                            </button>
+                                            <button
+                                              onClick={() => {
+                                                handleWaterSystemDelete(ws);
+                                              }}
+                                              className='inline-flex items-center px-3 py-1.5 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-md transition-colors'
+                                              title='Delete Water System'
+                                            >
+                                              <Trash2 className='h-4 w-4 mr-1' />
                                               Delete
                                             </button>
                                           </>
