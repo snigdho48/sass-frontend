@@ -236,13 +236,13 @@ const Admin = () => {
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 z-10" />
               <input
                 type="text"
                 placeholder="Search users..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="input pl-10"
+                className="input pl-10 bg-white"
               />
             </div>
           </div>
@@ -269,21 +269,21 @@ const Admin = () => {
         <div className="card">
           <div className="overflow-x-auto -mx-2 sm:mx-0">
             <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+              <thead className="bg-gray-50 sticky top-0 z-10">
                 <tr>
-                  <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[40%] sm:w-auto">
                     User
                   </th>
-                  <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="hidden sm:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Role
                   </th>
                   <th className="hidden sm:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Company
                   </th>
-                  <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[30%] sm:w-auto">
                     Status
                   </th>
-                  <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[30%] sm:w-auto">
                     Actions
                   </th>
                 </tr>
@@ -291,14 +291,14 @@ const Admin = () => {
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredUsers.map((userItem) => (
                   <tr key={userItem.id} className="hover:bg-gray-50">
-                    <td className="px-3 sm:px-6 py-3 sm:py-4">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 w-[40%] sm:w-auto">
                       <div className="flex items-center">
                         <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
                           <span className="text-xs sm:text-sm font-medium text-primary-700">
                             {userItem.first_name?.[0]}{userItem.last_name?.[0]}
                           </span>
                         </div>
-                        <div className="ml-2 sm:ml-4 min-w-0">
+                        <div className="ml-2 sm:ml-4 min-w-0 flex-1">
                           <div className="text-xs sm:text-sm font-medium text-gray-900 truncate">
                             {userItem.first_name} {userItem.last_name}
                           </div>
@@ -313,7 +313,7 @@ const Admin = () => {
                               {userItem.role_display || userItem.role}
                             </span>
                             {userItem.company && (
-                              <span className="ml-2 text-xs text-gray-600">{userItem.company}</span>
+                              <span className="ml-2 text-xs text-gray-600 truncate">{userItem.company}</span>
                             )}
                           </div>
                         </div>

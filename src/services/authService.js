@@ -52,7 +52,15 @@ export const authService = {
   // Update user profile
   async updateProfile(profileData) {
     try {
-      const response = await api.put('/auth/profile/', profileData);
+      // Check if profileData is FormData (for file uploads)
+      const isFormData = profileData instanceof FormData;
+      const config = isFormData ? {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      } : {};
+      
+      const response = await api.put('/auth/profile/', profileData, config);
       return response.data;
     } catch (error) {
       const errors = error.response?.data;

@@ -210,25 +210,41 @@ const Layout = () => {
           <div className='flex flex-1 gap-x-2 sm:gap-x-4 self-stretch lg:gap-x-6'>
             <div className='flex flex-1' />
             <div className='flex items-center gap-x-2 sm:gap-x-4 lg:gap-x-6'>
-              <button className='text-gray-400 hover:text-gray-600 p-1 sm:p-0' aria-label="Notifications">
-                <Bell size={18} className="sm:w-5 sm:h-5" />
-              </button>
-              <button className='text-gray-400 hover:text-gray-600 p-1 sm:p-0 hidden sm:block' aria-label="Settings">
-                <Settings size={18} className="sm:w-5 sm:h-5" />
-              </button>
-
               {/* User menu */}
               <div className='relative'>
                 <div className='flex items-center gap-x-2 sm:gap-x-3'>
-                  <div className='hidden sm:flex flex-col text-right'>
-                    <span className='text-xs sm:text-sm font-medium text-gray-900 truncate max-w-[120px] sm:max-w-none'>
-                      {user?.get_full_name || user?.email}
+                  <div className='flex flex-col text-right min-w-0'>
+                    <span className='text-xs sm:text-sm font-medium text-gray-900 truncate max-w-[100px] sm:max-w-[120px] lg:max-w-none' title={user?.get_full_name || user?.email}>
+                      {(() => {
+                        const fullName = user?.get_full_name || user?.email || '';
+                        // Truncate to 10 characters on mobile
+                        if (fullName.length > 10) {
+                          return fullName.substring(0, 10) + '...';
+                        }
+                        return fullName;
+                      })()}
                     </span>
-                    <span className='text-xs text-gray-500'>
+                    <span className='text-xs text-gray-500 hidden sm:block'>
+                      {user?.role_display?.replace('General User', 'User').replace('Administrator', 'Admin').replace('Super Administrator', 'Super Admin') || user?.role}
+                    </span>
+                    <span className='text-xs text-gray-500 sm:hidden truncate max-w-[100px]' title={user?.role_display || user?.role}>
                       {user?.role_display?.replace('General User', 'User').replace('Administrator', 'Admin').replace('Super Administrator', 'Super Admin') || user?.role}
                     </span>
                   </div>
-                  <div className='h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-primary-600 flex items-center justify-center flex-shrink-0'>
+                  {user?.profile_picture ? (
+                    <img 
+                      src={user.profile_picture} 
+                      alt={user?.get_full_name || user?.email}
+                      className='h-7 w-7 sm:h-8 sm:w-8 rounded-full object-cover flex-shrink-0 border-2 border-primary-200'
+                      onError={(e) => {
+                        // Hide image and show fallback
+                        e.target.style.display = 'none';
+                        const fallback = e.target.parentElement.querySelector('.profile-fallback');
+                        if (fallback) fallback.style.display = 'flex';
+                      }}
+                    />
+                  ) : null}
+                  <div className={`h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-primary-600 flex items-center justify-center flex-shrink-0 ${user?.profile_picture ? 'hidden profile-fallback' : ''}`}>
                     <span className='text-xs sm:text-sm font-medium text-white'>
                       {user?.first_name?.[0]}
                       {user?.last_name?.[0]}

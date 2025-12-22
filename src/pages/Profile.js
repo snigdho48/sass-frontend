@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAppSelector, useAppDispatch } from '../hooks/useAppSelector';
 import { updateProfile } from '../store/slices/authSlice';
-import { User, Mail, Building, Phone, Save, Key } from 'lucide-react';
+import { User, Mail, Building, Phone, Save, Key, Eye, EyeOff, Camera } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { authService } from '../services/authService';
 
@@ -16,6 +16,20 @@ const Profile = () => {
     phone: user?.phone || '',
   });
 
+  const [passwordData, setPasswordData] = useState({
+    old_password: '',
+    new_password: '',
+    confirm_password: '',
+  });
+  const [showPasswords, setShowPasswords] = useState({
+    old_password: false,
+    new_password: false,
+    confirm_password: false,
+  });
+  const [activeTab, setActiveTab] = useState('profile');
+  const [profilePicture, setProfilePicture] = useState(user?.profile_picture || null);
+  const [profilePictureFile, setProfilePictureFile] = useState(null);
+
   // Update profile data when user changes
   useEffect(() => {
     if (user) {
@@ -26,14 +40,11 @@ const Profile = () => {
         company: user.company || '',
         phone: user.phone || '',
       });
+      if (user.profile_picture) {
+        setProfilePicture(user.profile_picture);
+      }
     }
   }, [user]);
-  const [passwordData, setPasswordData] = useState({
-    old_password: '',
-    new_password: '',
-    confirm_password: '',
-  });
-  const [activeTab, setActiveTab] = useState('profile');
 
   const handleProfileChange = (e) => {
     setProfileData({
@@ -52,9 +63,28 @@ const Profile = () => {
   const handleProfileSubmit = async (e) => {
     e.preventDefault();
     try {
-      await dispatch(updateProfile(profileData)).unwrap();
+      const formData = new FormData();
+      Object.keys(profileData).forEach(key => {
+        if (profileData[key] !== null && profileData[key] !== undefined) {
+          formData.append(key, profileData[key]);
+        }
+      });
+      if (profilePictureFile) {
+        formData.append('profile_picture', profilePictureFile);
+      }
+      
+      const response = await dispatch(updateProfile(formData)).unwrap();
+      toast.success('Profile updated successfully');
+      if (profilePictureFile) {
+        setProfilePictureFile(null);
+      }
+      // Update local profile picture if returned from server
+      if (response.profile_picture) {
+        setProfilePicture(response.profile_picture);
+      }
     } catch (error) {
       console.error('Profile update error:', error);
+      toast.error(error.message || 'Failed to update profile');
     }
   };
 
@@ -122,6 +152,58 @@ const Profile = () => {
           </div>
           <div className="card-body">
             <form onSubmit={handleProfileSubmit} className="space-y-4 sm:space-y-6">
+              {/* Profile Picture */}
+              <div className="flex flex-col items-center sm:items-start mb-4 sm:mb-6">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
+                  Profile Picture
+                </label>
+                <div className="flex items-center space-x-4">
+                  <div className="relative">
+                    {profilePicture ? (
+                      <img 
+                        src={profilePicture} 
+                        alt="Profile" 
+                        className="h-20 w-20 sm:h-24 sm:w-24 rounded-full object-cover border-4 border-primary-200"
+                      />
+                    ) : (
+                      <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-full bg-primary-600 flex items-center justify-center border-4 border-primary-200">
+                        <span className="text-2xl sm:text-3xl font-medium text-white">
+                          {user?.first_name?.[0]}
+                          {user?.last_name?.[0]}
+                        </span>
+                      </div>
+                    )}
+                    <label className="absolute bottom-0 right-0 bg-primary-600 text-white rounded-full p-2 cursor-pointer hover:bg-primary-700 transition-colors">
+                      <Camera className="h-4 w-4" />
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files[0];
+                          if (file) {
+                            if (file.size > 5 * 1024 * 1024) {
+                              toast.error('Image size must be less than 5MB');
+                              return;
+                            }
+                            const reader = new FileReader();
+                            reader.onloadend = () => {
+                              setProfilePicture(reader.result);
+                              setProfilePictureFile(file);
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                      />
+                    </label>
+                  </div>
+                  <div className="text-xs sm:text-sm text-gray-600">
+                    <p>Click camera icon to upload</p>
+                    <p className="text-xs text-gray-500 mt-1">Max size: 5MB</p>
+                  </div>
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2">
                 <div>
                   <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
@@ -242,13 +324,24 @@ const Profile = () => {
                     <Key className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
                   </div>
                   <input
-                    type="password"
+                    type={showPasswords.old_password ? "text" : "password"}
                     name="old_password"
                     required
-                    className="input pl-9 sm:pl-10 text-sm sm:text-base"
+                    className="input pl-9 sm:pl-10 pr-9 sm:pr-10 text-sm sm:text-base"
                     value={passwordData.old_password}
                     onChange={handlePasswordChange}
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPasswords({...showPasswords, old_password: !showPasswords.old_password})}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                  >
+                    {showPasswords.old_password ? (
+                      <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" />
+                    ) : (
+                      <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
+                    )}
+                  </button>
                 </div>
               </div>
 
@@ -261,13 +354,24 @@ const Profile = () => {
                     <Key className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
                   </div>
                   <input
-                    type="password"
+                    type={showPasswords.new_password ? "text" : "password"}
                     name="new_password"
                     required
-                    className="input pl-9 sm:pl-10 text-sm sm:text-base"
+                    className="input pl-9 sm:pl-10 pr-9 sm:pr-10 text-sm sm:text-base"
                     value={passwordData.new_password}
                     onChange={handlePasswordChange}
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPasswords({...showPasswords, new_password: !showPasswords.new_password})}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                  >
+                    {showPasswords.new_password ? (
+                      <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" />
+                    ) : (
+                      <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
+                    )}
+                  </button>
                 </div>
               </div>
 
@@ -280,13 +384,24 @@ const Profile = () => {
                     <Key className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
                   </div>
                   <input
-                    type="password"
+                    type={showPasswords.confirm_password ? "text" : "password"}
                     name="confirm_password"
                     required
-                    className="input pl-9 sm:pl-10 text-sm sm:text-base"
+                    className="input pl-9 sm:pl-10 pr-9 sm:pr-10 text-sm sm:text-base"
                     value={passwordData.confirm_password}
                     onChange={handlePasswordChange}
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPasswords({...showPasswords, confirm_password: !showPasswords.confirm_password})}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                  >
+                    {showPasswords.confirm_password ? (
+                      <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" />
+                    ) : (
+                      <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
+                    )}
+                  </button>
                 </div>
               </div>
 

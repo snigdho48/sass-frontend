@@ -2970,13 +2970,13 @@ const DataEntry = () => {
          {/* Plants Table */}
         <div className='card'>
           <div className='card-header'>
-            <div className='flex justify-between items-center'>
-              <h3 className='text-lg font-medium text-gray-900'>Plants</h3>
-              <div className='flex items-center space-x-4'>
+            <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0'>
+              <h3 className='text-base sm:text-lg font-medium text-gray-900'>Plants</h3>
+              <div className='flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:space-x-4 w-full sm:w-auto'>
                 <input
                   type='text'
                   placeholder='Search plants...'
-                  className='input w-64'
+                  className='input w-full sm:w-64 text-sm sm:text-base'
                   value={searchTerm}
                   onChange={(e) => {
                     setSearchTerm(e.target.value);
@@ -2986,7 +2986,7 @@ const DataEntry = () => {
                 
                 {/* Owner Filter (Super Admin Only) */}
                 {user?.can_create_plants && (
-                  <div className='w-64'>
+                  <div className='w-full sm:w-64'>
                     <SearchableMultiUserSelect
                       options={users}
                       value={ownerFilter}
@@ -3002,48 +3002,47 @@ const DataEntry = () => {
               </div>
             </div>
           </div>
-          <div className='card-body'>
+          <div className='card-body p-0 sm:p-6'>
             {plantsLoading ? (
-              <div className='flex items-center justify-center h-32'>
+              <div className='flex items-center justify-center h-32 p-6'>
                 <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600'></div>
               </div>
             ) : plantsData.results.length === 0 ? (
-              <div className='text-center py-8'>
+              <div className='text-center py-8 p-6'>
                 <Building2 className='h-12 w-12 text-gray-400 mx-auto mb-4' />
                 <p className='text-gray-500'>No plants found.</p>
               </div>
             ) : (
               <>
-                <div className='overflow-x-auto'>
+                <div className='overflow-x-auto -mx-2 sm:mx-0'>
                   <table className='min-w-full divide-y divide-gray-200'>
-                    <thead className='bg-gray-50'>
+                    <thead className='bg-gray-50 sticky top-0 z-10'>
                       <tr>
-                        <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                        <th className='px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
                           Plant Name
                         </th>
-                        <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                        <th className='px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
                           Status
                         </th>
-                        <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                        <th className='hidden sm:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
                           Cooling Water
                         </th>
-                        <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                        <th className='hidden sm:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
                           Boiler Water
                         </th>
-                        <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                        <th className='hidden md:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
                           Created
                         </th>
-                                                                                                                                                                                                     {user?.can_create_plants && (
-                              <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                                Owner
-                              </th>
-                            )}
-                           {/* Actions column visible only to Super Admin */}
-                           {user?.can_create_plants && (
-                             <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                               Actions
-                             </th>
-                           )}
+                        {user?.can_create_plants && (
+                          <th className='hidden lg:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                            Owner
+                          </th>
+                        )}
+                        {user?.can_create_plants && (
+                          <th className='px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                            Actions
+                          </th>
+                        )}
                       </tr>
                     </thead>
                     <tbody className='bg-white divide-y divide-gray-200'>
@@ -3056,11 +3055,44 @@ const DataEntry = () => {
                         
                         return (
                           <React.Fragment key={plant.id}>
-                            <tr>
-                              <td className='px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900'>
-                                {plant.name}
+                            <tr className='hover:bg-gray-50'>
+                              <td className='px-3 sm:px-6 py-3 sm:py-4'>
+                                <div className='text-xs sm:text-sm font-medium text-gray-900 truncate max-w-[150px] sm:max-w-none'>
+                                  {plant.name}
+                                </div>
+                                <div className='sm:hidden mt-1 space-y-1'>
+                                  <div className='flex items-center space-x-2'>
+                                    <Droplets className='h-3 w-3 text-blue-500' />
+                                    <span className='text-xs text-gray-700'>
+                                      Cooling: {coolingSystems.length}
+                                    </span>
+                                    <button
+                                      onClick={() => handleManageWaterSystems(plant, 'cooling')}
+                                      className='text-blue-600 hover:text-blue-700 text-xs font-medium ml-1'
+                                    >
+                                      Manage
+                                    </button>
+                                  </div>
+                                  <div className='flex items-center space-x-2'>
+                                    <Thermometer className='h-3 w-3 text-red-500' />
+                                    <span className='text-xs text-gray-700'>
+                                      Boiler: {boilerSystems.length}
+                                    </span>
+                                    <button
+                                      onClick={() => handleManageWaterSystems(plant, 'boiler')}
+                                      className='text-red-600 hover:text-red-700 text-xs font-medium ml-1'
+                                    >
+                                      Manage
+                                    </button>
+                                  </div>
+                                  {user?.can_create_plants && plant.owner && (
+                                    <div className='text-xs text-gray-500 mt-1'>
+                                      Owner: {plant.owner.first_name} {plant.owner.last_name}
+                                    </div>
+                                  )}
+                                </div>
                               </td>
-                              <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
+                              <td className='px-3 sm:px-6 py-3 sm:py-4'>
                                 <span
                                   className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                                     plant.is_active
@@ -3071,7 +3103,7 @@ const DataEntry = () => {
                                   {plant.is_active ? "Active" : "Inactive"}
                                 </span>
                               </td>
-                              <td className='px-6 py-4 whitespace-nowrap text-sm'>
+                              <td className='hidden sm:table-cell px-6 py-4 whitespace-nowrap text-sm'>
                                 <div className='flex items-center space-x-2'>
                                   <Droplets className='h-4 w-4 text-blue-500' />
                                   <span className='font-medium text-gray-700'>
@@ -3086,7 +3118,7 @@ const DataEntry = () => {
                                   </button>
                                 </div>
                               </td>
-                              <td className='px-6 py-4 whitespace-nowrap text-sm'>
+                              <td className='hidden sm:table-cell px-6 py-4 whitespace-nowrap text-sm'>
                                 <div className='flex items-center space-x-2'>
                                   <Thermometer className='h-4 w-4 text-red-500' />
                                   <span className='font-medium text-gray-700'>
@@ -3101,50 +3133,48 @@ const DataEntry = () => {
                                   </button>
                                 </div>
                               </td>
-                              <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
+                              <td className='hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
                                 {new Date(plant.created_at).toLocaleDateString()}
                               </td>
-                                                                                                            {user?.can_create_plants && (
-                               <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center'>
-                               {plant.owner ? (
-                                 <>
-                                   <div className='text-xs font-semibold'>
-                                     {plant.owner.first_name}{" "}
-                                     {plant.owner.last_name}
-                                   </div>
-                                   <div className='text-xs'>
-                                     {plant.owner.email}
-                                   </div>
-                                 </>
-                               ) : (
-                                 <span className='text-gray-400 text-xs'>
-                                   No owner
-                                 </span>
-                               )}
-                             </td>
-                           )}
-                                                     {/* Actions column - only for Super Admin */}
-                           {user?.can_create_plants && (
-                             <td className='px-6 py-4 whitespace-nowrap text-sm font-medium'>
-                               <div className='flex space-x-2'>
-                                 {/* Super Admin: Edit and Delete buttons */}
-                                 <button
-                                   onClick={() => handlePlantEdit(plant)}
-                                   className='text-primary-600 hover:text-primary-900'
-                                   title='Edit Plant'
-                                 >
-                                   <Edit className='h-4 w-4' />
-                                 </button>
-                                 <button
-                                   onClick={() => handlePlantDelete(plant)}
-                                   className='text-danger-600 hover:text-danger-900'
-                                   title='Delete Plant'
-                                 >
-                                   <Trash2 className='h-4 w-4' />
-                                 </button>
-                               </div>
-                             </td>
-                           )}
+                              {user?.can_create_plants && (
+                                <td className='hidden lg:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
+                                  {plant.owner ? (
+                                    <>
+                                      <div className='text-xs font-semibold'>
+                                        {plant.owner.first_name}{" "}
+                                        {plant.owner.last_name}
+                                      </div>
+                                      <div className='text-xs'>
+                                        {plant.owner.email}
+                                      </div>
+                                    </>
+                                  ) : (
+                                    <span className='text-gray-400 text-xs'>
+                                      No owner
+                                    </span>
+                                  )}
+                                </td>
+                              )}
+                              {user?.can_create_plants && (
+                                <td className='px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-sm font-medium'>
+                                  <div className='flex space-x-1 sm:space-x-2'>
+                                    <button
+                                      onClick={() => handlePlantEdit(plant)}
+                                      className='text-primary-600 hover:text-primary-900 p-1'
+                                      title='Edit Plant'
+                                    >
+                                      <Edit className='h-4 w-4' />
+                                    </button>
+                                    <button
+                                      onClick={() => handlePlantDelete(plant)}
+                                      className='text-danger-600 hover:text-danger-900 p-1'
+                                      title='Delete Plant'
+                                    >
+                                      <Trash2 className='h-4 w-4' />
+                                    </button>
+                                  </div>
+                                </td>
+                              )}
                             </tr>
                           </React.Fragment>
                         );
@@ -3155,8 +3185,8 @@ const DataEntry = () => {
 
                 {/* Pagination */}
                 {plantsData.results.length > 0 && (
-                  <div className='flex items-center justify-between mt-6'>
-                    <div className='text-sm text-gray-700'>
+                  <div className='flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-0 mt-4 sm:mt-6 px-2 sm:px-0'>
+                    <div className='text-xs sm:text-sm text-gray-700'>
                       Showing {(currentPage - 1) * 10 + 1} to{" "}
                       {Math.min(currentPage * 10, plantsData.count)} of{" "}
                       {plantsData.count} plants
@@ -3167,11 +3197,11 @@ const DataEntry = () => {
                           setCurrentPage((prev) => Math.max(prev - 1, 1))
                         }
                         disabled={currentPage === 1}
-                        className='px-3 py-2 text-sm border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50'
+                        className='px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50'
                       >
                         Previous
                       </button>
-                      <span className='px-3 py-2 text-sm text-gray-700'>
+                      <span className='px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-gray-700'>
                         Page {currentPage} of {totalPages}
                       </span>
                       <button
@@ -3181,7 +3211,7 @@ const DataEntry = () => {
                           )
                         }
                         disabled={currentPage === totalPages}
-                        className='px-3 py-2 text-sm border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50'
+                        className='px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50'
                       >
                         Next
                       </button>
