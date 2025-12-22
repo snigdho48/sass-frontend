@@ -74,7 +74,7 @@ const Profile = () => {
       }
       
       const response = await dispatch(updateProfile(formData)).unwrap();
-      toast.success('Profile updated successfully');
+      // Toast is already shown in authSlice, so we don't need to show it again
       if (profilePictureFile) {
         setProfilePictureFile(null);
       }
@@ -84,7 +84,7 @@ const Profile = () => {
       }
     } catch (error) {
       console.error('Profile update error:', error);
-      toast.error(error.message || 'Failed to update profile');
+      // Error toast is already shown in authSlice
     }
   };
 

@@ -189,7 +189,7 @@ const DataEntry = () => {
     'users-for-plant-access',
     dataService.getUsersForPlantAccess,
     { 
-      enabled: user?.is_admin && !user?.can_create_plants, // Admin users only (not Super Admin)
+      enabled: user?.is_admin, // Both Admin and Super Admin need this for owner filter
       staleTime: 5 * 60 * 1000, // 5 minutes
       cacheTime: 10 * 60 * 1000, // 10 minutes
       refetchOnWindowFocus: false,
@@ -1235,39 +1235,40 @@ const DataEntry = () => {
 
         {/* Water System Management Modal */}
         {showWaterSystemForm && (
-          <div className='fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-[60] p-2 sm:p-4'>
-            <div className='bg-white rounded-lg p-4 sm:p-6 w-full max-w-5xl max-h-[90vh] overflow-y-auto'>
+          <div className='fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-[60] p-2 sm:p-4 overflow-y-auto'>
+            <div className='bg-white rounded-lg p-3 sm:p-4 md:p-6 w-full max-w-5xl max-h-[95vh] my-4 overflow-y-auto'>
               <div className='flex justify-between items-center mb-3 sm:mb-4'>
-                <h3 className='text-lg font-medium text-gray-900'>
+                <h3 className='text-base sm:text-lg font-medium text-gray-900'>
                   {editingWaterSystem ? 'Edit Water System' : 'Add New Water System'}
                 </h3>
                 <button
                   onClick={handleWaterSystemCancel}
-                  className='text-gray-400 hover:text-gray-600'
+                  className='text-gray-400 hover:text-gray-600 p-1'
+                  aria-label="Close"
                 >
-                  <X className='h-5 w-5' />
+                  <X className='h-4 w-4 sm:h-5 sm:w-5' />
                 </button>
               </div>
               
               {selectedPlantForWaterSystem && (
-                <div className='mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg'>
-                  <p className='text-sm text-blue-800'>
+                <div className='mb-3 sm:mb-4 p-2 sm:p-3 bg-blue-50 border border-blue-200 rounded-lg'>
+                  <p className='text-xs sm:text-sm text-blue-800'>
                     <strong>Plant:</strong> {selectedPlantForWaterSystem.name}
                   </p>
                 </div>
               )}
 
-              <form onSubmit={handleWaterSystemSubmit} className='space-y-6'>
+              <form onSubmit={handleWaterSystemSubmit} className='space-y-4 sm:space-y-6'>
                 {/* Basic Information */}
-                <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
+                <div className='grid grid-cols-1 gap-3 sm:gap-4 sm:grid-cols-2'>
                   <div>
-                    <label className='block text-sm font-medium text-gray-700 mb-1'>
+                    <label className='block text-xs sm:text-sm font-medium text-gray-700 mb-1'>
                       System Name *
                     </label>
                     <input
                       type='text'
                       required
-                      className='input'
+                      className='input text-sm sm:text-base'
                       value={waterSystemFormData.name}
                       onChange={(e) =>
                         setWaterSystemFormData({
@@ -1279,7 +1280,7 @@ const DataEntry = () => {
                     />
                   </div>
                   <div>
-                    <label className='block text-sm font-medium text-gray-700 mb-1'>
+                    <label className='block text-xs sm:text-sm font-medium text-gray-700 mb-1'>
                       System Type *
                     </label>
                     <select
@@ -1311,19 +1312,19 @@ const DataEntry = () => {
                           })
                         }
                       />
-                      <span className='ml-2 text-sm text-gray-700'>Active</span>
+                      <span className='ml-2 text-xs sm:text-sm text-gray-700'>Active</span>
                     </label>
                   </div>
                 </div>
 
                 {/* Parameters Section - Show based on system type */}
                 {waterSystemFormData.system_type === 'cooling' ? (
-                  <div className='border-t pt-6'>
-                    <h4 className='text-md font-bold text-gray-900 mb-4'>
-                      <Droplets className='w-4 h-4 inline mr-2 text-blue-600' />
+                  <div className='border-t pt-4 sm:pt-6'>
+                    <h4 className='text-sm sm:text-base font-bold text-gray-900 mb-3 sm:mb-4'>
+                      <Droplets className='w-3 h-3 sm:w-4 sm:h-4 inline mr-2 text-blue-600' />
                       Cooling Water Parameters (All Optional)
                     </h4>
-                    <p className='text-xs text-gray-500 mb-4 italic'>
+                    <p className='text-xs text-gray-500 mb-3 sm:mb-4 italic'>
                       Configure parameters for this cooling water system. All fields are optional.
                     </p>
                     <div className='space-y-6'>
@@ -2318,11 +2319,11 @@ const DataEntry = () => {
                 )}
 
                 {/* Submit Buttons */}
-                <div className='flex justify-end space-x-3 mt-6 border-t pt-4'>
+                <div className='flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 mt-4 sm:mt-6 border-t pt-3 sm:pt-4'>
                   <button
                     type='button'
                     onClick={handleWaterSystemCancel}
-                    className='btn btn-secondary'
+                    className='btn btn-secondary text-sm px-3 py-2 sm:px-4 sm:py-2.5 w-full sm:w-auto'
                   >
                     <X className='h-4 w-4 mr-2' />
                     Cancel
@@ -2333,7 +2334,7 @@ const DataEntry = () => {
                       createWaterSystemMutation.isLoading ||
                       updateWaterSystemMutation.isLoading
                     }
-                    className='btn btn-primary flex items-center'
+                    className='btn btn-primary flex items-center justify-center text-sm px-3 py-2 sm:px-4 sm:py-2.5 w-full sm:w-auto'
                   >
                     {(createWaterSystemMutation.isLoading || updateWaterSystemMutation.isLoading) ? (
                       <>
@@ -2355,21 +2356,22 @@ const DataEntry = () => {
 
         {/* Assign Users to Water System Modal */}
         {assigningUsersToWaterSystem && (
-          <div className='fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-[60]'>
-            <div className='bg-white rounded-lg p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto'>
-              <div className='flex justify-between items-center mb-4'>
-                <h3 className='text-lg font-medium text-gray-900'>
+          <div className='fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-[60] p-2 sm:p-4 overflow-y-auto'>
+            <div className='bg-white rounded-lg p-3 sm:p-4 md:p-6 w-full max-w-lg max-h-[95vh] my-4 overflow-y-auto'>
+              <div className='flex justify-between items-center mb-3 sm:mb-4'>
+                <h3 className='text-base sm:text-lg font-medium text-gray-900'>
                   Manage Users for {assigningUsersToWaterSystem.name}
                 </h3>
                 <button
                   onClick={handleAssignUsersToWaterSystemCancel}
-                  className='text-gray-400 hover:text-gray-600'
+                  className='text-gray-400 hover:text-gray-600 p-1'
+                  aria-label="Close"
                 >
-                  <X className='h-5 w-5' />
+                  <X className='h-4 w-4 sm:h-5 sm:w-5' />
                 </button>
               </div>
 
-              <div className='space-y-6'>
+              <div className='space-y-4 sm:space-y-6'>
                 {/* Section 1: Currently Assigned Users (with delete option) */}
                 <div>
                   <label className='block text-sm font-medium text-gray-700 mb-2'>
@@ -2464,11 +2466,11 @@ const DataEntry = () => {
                 </div>
               </div>
 
-              <div className='flex justify-end space-x-3 mt-6 pt-4 border-t border-gray-200'>
+              <div className='flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-gray-200'>
                 <button
                   type='button'
                   onClick={handleAssignUsersToWaterSystemCancel}
-                  className='btn btn-secondary'
+                  className='btn btn-secondary text-sm px-3 py-2 sm:px-4 sm:py-2.5 w-full sm:w-auto'
                   disabled={assignUsersToWaterSystemMutation.isLoading}
                 >
                   Cancel
@@ -2477,7 +2479,7 @@ const DataEntry = () => {
                   type='button'
                   onClick={handleAssignUsersToWaterSystemSubmit}
                   disabled={assignUsersToWaterSystemMutation.isLoading || assignWaterSystemUserIds.length === 0}
-                  className='btn btn-primary flex items-center'
+                  className='btn btn-primary flex items-center justify-center text-sm px-3 py-2 sm:px-4 sm:py-2.5 w-full sm:w-auto'
                 >
                   {assignUsersToWaterSystemMutation.isLoading ? (
                     <>
@@ -2500,34 +2502,34 @@ const DataEntry = () => {
 
          {/* Assign User Modal - For Admin Users */}
          {assigningUser && !user?.can_create_plants && (
-           <div className='card mb-6 relative'>
+           <div className='card mb-4 sm:mb-6 relative'>
              {(updatePlantMutation.isLoading) && (
                <div className='absolute inset-0 z-50 flex items-center justify-center bg-white/80 rounded-lg'>
                  <div className='flex flex-col items-center'>
-                   <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mb-4'></div>
-                   <p className='text-gray-700 font-medium'>
+                   <div className='animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-primary-600 mb-3 sm:mb-4'></div>
+                   <p className='text-sm sm:text-base text-gray-700 font-medium'>
                      Assigning user...
                    </p>
                  </div>
                </div>
              )}
              <div className='card-header'>
-               <h3 className='text-lg font-medium text-gray-900'>
+               <h3 className='text-base sm:text-lg font-medium text-gray-900'>
                  Assign/Change User - {assigningUser.name}
                </h3>
              </div>
-             <div className='card-body'>
-               <form onSubmit={handleAssignUserSubmit} className='space-y-4'>
+             <div className='card-body p-4 sm:p-6'>
+               <form onSubmit={handleAssignUserSubmit} className='space-y-3 sm:space-y-4'>
                  <div>
-                   <label className='block text-sm font-medium text-gray-700 mb-2'>
+                   <label className='block text-xs sm:text-sm font-medium text-gray-700 mb-2'>
                      Select Plant Owner *
                    </label>
                    {usersLoading ? (
-                     <div className='text-sm text-gray-500'>
+                     <div className='text-xs sm:text-sm text-gray-500'>
                        Loading users...
                      </div>
                    ) : usersError ? (
-                     <div className='text-sm text-red-500'>
+                     <div className='text-xs sm:text-sm text-red-500'>
                        Failed to load users
                      </div>
                                         ) : (
@@ -2545,11 +2547,11 @@ const DataEntry = () => {
                        Select one or more users who will be assigned as owners of this plant.
                      </p>
                  </div>
-                 <div className='flex justify-end space-x-3'>
+                 <div className='flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 sm:space-x-3'>
                    <button
                      type='button'
                      onClick={handleAssignUserCancel}
-                     className='btn btn-secondary'
+                     className='btn btn-secondary text-sm px-3 py-2 sm:px-4 sm:py-2.5 w-full sm:w-auto'
                      disabled={updatePlantMutation.isLoading}
                    >
                      <X className='h-4 w-4 mr-2' />
@@ -2558,7 +2560,7 @@ const DataEntry = () => {
                    <button
                      type='submit'
                      disabled={updatePlantMutation.isLoading}
-                     className='btn btn-primary flex items-center'
+                     className='btn btn-primary flex items-center justify-center text-sm px-3 py-2 sm:px-4 sm:py-2.5 w-full sm:w-auto'
                    >
                      {updatePlantMutation.isLoading ? (
                        <>
@@ -2580,26 +2582,27 @@ const DataEntry = () => {
 
         {/* Manage Water Systems Modal */}
         {managingWaterSystems && (
-          <div className='fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50'>
-            <div className='bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col'>
-              <div className='px-6 py-4 border-b border-gray-200 flex items-center justify-between'>
-                <div>
-                  <h3 className='text-lg font-semibold text-gray-900'>
+          <div className='fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4 overflow-y-auto'>
+            <div className='bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[95vh] my-4 overflow-hidden flex flex-col'>
+              <div className='px-3 sm:px-4 md:px-6 py-3 sm:py-4 border-b border-gray-200 flex items-center justify-between'>
+                <div className='flex-1 min-w-0 pr-2'>
+                  <h3 className='text-base sm:text-lg font-semibold text-gray-900 truncate'>
                     Manage {managingWaterSystems.systemType === 'cooling' ? 'Cooling' : 'Boiler'} Water Systems
                   </h3>
-                  <p className='text-sm text-gray-500 mt-1'>
+                  <p className='text-xs sm:text-sm text-gray-500 mt-1 truncate'>
                     {managingWaterSystems.plant.name}
                   </p>
                 </div>
                 <button
                   onClick={handleCloseWaterSystemsModal}
-                  className='text-gray-400 hover:text-gray-600 transition-colors'
+                  className='text-gray-400 hover:text-gray-600 transition-colors p-1 flex-shrink-0'
+                  aria-label="Close"
                 >
-                  <X className='h-5 w-5' />
+                  <X className='h-4 w-4 sm:h-5 sm:w-5' />
                 </button>
               </div>
               
-              <div className='flex-1 overflow-y-auto px-6 py-4'>
+              <div className='flex-1 overflow-y-auto px-3 sm:px-4 md:px-6 py-3 sm:py-4'>
                 {(() => {
                   const plantWaterSystems = allWaterSystems.filter(ws => 
                     (typeof ws.plant === 'object' ? ws.plant.id : ws.plant) === managingWaterSystems.plant.id
@@ -2955,10 +2958,10 @@ const DataEntry = () => {
                 })()}
               </div>
               
-              <div className='px-6 py-4 border-t border-gray-200 flex justify-end'>
+              <div className='px-3 sm:px-4 md:px-6 py-3 sm:py-4 border-t border-gray-200 flex justify-end'>
                 <button
                   onClick={handleCloseWaterSystemsModal}
-                  className='px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors'
+                  className='px-3 py-2 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors w-full sm:w-auto'
                 >
                   Close
                 </button>
@@ -2988,14 +2991,15 @@ const DataEntry = () => {
                 {user?.can_create_plants && (
                   <div className='w-full sm:w-64'>
                     <SearchableMultiUserSelect
-                      options={users}
+                      options={usersLoading ? [] : users}
                       value={ownerFilter}
                       onChange={(selectedOwners) => {
                         setOwnerFilter(selectedOwners);
                         setCurrentPage(1); // Reset to first page when filtering
                       }}
-                      placeholder='Filter by owners...'
+                      placeholder={usersLoading ? 'Loading owners...' : 'Filter by owners...'}
                       allowClear={true}
+                      disabled={usersLoading}
                     />
                   </div>
                 )}
@@ -3185,23 +3189,18 @@ const DataEntry = () => {
 
                 {/* Pagination */}
                 {plantsData.results.length > 0 && (
-                  <div className='flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-0 mt-4 sm:mt-6 px-2 sm:px-0'>
-                    <div className='text-xs sm:text-sm text-gray-700'>
-                      Showing {(currentPage - 1) * 10 + 1} to{" "}
-                      {Math.min(currentPage * 10, plantsData.count)} of{" "}
-                      {plantsData.count} plants
-                    </div>
-                    <div className='flex space-x-2'>
+                  <div className='bg-white px-3 sm:px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-gray-200 sm:px-6'>
+                    <div className='flex-1 flex justify-between sm:hidden w-full'>
                       <button
                         onClick={() =>
                           setCurrentPage((prev) => Math.max(prev - 1, 1))
                         }
                         disabled={currentPage === 1}
-                        className='px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50'
+                        className='relative inline-flex items-center px-3 py-2 border border-gray-300 text-xs sm:text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed'
                       >
                         Previous
                       </button>
-                      <span className='px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-gray-700'>
+                      <span className='px-3 py-2 text-xs sm:text-sm text-gray-700'>
                         Page {currentPage} of {totalPages}
                       </span>
                       <button
@@ -3211,10 +3210,79 @@ const DataEntry = () => {
                           )
                         }
                         disabled={currentPage === totalPages}
-                        className='px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50'
+                        className='relative inline-flex items-center px-3 py-2 border border-gray-300 text-xs sm:text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed'
                       >
                         Next
                       </button>
+                    </div>
+                    <div className='hidden sm:flex sm:flex-1 sm:items-center sm:justify-between'>
+                      <div>
+                        <p className='text-sm text-gray-700'>
+                          Showing <span className='font-medium'>{(currentPage - 1) * 10 + 1}</span> to{' '}
+                          <span className='font-medium'>{Math.min(currentPage * 10, plantsData.count)}</span> of{' '}
+                          <span className='font-medium'>{plantsData.count}</span> plants
+                        </p>
+                      </div>
+                      <nav className='relative z-0 inline-flex rounded-md shadow-sm -space-x-px' aria-label='Pagination'>
+                        <button
+                          onClick={() =>
+                            setCurrentPage((prev) => Math.max(prev - 1, 1))
+                          }
+                          disabled={currentPage === 1}
+                          className='relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed'
+                        >
+                          <span className='sr-only'>Previous</span>
+                          <svg className='h-5 w-5' fill='currentColor' viewBox='0 0 20 20'>
+                            <path fillRule='evenodd' d='M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z' clipRule='evenodd' />
+                          </svg>
+                        </button>
+                        {[...Array(totalPages)].map((_, index) => {
+                          const pageNum = index + 1;
+                          if (
+                            pageNum === 1 ||
+                            pageNum === totalPages ||
+                            (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+                          ) {
+                            return (
+                              <button
+                                key={pageNum}
+                                onClick={() => setCurrentPage(pageNum)}
+                                className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                                  currentPage === pageNum
+                                    ? 'z-10 bg-primary-50 border-primary-500 text-primary-600'
+                                    : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                                }`}
+                              >
+                                {pageNum}
+                              </button>
+                            );
+                          } else if (pageNum === currentPage - 2 || pageNum === currentPage + 2) {
+                            return (
+                              <span
+                                key={pageNum}
+                                className='relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700'
+                              >
+                                ...
+                              </span>
+                            );
+                          }
+                          return null;
+                        })}
+                        <button
+                          onClick={() =>
+                            setCurrentPage((prev) =>
+                              Math.min(prev + 1, totalPages)
+                            )
+                          }
+                          disabled={currentPage === totalPages}
+                          className='relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed'
+                        >
+                          <span className='sr-only'>Next</span>
+                          <svg className='h-5 w-5' fill='currentColor' viewBox='0 0 20 20'>
+                            <path fillRule='evenodd' d='M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z' clipRule='evenodd' />
+                          </svg>
+                        </button>
+                      </nav>
                     </div>
                   </div>
                 )}
