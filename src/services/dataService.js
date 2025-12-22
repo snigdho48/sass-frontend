@@ -85,6 +85,28 @@ export const dataService = {
     }
   },
 
+  // Get new dashboard data with performance trends
+  async getDashboardDataNew() {
+    try {
+      const response = await api.get('/dashboard/data/');
+      return response.data;
+    } catch (error) {
+      throw new Error('Failed to fetch dashboard data');
+    }
+  },
+
+  // Get parameter trends
+  async getParameterTrends(systemType, parameterName, months = 6) {
+    try {
+      const response = await api.get('/dashboard/parameter-trends/', {
+        params: { system_type: systemType, parameter_name: parameterName, months }
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error('Failed to fetch parameter trends');
+    }
+  },
+
   // Generate report
   async generateReport(reportData) {
     try {
