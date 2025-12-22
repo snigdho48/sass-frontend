@@ -19,6 +19,7 @@ import {
   Droplets,
 } from 'lucide-react';
 import { NavigationLoader } from './Loader';
+import InstallPrompt from './InstallPrompt';
 import toast from 'react-hot-toast';
 
 const Layout = () => {
@@ -271,6 +272,9 @@ const Layout = () => {
             <Outlet />
           </div>
         </main>
+        
+        {/* Install Prompt */}
+        {isAuthenticated && <InstallPrompt />}
       </div>
     </div>
   );
