@@ -182,8 +182,16 @@ const Profile = () => {
                         onChange={(e) => {
                           const file = e.target.files[0];
                           if (file) {
-                            if (file.size > 5 * 1024 * 1024) {
-                              toast.error('Image size must be less than 5MB');
+                            // Check file size (1 MB = 1024 * 1024 bytes)
+                            if (file.size > 1024 * 1024) {
+                              toast.error('Image size must be less than 1MB');
+                              e.target.value = ''; // Clear the input
+                              return;
+                            }
+                            // Check if it's an image file
+                            if (!file.type.startsWith('image/')) {
+                              toast.error('Please select a valid image file');
+                              e.target.value = ''; // Clear the input
                               return;
                             }
                             const reader = new FileReader();
@@ -199,7 +207,7 @@ const Profile = () => {
                   </div>
                   <div className="text-xs sm:text-sm text-gray-600">
                     <p>Click camera icon to upload</p>
-                    <p className="text-xs text-gray-500 mt-1">Max size: 5MB</p>
+                    <p className="text-xs text-gray-500 mt-1">Max size: 1MB</p>
                   </div>
                 </div>
               </div>

@@ -10,7 +10,8 @@ import {
   Search,
   RefreshCw,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  X
 } from 'lucide-react';
 import { ButtonLoader, ContentLoader } from '../components/Loader';
 import toast from 'react-hot-toast';
@@ -519,50 +520,63 @@ const Admin = () => {
 
       {/* Create/Edit User Modal */}
       {(showCreateForm || editingUser) && (
-        <div className="fixed -top-6 inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 h-screen w-screen">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h2 className="text-lg font-semibold mb-4">
-              {editingUser ? 'Edit User' : 'Create New User'}
-            </h2>
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4 overflow-y-auto">
+          <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-md max-h-[95vh] my-4 overflow-y-auto">
+            <div className="flex justify-between items-center mb-3 sm:mb-4">
+              <h2 className="text-base sm:text-lg font-semibold text-gray-900">
+                {editingUser ? 'Edit User' : 'Create New User'}
+              </h2>
+              <button
+                onClick={() => {
+                  setShowCreateForm(false);
+                  setEditingUser(null);
+                  resetForm();
+                }}
+                className="text-gray-400 hover:text-gray-600 p-1"
+                aria-label="Close"
+              >
+                <X className="h-4 w-4 sm:h-5 sm:w-5" />
+              </button>
+            </div>
             <form onSubmit={editingUser ? handleUpdateUser : handleCreateUser}>
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Email</label>
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Email</label>
                   <input
                     type="email"
                     value={formData.email}
                     onChange={(e) => setFormData({...formData, email: e.target.value})}
-                    className="input"
+                    className="input text-sm sm:text-base"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Username</label>
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Username</label>
                   <input
                     type="text"
                     value={formData.username}
                     onChange={(e) => setFormData({...formData, username: e.target.value})}
-                    className="input"
+                    className="input text-sm sm:text-base"
                     required
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">First Name</label>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">First Name</label>
                     <input
                       type="text"
                       value={formData.first_name}
                       onChange={(e) => setFormData({...formData, first_name: e.target.value})}
-                      className="input"
+                      className="input text-sm sm:text-base"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Last Name</label>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Last Name</label>
                     <input
                       type="text"
                       value={formData.last_name}
                       onChange={(e) => setFormData({...formData, last_name: e.target.value})}
-                      className="input"
+                      className="input text-sm sm:text-base"
                     />
                   </div>
                 </div>

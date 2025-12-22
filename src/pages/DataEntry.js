@@ -1285,7 +1285,7 @@ const DataEntry = () => {
                     </label>
                     <select
                       required
-                      className='input'
+                      className='input text-sm sm:text-base'
                       value={waterSystemFormData.system_type}
                       onChange={(e) =>
                         setWaterSystemFormData({
@@ -1457,15 +1457,15 @@ const DataEntry = () => {
 
                       {/* Optional Parameters with Enable Toggles */}
                       <div>
-                        <h5 className='text-sm font-semibold text-gray-800 mb-3'>Optional Parameters</h5>
-                        <div className='space-y-4'>
+                        <h5 className='text-xs sm:text-sm font-semibold text-gray-800 mb-2 sm:mb-3'>Optional Parameters</h5>
+                        <div className='space-y-3 sm:space-y-4'>
                           {/* Chloride */}
-                          <div className='border rounded-lg p-4 bg-gray-50'>
+                          <div className='border rounded-lg p-3 sm:p-4 bg-gray-50'>
                             <div className='flex items-center justify-between mb-2'>
-                              <label className='flex items-center text-sm font-medium text-gray-700'>
+                              <label className='flex items-center text-xs sm:text-sm font-medium text-gray-700'>
                                 <input
                                   type='checkbox'
-                                  className='mr-2'
+                                  className='mr-2 h-3 w-3 sm:h-4 sm:w-4'
                                   checked={waterSystemFormData.cooling_chloride_enabled}
                                   onChange={(e) =>
                                     setWaterSystemFormData({
@@ -1483,7 +1483,7 @@ const DataEntry = () => {
                                 <input
                                   type='number'
                                   step='0.01'
-                                  className='input'
+                                  className='input text-sm sm:text-base'
                                   value={waterSystemFormData.cooling_chloride_max}
                                   onChange={(e) =>
                                     setWaterSystemFormData({
@@ -1497,12 +1497,12 @@ const DataEntry = () => {
                           </div>
 
                           {/* Cycle of Concentration */}
-                          <div className='border rounded-lg p-4 bg-gray-50'>
+                          <div className='border rounded-lg p-3 sm:p-4 bg-gray-50'>
                             <div className='flex items-center justify-between mb-2'>
-                              <label className='flex items-center text-sm font-medium text-gray-700'>
+                              <label className='flex items-center text-xs sm:text-sm font-medium text-gray-700'>
                                 <input
                                   type='checkbox'
-                                  className='mr-2'
+                                  className='mr-2 h-3 w-3 sm:h-4 sm:w-4'
                                   checked={waterSystemFormData.cooling_cycle_enabled}
                                   onChange={(e) =>
                                     setWaterSystemFormData({
@@ -1521,7 +1521,7 @@ const DataEntry = () => {
                                   <input
                                     type='number'
                                     step='0.1'
-                                    className='input'
+                                    className='input text-sm sm:text-base'
                                     value={waterSystemFormData.cooling_cycle_min}
                                     onChange={(e) =>
                                       setWaterSystemFormData({
@@ -1536,7 +1536,7 @@ const DataEntry = () => {
                                   <input
                                     type='number'
                                     step='0.1'
-                                    className='input'
+                                    className='input text-sm sm:text-base'
                                     value={waterSystemFormData.cooling_cycle_max}
                                     onChange={(e) =>
                                       setWaterSystemFormData({
@@ -1551,12 +1551,12 @@ const DataEntry = () => {
                           </div>
 
                           {/* Iron */}
-                          <div className='border rounded-lg p-4 bg-gray-50'>
+                          <div className='border rounded-lg p-3 sm:p-4 bg-gray-50'>
                             <div className='flex items-center justify-between mb-2'>
-                              <label className='flex items-center text-sm font-medium text-gray-700'>
+                              <label className='flex items-center text-xs sm:text-sm font-medium text-gray-700'>
                                 <input
                                   type='checkbox'
-                                  className='mr-2'
+                                  className='mr-2 h-3 w-3 sm:h-4 sm:w-4'
                                   checked={waterSystemFormData.cooling_iron_enabled}
                                   onChange={(e) =>
                                     setWaterSystemFormData({
@@ -1588,12 +1588,12 @@ const DataEntry = () => {
                           </div>
 
                           {/* Phosphate */}
-                          <div className='border rounded-lg p-4 bg-gray-50'>
+                          <div className='border rounded-lg p-3 sm:p-4 bg-gray-50'>
                             <div className='flex items-center justify-between mb-2'>
-                              <label className='flex items-center text-sm font-medium text-gray-700'>
+                              <label className='flex items-center text-xs sm:text-sm font-medium text-gray-700'>
                                 <input
                                   type='checkbox'
-                                  className='mr-2'
+                                  className='mr-2 h-3 w-3 sm:h-4 sm:w-4'
                                   checked={waterSystemFormData.cooling_phosphate_enabled}
                                   onChange={(e) =>
                                     setWaterSystemFormData({
@@ -1611,7 +1611,7 @@ const DataEntry = () => {
                                 <input
                                   type='number'
                                   step='0.01'
-                                  className='input'
+                                  className='input text-sm sm:text-base'
                                   value={waterSystemFormData.cooling_phosphate_max}
                                   onChange={(e) =>
                                     setWaterSystemFormData({
@@ -1625,12 +1625,12 @@ const DataEntry = () => {
                           </div>
 
                           {/* Basin Temperature */}
-                          <div className='border rounded-lg p-4 bg-gray-50'>
+                          <div className='border rounded-lg p-3 sm:p-4 bg-gray-50'>
                             <div className='flex items-center justify-between mb-2'>
-                              <label className='flex items-center text-sm font-medium text-gray-700'>
+                              <label className='flex items-center text-xs sm:text-sm font-medium text-gray-700'>
                                 <input
                                   type='checkbox'
-                                  className='mr-2'
+                                  className='mr-2 h-3 w-3 sm:h-4 sm:w-4'
                                   checked={waterSystemFormData.cooling_temperature_enabled}
                                   onChange={(e) =>
                                     setWaterSystemFormData({
@@ -1649,7 +1649,7 @@ const DataEntry = () => {
                                   <input
                                     type='number'
                                     step='0.1'
-                                    className='input'
+                                    className='input text-sm sm:text-base'
                                     value={waterSystemFormData.cooling_temperature_min}
                                     onChange={(e) =>
                                       setWaterSystemFormData({
@@ -1664,7 +1664,7 @@ const DataEntry = () => {
                                   <input
                                     type='number'
                                     step='0.1'
-                                    className='input'
+                                    className='input text-sm sm:text-base'
                                     value={waterSystemFormData.cooling_temperature_max}
                                     onChange={(e) =>
                                       setWaterSystemFormData({
@@ -1679,12 +1679,12 @@ const DataEntry = () => {
                           </div>
 
                           {/* Hot Side Temperature */}
-                          <div className='border rounded-lg p-4 bg-gray-50'>
+                          <div className='border rounded-lg p-3 sm:p-4 bg-gray-50'>
                             <div className='flex items-center justify-between mb-2'>
-                              <label className='flex items-center text-sm font-medium text-gray-700'>
+                              <label className='flex items-center text-xs sm:text-sm font-medium text-gray-700'>
                                 <input
                                   type='checkbox'
-                                  className='mr-2'
+                                  className='mr-2 h-3 w-3 sm:h-4 sm:w-4'
                                   checked={waterSystemFormData.cooling_hot_temperature_enabled}
                                   onChange={(e) =>
                                     setWaterSystemFormData({
@@ -1703,7 +1703,7 @@ const DataEntry = () => {
                                   <input
                                     type='number'
                                     step='0.1'
-                                    className='input'
+                                    className='input text-sm sm:text-base'
                                     value={waterSystemFormData.cooling_hot_temperature_min}
                                     onChange={(e) =>
                                       setWaterSystemFormData({
@@ -1718,7 +1718,7 @@ const DataEntry = () => {
                                   <input
                                     type='number'
                                     step='0.1'
-                                    className='input'
+                                    className='input text-sm sm:text-base'
                                     value={waterSystemFormData.cooling_hot_temperature_max}
                                     onChange={(e) =>
                                       setWaterSystemFormData({
@@ -1733,12 +1733,12 @@ const DataEntry = () => {
                           </div>
 
                           {/* LSI */}
-                          <div className='border rounded-lg p-4 bg-gray-50'>
+                          <div className='border rounded-lg p-3 sm:p-4 bg-gray-50'>
                             <div className='flex items-center justify-between mb-2'>
-                              <label className='flex items-center text-sm font-medium text-gray-700'>
+                              <label className='flex items-center text-xs sm:text-sm font-medium text-gray-700'>
                                 <input
                                   type='checkbox'
-                                  className='mr-2'
+                                  className='mr-2 h-3 w-3 sm:h-4 sm:w-4'
                                   checked={waterSystemFormData.cooling_lsi_enabled}
                                   onChange={(e) =>
                                     setWaterSystemFormData({
@@ -1757,7 +1757,7 @@ const DataEntry = () => {
                                   <input
                                     type='number'
                                     step='0.1'
-                                    className='input'
+                                    className='input text-sm sm:text-base'
                                     value={waterSystemFormData.cooling_lsi_min}
                                     onChange={(e) =>
                                       setWaterSystemFormData({
@@ -1772,7 +1772,7 @@ const DataEntry = () => {
                                   <input
                                     type='number'
                                     step='0.1'
-                                    className='input'
+                                    className='input text-sm sm:text-base'
                                     value={waterSystemFormData.cooling_lsi_max}
                                     onChange={(e) =>
                                       setWaterSystemFormData({
@@ -1787,12 +1787,12 @@ const DataEntry = () => {
                           </div>
 
                           {/* RSI */}
-                          <div className='border rounded-lg p-4 bg-gray-50'>
+                          <div className='border rounded-lg p-3 sm:p-4 bg-gray-50'>
                             <div className='flex items-center justify-between mb-2'>
-                              <label className='flex items-center text-sm font-medium text-gray-700'>
+                              <label className='flex items-center text-xs sm:text-sm font-medium text-gray-700'>
                                 <input
                                   type='checkbox'
-                                  className='mr-2'
+                                  className='mr-2 h-3 w-3 sm:h-4 sm:w-4'
                                   checked={waterSystemFormData.cooling_rsi_enabled}
                                   onChange={(e) =>
                                     setWaterSystemFormData({
@@ -1811,7 +1811,7 @@ const DataEntry = () => {
                                   <input
                                     type='number'
                                     step='0.1'
-                                    className='input'
+                                    className='input text-sm sm:text-base'
                                     value={waterSystemFormData.cooling_rsi_min}
                                     onChange={(e) =>
                                       setWaterSystemFormData({
@@ -1826,7 +1826,7 @@ const DataEntry = () => {
                                   <input
                                     type='number'
                                     step='0.1'
-                                    className='input'
+                                    className='input text-sm sm:text-base'
                                     value={waterSystemFormData.cooling_rsi_max}
                                     onChange={(e) =>
                                       setWaterSystemFormData({
@@ -1967,15 +1967,15 @@ const DataEntry = () => {
 
                       {/* Optional Parameters with Enable Toggles */}
                       <div>
-                        <h5 className='text-sm font-semibold text-gray-800 mb-3'>Optional Parameters</h5>
-                        <div className='space-y-4'>
+                        <h5 className='text-xs sm:text-sm font-semibold text-gray-800 mb-2 sm:mb-3'>Optional Parameters</h5>
+                        <div className='space-y-3 sm:space-y-4'>
                           {/* P-Alkalinity */}
-                          <div className='border rounded-lg p-4 bg-gray-50'>
+                          <div className='border rounded-lg p-3 sm:p-4 bg-gray-50'>
                             <div className='flex items-center justify-between mb-2'>
-                              <label className='flex items-center text-sm font-medium text-gray-700'>
+                              <label className='flex items-center text-xs sm:text-sm font-medium text-gray-700'>
                                 <input
                                   type='checkbox'
-                                  className='mr-2'
+                                  className='mr-2 h-3 w-3 sm:h-4 sm:w-4'
                                   checked={waterSystemFormData.boiler_p_alkalinity_enabled}
                                   onChange={(e) =>
                                     setWaterSystemFormData({
@@ -1994,7 +1994,7 @@ const DataEntry = () => {
                                   <input
                                     type='number'
                                     step='0.01'
-                                    className='input'
+                                    className='input text-sm sm:text-base'
                                     value={waterSystemFormData.boiler_p_alkalinity_min}
                                     onChange={(e) =>
                                       setWaterSystemFormData({
@@ -2009,7 +2009,7 @@ const DataEntry = () => {
                                   <input
                                     type='number'
                                     step='0.01'
-                                    className='input'
+                                    className='input text-sm sm:text-base'
                                     value={waterSystemFormData.boiler_p_alkalinity_max}
                                     onChange={(e) =>
                                       setWaterSystemFormData({
@@ -2024,12 +2024,12 @@ const DataEntry = () => {
                           </div>
 
                           {/* OH-Alkalinity */}
-                          <div className='border rounded-lg p-4 bg-gray-50'>
+                          <div className='border rounded-lg p-3 sm:p-4 bg-gray-50'>
                             <div className='flex items-center justify-between mb-2'>
-                              <label className='flex items-center text-sm font-medium text-gray-700'>
+                              <label className='flex items-center text-xs sm:text-sm font-medium text-gray-700'>
                                 <input
                                   type='checkbox'
-                                  className='mr-2'
+                                  className='mr-2 h-3 w-3 sm:h-4 sm:w-4'
                                   checked={waterSystemFormData.boiler_oh_alkalinity_enabled}
                                   onChange={(e) =>
                                     setWaterSystemFormData({
@@ -2048,7 +2048,7 @@ const DataEntry = () => {
                                   <input
                                     type='number'
                                     step='0.01'
-                                    className='input'
+                                    className='input text-sm sm:text-base'
                                     value={waterSystemFormData.boiler_oh_alkalinity_min}
                                     onChange={(e) =>
                                       setWaterSystemFormData({
@@ -2063,7 +2063,7 @@ const DataEntry = () => {
                                   <input
                                     type='number'
                                     step='0.01'
-                                    className='input'
+                                    className='input text-sm sm:text-base'
                                     value={waterSystemFormData.boiler_oh_alkalinity_max}
                                     onChange={(e) =>
                                       setWaterSystemFormData({
@@ -2078,12 +2078,12 @@ const DataEntry = () => {
                           </div>
 
                           {/* Sulphite */}
-                          <div className='border rounded-lg p-4 bg-gray-50'>
+                          <div className='border rounded-lg p-3 sm:p-4 bg-gray-50'>
                             <div className='flex items-center justify-between mb-2'>
-                              <label className='flex items-center text-sm font-medium text-gray-700'>
+                              <label className='flex items-center text-xs sm:text-sm font-medium text-gray-700'>
                                 <input
                                   type='checkbox'
-                                  className='mr-2'
+                                  className='mr-2 h-3 w-3 sm:h-4 sm:w-4'
                                   checked={waterSystemFormData.boiler_sulphite_enabled}
                                   onChange={(e) =>
                                     setWaterSystemFormData({
@@ -2102,7 +2102,7 @@ const DataEntry = () => {
                                   <input
                                     type='number'
                                     step='0.01'
-                                    className='input'
+                                    className='input text-sm sm:text-base'
                                     value={waterSystemFormData.boiler_sulphite_min}
                                     onChange={(e) =>
                                       setWaterSystemFormData({
@@ -2117,7 +2117,7 @@ const DataEntry = () => {
                                   <input
                                     type='number'
                                     step='0.01'
-                                    className='input'
+                                    className='input text-sm sm:text-base'
                                     value={waterSystemFormData.boiler_sulphite_max}
                                     onChange={(e) =>
                                       setWaterSystemFormData({
@@ -2132,12 +2132,12 @@ const DataEntry = () => {
                           </div>
 
                           {/* Sodium Chloride */}
-                          <div className='border rounded-lg p-4 bg-gray-50'>
+                          <div className='border rounded-lg p-3 sm:p-4 bg-gray-50'>
                             <div className='flex items-center justify-between mb-2'>
-                              <label className='flex items-center text-sm font-medium text-gray-700'>
+                              <label className='flex items-center text-xs sm:text-sm font-medium text-gray-700'>
                                 <input
                                   type='checkbox'
-                                  className='mr-2'
+                                  className='mr-2 h-3 w-3 sm:h-4 sm:w-4'
                                   checked={waterSystemFormData.boiler_sodium_chloride_enabled}
                                   onChange={(e) =>
                                     setWaterSystemFormData({
@@ -2155,7 +2155,7 @@ const DataEntry = () => {
                                 <input
                                   type='number'
                                   step='0.01'
-                                  className='input'
+                                  className='input text-sm sm:text-base'
                                   value={waterSystemFormData.boiler_sodium_chloride_max}
                                   onChange={(e) =>
                                     setWaterSystemFormData({
@@ -2169,12 +2169,12 @@ const DataEntry = () => {
                           </div>
 
                           {/* Dissolved Oxygen (DO) */}
-                          <div className='border rounded-lg p-4 bg-gray-50'>
+                          <div className='border rounded-lg p-3 sm:p-4 bg-gray-50'>
                             <div className='flex items-center justify-between mb-2'>
-                              <label className='flex items-center text-sm font-medium text-gray-700'>
+                              <label className='flex items-center text-xs sm:text-sm font-medium text-gray-700'>
                                 <input
                                   type='checkbox'
-                                  className='mr-2'
+                                  className='mr-2 h-3 w-3 sm:h-4 sm:w-4'
                                   checked={waterSystemFormData.boiler_do_enabled}
                                   onChange={(e) =>
                                     setWaterSystemFormData({
@@ -2193,7 +2193,7 @@ const DataEntry = () => {
                                   <input
                                     type='number'
                                     step='0.01'
-                                    className='input'
+                                    className='input text-sm sm:text-base'
                                     value={waterSystemFormData.boiler_do_min}
                                     onChange={(e) =>
                                       setWaterSystemFormData({
@@ -2208,7 +2208,7 @@ const DataEntry = () => {
                                   <input
                                     type='number'
                                     step='0.01'
-                                    className='input'
+                                    className='input text-sm sm:text-base'
                                     value={waterSystemFormData.boiler_do_max}
                                     onChange={(e) =>
                                       setWaterSystemFormData({
@@ -2223,12 +2223,12 @@ const DataEntry = () => {
                           </div>
 
                           {/* Phosphate */}
-                          <div className='border rounded-lg p-4 bg-gray-50'>
+                          <div className='border rounded-lg p-3 sm:p-4 bg-gray-50'>
                             <div className='flex items-center justify-between mb-2'>
-                              <label className='flex items-center text-sm font-medium text-gray-700'>
+                              <label className='flex items-center text-xs sm:text-sm font-medium text-gray-700'>
                                 <input
                                   type='checkbox'
-                                  className='mr-2'
+                                  className='mr-2 h-3 w-3 sm:h-4 sm:w-4'
                                   checked={waterSystemFormData.boiler_phosphate_enabled}
                                   onChange={(e) =>
                                     setWaterSystemFormData({
@@ -2247,7 +2247,7 @@ const DataEntry = () => {
                                   <input
                                     type='number'
                                     step='0.01'
-                                    className='input'
+                                    className='input text-sm sm:text-base'
                                     value={waterSystemFormData.boiler_phosphate_min}
                                     onChange={(e) =>
                                       setWaterSystemFormData({
@@ -2262,7 +2262,7 @@ const DataEntry = () => {
                                   <input
                                     type='number'
                                     step='0.01'
-                                    className='input'
+                                    className='input text-sm sm:text-base'
                                     value={waterSystemFormData.boiler_phosphate_max}
                                     onChange={(e) =>
                                       setWaterSystemFormData({
@@ -2277,12 +2277,12 @@ const DataEntry = () => {
                           </div>
 
                           {/* Iron */}
-                          <div className='border rounded-lg p-4 bg-gray-50'>
+                          <div className='border rounded-lg p-3 sm:p-4 bg-gray-50'>
                             <div className='flex items-center justify-between mb-2'>
-                              <label className='flex items-center text-sm font-medium text-gray-700'>
+                              <label className='flex items-center text-xs sm:text-sm font-medium text-gray-700'>
                                 <input
                                   type='checkbox'
-                                  className='mr-2'
+                                  className='mr-2 h-3 w-3 sm:h-4 sm:w-4'
                                   checked={waterSystemFormData.boiler_iron_enabled}
                                   onChange={(e) =>
                                     setWaterSystemFormData({
@@ -2300,7 +2300,7 @@ const DataEntry = () => {
                                 <input
                                   type='number'
                                   step='0.1'
-                                  className='input'
+                                  className='input text-sm sm:text-base'
                                   value={waterSystemFormData.boiler_iron_max}
                                   onChange={(e) =>
                                     setWaterSystemFormData({
@@ -2319,13 +2319,12 @@ const DataEntry = () => {
                 )}
 
                 {/* Submit Buttons */}
-                <div className='flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 mt-4 sm:mt-6 border-t pt-3 sm:pt-4'>
+                <div className='flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 mt-4 sm:mt-6 border-t border-gray-200 pt-4 sm:pt-5'>
                   <button
                     type='button'
                     onClick={handleWaterSystemCancel}
-                    className='btn btn-secondary text-sm px-3 py-2 sm:px-4 sm:py-2.5 w-full sm:w-auto'
+                    className='inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors w-full sm:w-auto'
                   >
-                    <X className='h-4 w-4 mr-2' />
                     Cancel
                   </button>
                   <button
@@ -2334,7 +2333,7 @@ const DataEntry = () => {
                       createWaterSystemMutation.isLoading ||
                       updateWaterSystemMutation.isLoading
                     }
-                    className='btn btn-primary flex items-center justify-center text-sm px-3 py-2 sm:px-4 sm:py-2.5 w-full sm:w-auto'
+                    className='inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium text-white bg-primary-600 border border-transparent rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors w-full sm:w-auto'
                   >
                     {(createWaterSystemMutation.isLoading || updateWaterSystemMutation.isLoading) ? (
                       <>
@@ -2613,18 +2612,18 @@ const DataEntry = () => {
                   const boilerSystems = plantWaterSystems.filter(ws => ws.system_type === 'boiler');
                   
                   return (
-                    <div className='space-y-6'>
+                    <div className='space-y-4 sm:space-y-6'>
                       {/* Show only the relevant section based on systemType */}
                       {/* If systemType is 'cooling', show only cooling. If 'boiler', show only boiler. If null/undefined, show both */}
                       {systemType !== 'boiler' && (
                         <div>
-                          <div className='flex items-center justify-between mb-4'>
+                          <div className='flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0 mb-3 sm:mb-4'>
                             <div className='flex items-center space-x-2'>
-                              <Droplets className='h-5 w-5 text-blue-500' />
-                              <h4 className='text-md font-semibold text-gray-900'>
+                              <Droplets className='h-4 w-4 sm:h-5 sm:w-5 text-blue-500' />
+                              <h4 className='text-sm sm:text-base font-semibold text-gray-900'>
                                 Cooling Water Systems
                               </h4>
-                              <span className='text-sm text-gray-500'>
+                              <span className='text-xs sm:text-sm text-gray-500'>
                                 ({coolingSystems.length})
                               </span>
                             </div>
@@ -2640,20 +2639,20 @@ const DataEntry = () => {
                                   }, 100);
                                   // Don't close the manage modal
                                 }}
-                                className='inline-flex items-center px-3 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors'
+                                className='inline-flex items-center px-2.5 py-1.5 sm:px-3 sm:py-1.5 text-xs sm:text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors w-full sm:w-auto justify-center'
                               >
-                                <Plus className='h-4 w-4 mr-1' />
+                                <Plus className='h-3 w-3 sm:h-4 sm:w-4 mr-1' />
                                 Add Cooling System
                               </button>
                             )}
                           </div>
                           {coolingSystems.length === 0 ? (
-                            <div className='text-center py-8 bg-gray-50 rounded-lg border border-gray-200'>
-                              <Droplets className='h-8 w-8 text-gray-400 mx-auto mb-2' />
-                              <p className='text-sm text-gray-500'>No cooling water systems</p>
+                            <div className='text-center py-6 sm:py-8 bg-gray-50 rounded-lg border border-gray-200'>
+                              <Droplets className='h-6 w-6 sm:h-8 sm:w-8 text-gray-400 mx-auto mb-2' />
+                              <p className='text-xs sm:text-sm text-gray-500'>No cooling water systems</p>
                             </div>
                           ) : (
-                            <div className='space-y-3'>
+                            <div className='space-y-3 sm:space-y-4'>
                               {coolingSystems.map((ws) => {
                                 // Get assigned users - handle both object and ID formats
                                 const assignedUsersList = (ws.assigned_users || []).map(assignedUser => {
@@ -2680,101 +2679,110 @@ const DataEntry = () => {
                                 return (
                                   <div
                                     key={ws.id}
-                                    className='flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg hover:border-blue-300 hover:shadow-sm transition-all'
+                                    className='bg-white border border-gray-200 rounded-lg hover:border-blue-300 hover:shadow-md transition-all overflow-hidden'
                                   >
-                                    <div className='flex items-center space-x-2 flex-1'>
-                                      <Droplets className='h-5 w-5 text-blue-500' />
-                                      <div className='flex-1'>
-                                        {/* Top: System Name and Status */}
-                                        <div className='flex items-center space-x-2'>
-                                          <span className='text-sm font-semibold text-gray-900'>
-                                            {ws.name}
-                                          </span>
-                                          <span
-                                            className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${
-                                              ws.is_active
-                                                ? "bg-green-100 text-green-700 border border-green-200"
-                                                : "bg-red-100 text-red-700 border border-red-200"
-                                            }`}
-                                          >
-                                            {ws.is_active
-                                              ? "Active"
-                                              : "Inactive"}
-                                          </span>
+                                    <div className='p-4 sm:p-5'>
+                                      {/* Header Section */}
+                                      <div className='flex items-start justify-between mb-3'>
+                                        <div className='flex items-start space-x-3 flex-1 min-w-0'>
+                                          <div className='flex-shrink-0 mt-0.5'>
+                                            <div className='h-10 w-10 sm:h-12 sm:w-12 rounded-lg bg-blue-50 flex items-center justify-center'>
+                                              <Droplets className='h-5 w-5 sm:h-6 sm:w-6 text-blue-600' />
+                                            </div>
+                                          </div>
+                                          <div className='flex-1 min-w-0'>
+                                            <div className='flex items-center gap-2 flex-wrap mb-1'>
+                                              <h5 className='text-sm sm:text-base font-semibold text-gray-900 truncate'>
+                                                {ws.name}
+                                              </h5>
+                                              <span
+                                                className={`inline-flex items-center px-2 py-0.5 sm:px-2.5 sm:py-1 text-xs font-medium rounded-full flex-shrink-0 ${
+                                                  ws.is_active
+                                                    ? "bg-green-100 text-green-700"
+                                                    : "bg-red-100 text-red-700"
+                                                }`}
+                                              >
+                                                {ws.is_active ? "Active" : "Inactive"}
+                                              </span>
+                                            </div>
+                                            <p className='text-xs sm:text-sm text-gray-500'>
+                                              Cooling Water System
+                                            </p>
+                                          </div>
                                         </div>
-                                        {/* Bottom: System Type */}
-                                        <p className='text-xs text-gray-500 mt-1'>
-                                          Cooling Water System
-                                        </p>
                                       </div>
-                                    </div>
-                                    {/* Separate Users Section */}
-                                    <div className='flex-1 items-center space-x-2 mx-4'>
-                                      {assignedUsersList.length > 0 ? (
-                                        <div className='flex items-center gap-1.5 flex-wrap max-w-[200px]'>
-                                          {displayedUsers.map((user, idx) => (
-                                            <span
-                                              key={user.id}
-                                              className='inline-flex items-center px-2 py-1 text-xs font-medium bg-blue-50 text-blue-700 rounded border border-blue-200 whitespace-nowrap'
-                                            >
-                                              {user.name}
-                                            </span>
-                                          ))}
-                                          {remainingCount > 0 && (
-                                            <span className='inline-flex items-center px-2 py-1 text-xs font-medium text-gray-600 whitespace-nowrap'>
-                                              ... +{remainingCount} more
-                                            </span>
-                                          )}
+
+                                      {/* Users Section */}
+                                      <div className='mb-4 pb-4 border-b border-gray-100'>
+                                        <div className='flex items-center justify-between'>
+                                          <span className='text-xs font-medium text-gray-500 uppercase tracking-wide mb-2 block'>
+                                            Assigned Users
+                                          </span>
                                         </div>
-                                      ) : (
-                                        <span className='text-xs text-gray-400 italic'>
-                                          No users
-                                        </span>
-                                      )}
-                                    </div>
-                                    <div className='flex items-center space-x-2'>
-                                      {/* Only regular admins (not super admin) can assign users */}
-                                      {user?.is_admin &&
-                                        !user?.can_create_plants && (
-                                          <button
-                                            onClick={() => {
-                                              handleAssignUsersToWaterSystem(
-                                                ws
-                                              );
-                                              // Don't close manage modal for assign users
-                                            }}
-                                            className='inline-flex items-center px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors'
-                                            title='Assign Users'
-                                          >
-                                            <UserPlus className='h-4 w-4 mr-1' />
-                                            Users
-                                          </button>
+                                        {assignedUsersList.length > 0 ? (
+                                          <div className='flex items-center gap-2 flex-wrap'>
+                                            {displayedUsers.map((user) => (
+                                              <span
+                                                key={user.id}
+                                                className='inline-flex items-center px-2.5 py-1 text-xs font-medium bg-blue-50 text-blue-700 rounded-md border border-blue-200'
+                                              >
+                                                {user.name}
+                                              </span>
+                                            ))}
+                                            {remainingCount > 0 && (
+                                              <span className='inline-flex items-center px-2.5 py-1 text-xs font-medium text-gray-600 bg-gray-50 rounded-md border border-gray-200'>
+                                                +{remainingCount} more
+                                              </span>
+                                            )}
+                                          </div>
+                                        ) : (
+                                          <span className='text-xs text-gray-400 italic'>
+                                            No users assigned
+                                          </span>
                                         )}
-                                      {user?.can_create_plants && (
-                                        <>
-                                          <button
-                                            onClick={() => {
-                                              handleWaterSystemEdit(ws);
-                                              // Don't close manage modal for edit
-                                            }}
-                                            className='inline-flex items-center px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors'
-                                            title='Edit Water System'
-                                          >
-                                            <Edit className='h-4 w-4 mr-1' />
-                                            Edit
-                                          </button>
-                                          <button
-                                            onClick={() => {
-                                              handleWaterSystemDelete(ws);
-                                            }}
-                                            className='inline-flex items-center px-3 py-1.5 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-md transition-colors'
-                                            title='Delete Water System'
-                                          >
-                                            <Trash2 className='h-4 w-4 mr-1' />
-                                            Delete
-                                          </button>
-                                        </>
-                                      )}
+                                      </div>
+
+                                      {/* Actions Section */}
+                                      <div className='flex items-center gap-2'>
+                                        {/* Only regular admins (not super admin) can assign users */}
+                                        {user?.is_admin &&
+                                          !user?.can_create_plants && (
+                                            <button
+                                              onClick={() => {
+                                                handleAssignUsersToWaterSystem(ws);
+                                              }}
+                                              className='flex-1 sm:flex-initial inline-flex items-center justify-center px-3 py-2 text-xs sm:text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-md transition-colors'
+                                              title='Assign Users'
+                                            >
+                                              <UserPlus className='h-4 w-4 mr-1.5' />
+                                              Users
+                                            </button>
+                                          )}
+                                        {user?.can_create_plants && (
+                                          <>
+                                            <button
+                                              onClick={() => {
+                                                handleWaterSystemEdit(ws);
+                                              }}
+                                              className='flex-1 sm:flex-initial inline-flex items-center justify-center px-3 py-2 text-xs sm:text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-md transition-colors'
+                                              title='Edit Water System'
+                                            >
+                                              <Edit className='h-4 w-4 mr-1.5' />
+                                              Edit
+                                            </button>
+                                            <button
+                                              onClick={() => {
+                                                handleWaterSystemDelete(ws);
+                                              }}
+                                              className='flex-1 sm:flex-initial inline-flex items-center justify-center px-3 py-2 text-xs sm:text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 rounded-md transition-colors'
+                                              title='Delete Water System'
+                                            >
+                                              <Trash2 className='h-4 w-4 mr-1.5' />
+                                              Delete
+                                            </button>
+                                          </>
+                                        )}
+                                      </div>
                                     </div>
                                   </div>
                                 );
@@ -2788,13 +2796,13 @@ const DataEntry = () => {
                       {/* Only show boiler section if systemType is null/undefined (show all) or explicitly 'boiler' */}
                       {systemType !== 'cooling' && (
                         <div>
-                          <div className='flex items-center justify-between mb-4'>
+                          <div className='flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0 mb-3 sm:mb-4'>
                             <div className='flex items-center space-x-2'>
-                              <Thermometer className='h-5 w-5 text-red-500' />
-                              <h4 className='text-md font-semibold text-gray-900'>
+                              <Thermometer className='h-4 w-4 sm:h-5 sm:w-5 text-red-500' />
+                              <h4 className='text-sm sm:text-base font-semibold text-gray-900'>
                                 Boiler Water Systems
                               </h4>
-                              <span className='text-sm text-gray-500'>
+                              <span className='text-xs sm:text-sm text-gray-500'>
                                 ({boilerSystems.length})
                               </span>
                             </div>
@@ -2810,20 +2818,20 @@ const DataEntry = () => {
                                   }, 100);
                                   // Don't close the manage modal
                                 }}
-                                className='inline-flex items-center px-3 py-1.5 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors'
+                                className='inline-flex items-center px-2.5 py-1.5 sm:px-3 sm:py-1.5 text-xs sm:text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors w-full sm:w-auto justify-center'
                               >
-                                <Plus className='h-4 w-4 mr-1' />
+                                <Plus className='h-3 w-3 sm:h-4 sm:w-4 mr-1' />
                                 Add Boiler System
                               </button>
                             )}
                           </div>
                           {boilerSystems.length === 0 ? (
-                            <div className='text-center py-8 bg-gray-50 rounded-lg border border-gray-200'>
-                              <Thermometer className='h-8 w-8 text-gray-400 mx-auto mb-2' />
-                              <p className='text-sm text-gray-500'>No boiler water systems</p>
+                            <div className='text-center py-6 sm:py-8 bg-gray-50 rounded-lg border border-gray-200'>
+                              <Thermometer className='h-6 w-6 sm:h-8 sm:w-8 text-gray-400 mx-auto mb-2' />
+                              <p className='text-xs sm:text-sm text-gray-500'>No boiler water systems</p>
                             </div>
                           ) : (
-                            <div className='space-y-3'>
+                            <div className='space-y-3 sm:space-y-4'>
                               {boilerSystems.map((ws) => {
                                 // Get assigned users - handle both object and ID formats
                                 const assignedUsersList = (ws.assigned_users || []).map(assignedUser => {
@@ -2850,101 +2858,110 @@ const DataEntry = () => {
                                 return (
                                   <div
                                     key={ws.id}
-                                    className='flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg hover:border-red-300 hover:shadow-sm transition-all'
+                                    className='bg-white border border-gray-200 rounded-lg hover:border-red-300 hover:shadow-md transition-all overflow-hidden'
                                   >
-                                    <div className='flex items-center space-x-2 flex-1'>
-                                      <Thermometer className='h-5 w-5 text-red-500' />
-                                      <div className='flex-1'>
-                                        {/* Top: System Name and Status */}
-                                        <div className='flex items-center space-x-2'>
-                                          <span className='text-sm font-semibold text-gray-900'>
-                                            {ws.name}
-                                          </span>
-                                          <span
-                                            className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${
-                                              ws.is_active
-                                                ? "bg-green-100 text-green-700 border border-green-200"
-                                                : "bg-red-100 text-red-700 border border-red-200"
-                                            }`}
-                                          >
-                                            {ws.is_active
-                                              ? "Active"
-                                              : "Inactive"}
-                                          </span>
+                                    <div className='p-4 sm:p-5'>
+                                      {/* Header Section */}
+                                      <div className='flex items-start justify-between mb-3'>
+                                        <div className='flex items-start space-x-3 flex-1 min-w-0'>
+                                          <div className='flex-shrink-0 mt-0.5'>
+                                            <div className='h-10 w-10 sm:h-12 sm:w-12 rounded-lg bg-red-50 flex items-center justify-center'>
+                                              <Thermometer className='h-5 w-5 sm:h-6 sm:w-6 text-red-600' />
+                                            </div>
+                                          </div>
+                                          <div className='flex-1 min-w-0'>
+                                            <div className='flex items-center gap-2 flex-wrap mb-1'>
+                                              <h5 className='text-sm sm:text-base font-semibold text-gray-900 truncate'>
+                                                {ws.name}
+                                              </h5>
+                                              <span
+                                                className={`inline-flex items-center px-2 py-0.5 sm:px-2.5 sm:py-1 text-xs font-medium rounded-full flex-shrink-0 ${
+                                                  ws.is_active
+                                                    ? "bg-green-100 text-green-700"
+                                                    : "bg-red-100 text-red-700"
+                                                }`}
+                                              >
+                                                {ws.is_active ? "Active" : "Inactive"}
+                                              </span>
+                                            </div>
+                                            <p className='text-xs sm:text-sm text-gray-500'>
+                                              Boiler Water System
+                                            </p>
+                                          </div>
                                         </div>
-                                        {/* Bottom: System Type */}
-                                        <p className='text-xs text-gray-500 mt-1'>
-                                          Boiler Water System
-                                        </p>
                                       </div>
-                                    </div>
-                                    {/* Separate Users Section */}
-                                    <div className='flex-1 items-center space-x-2 mx-4'>
-                                      {assignedUsersList.length > 0 ? (
-                                        <div className='flex items-center gap-1.5 flex-wrap max-w-[200px]'>
-                                          {displayedUsers.map((user, idx) => (
-                                            <span
-                                              key={user.id}
-                                              className='inline-flex items-center px-2 py-1 text-xs font-medium bg-red-50 text-red-700 rounded border border-red-200 whitespace-nowrap'
-                                            >
-                                              {user.name}
-                                            </span>
-                                          ))}
-                                          {remainingCount > 0 && (
-                                            <span className='inline-flex items-center px-2 py-1 text-xs font-medium text-gray-600 whitespace-nowrap'>
-                                              ... +{remainingCount} more
-                                            </span>
-                                          )}
+
+                                      {/* Users Section */}
+                                      <div className='mb-4 pb-4 border-b border-gray-100'>
+                                        <div className='flex items-center justify-between'>
+                                          <span className='text-xs font-medium text-gray-500 uppercase tracking-wide mb-2 block'>
+                                            Assigned Users
+                                          </span>
                                         </div>
-                                      ) : (
-                                        <span className='text-xs text-gray-400 italic'>
-                                          No users
-                                        </span>
-                                      )}
-                                    </div>
-                                    <div className='flex items-center space-x-2'>
-                                      {/* Only regular admins (not super admin) can assign users */}
-                                      {user?.is_admin &&
-                                        !user?.can_create_plants && (
-                                          <button
-                                            onClick={() => {
-                                              handleAssignUsersToWaterSystem(
-                                                ws
-                                              );
-                                              // Don't close manage modal for assign users
-                                            }}
-                                            className='inline-flex items-center px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors'
-                                            title='Assign Users'
-                                          >
-                                            <UserPlus className='h-4 w-4 mr-1' />
-                                            Users
-                                          </button>
+                                        {assignedUsersList.length > 0 ? (
+                                          <div className='flex items-center gap-2 flex-wrap'>
+                                            {displayedUsers.map((user) => (
+                                              <span
+                                                key={user.id}
+                                                className='inline-flex items-center px-2.5 py-1 text-xs font-medium bg-red-50 text-red-700 rounded-md border border-red-200'
+                                              >
+                                                {user.name}
+                                              </span>
+                                            ))}
+                                            {remainingCount > 0 && (
+                                              <span className='inline-flex items-center px-2.5 py-1 text-xs font-medium text-gray-600 bg-gray-50 rounded-md border border-gray-200'>
+                                                +{remainingCount} more
+                                              </span>
+                                            )}
+                                          </div>
+                                        ) : (
+                                          <span className='text-xs text-gray-400 italic'>
+                                            No users assigned
+                                          </span>
                                         )}
-                                      {user?.can_create_plants && (
-                                        <>
-                                          <button
-                                            onClick={() => {
-                                              handleWaterSystemEdit(ws);
-                                              // Don't close manage modal for edit
-                                            }}
-                                            className='inline-flex items-center px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors'
-                                            title='Edit Water System'
-                                          >
-                                            <Edit className='h-4 w-4 mr-1' />
-                                            Edit
-                                          </button>
-                                          <button
-                                            onClick={() => {
-                                              handleWaterSystemDelete(ws);
-                                            }}
-                                            className='inline-flex items-center px-3 py-1.5 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-md transition-colors'
-                                            title='Delete Water System'
-                                          >
-                                            <Trash2 className='h-4 w-4 mr-1' />
-                                            Delete
-                                          </button>
-                                        </>
-                                      )}
+                                      </div>
+
+                                      {/* Actions Section */}
+                                      <div className='flex items-center gap-2'>
+                                        {/* Only regular admins (not super admin) can assign users */}
+                                        {user?.is_admin &&
+                                          !user?.can_create_plants && (
+                                            <button
+                                              onClick={() => {
+                                                handleAssignUsersToWaterSystem(ws);
+                                              }}
+                                              className='flex-1 sm:flex-initial inline-flex items-center justify-center px-3 py-2 text-xs sm:text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-md transition-colors'
+                                              title='Assign Users'
+                                            >
+                                              <UserPlus className='h-4 w-4 mr-1.5' />
+                                              Users
+                                            </button>
+                                          )}
+                                        {user?.can_create_plants && (
+                                          <>
+                                            <button
+                                              onClick={() => {
+                                                handleWaterSystemEdit(ws);
+                                              }}
+                                              className='flex-1 sm:flex-initial inline-flex items-center justify-center px-3 py-2 text-xs sm:text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-md transition-colors'
+                                              title='Edit Water System'
+                                            >
+                                              <Edit className='h-4 w-4 mr-1.5' />
+                                              Edit
+                                            </button>
+                                            <button
+                                              onClick={() => {
+                                                handleWaterSystemDelete(ws);
+                                              }}
+                                              className='flex-1 sm:flex-initial inline-flex items-center justify-center px-3 py-2 text-xs sm:text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 rounded-md transition-colors'
+                                              title='Delete Water System'
+                                            >
+                                              <Trash2 className='h-4 w-4 mr-1.5' />
+                                              Delete
+                                            </button>
+                                          </>
+                                        )}
+                                      </div>
                                     </div>
                                   </div>
                                 );
