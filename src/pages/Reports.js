@@ -210,49 +210,49 @@ const Reports = () => {
   ];
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-4 sm:space-y-6 p-4 sm:p-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Water Analysis Reports</h1>
-        <p className="mt-2 text-sm text-gray-500">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Water Analysis Reports</h1>
+        <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-gray-500">
           Generate detailed reports for your water analysis data
         </p>
       </div>
 
       {/* Report Generation Form */}
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-6">Generate Report</h2>
+      <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+        <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6">Generate Report</h2>
 
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {/* Step 1: Analysis Type Selection */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">
+            <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2 sm:mb-3">
               Step 1: Select Analysis Type <span className="text-red-500">*</span>
             </label>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <button
                 type="button"
                 onClick={() => {
                   setAnalysisType('cooling');
                   setSelectedWaterSystem(null); // Reset water system when changing type
                 }}
-                className={`p-4 rounded-lg border-2 transition-all ${
+                className={`p-3 sm:p-4 rounded-lg border-2 transition-all ${
                   analysisType === 'cooling'
                     ? 'border-blue-500 bg-blue-50'
                     : 'border-gray-300 hover:border-gray-400'
                 }`}
               >
-                <Droplet className={`h-8 w-8 mx-auto mb-2 ${
+                <Droplet className={`h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2 ${
                   analysisType === 'cooling' ? 'text-blue-600' : 'text-gray-400'
                 }`} />
                 <div className="text-center">
-                  <div className={`font-medium ${
+                  <div className={`text-sm sm:text-base font-medium ${
                     analysisType === 'cooling' ? 'text-blue-900' : 'text-gray-700'
                   }`}>
                     Cooling Water
                   </div>
                   {analysisType === 'cooling' && (
-                    <CheckCircle className="h-5 w-5 text-blue-600 mx-auto mt-1" />
+                    <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 mx-auto mt-1" />
                   )}
                 </div>
               </button>
@@ -263,23 +263,23 @@ const Reports = () => {
                   setAnalysisType('boiler');
                   setSelectedWaterSystem(null); // Reset water system when changing type
                 }}
-                className={`p-4 rounded-lg border-2 transition-all ${
+                className={`p-3 sm:p-4 rounded-lg border-2 transition-all ${
                   analysisType === 'boiler'
                     ? 'border-orange-500 bg-orange-50'
                     : 'border-gray-300 hover:border-gray-400'
                 }`}
               >
-                <Flame className={`h-8 w-8 mx-auto mb-2 ${
+                <Flame className={`h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2 ${
                   analysisType === 'boiler' ? 'text-orange-600' : 'text-gray-400'
                 }`} />
                 <div className="text-center">
-                  <div className={`font-medium ${
+                  <div className={`text-sm sm:text-base font-medium ${
                     analysisType === 'boiler' ? 'text-orange-900' : 'text-gray-700'
                   }`}>
                     Boiler Water
                   </div>
                   {analysisType === 'boiler' && (
-                    <CheckCircle className="h-5 w-5 text-orange-600 mx-auto mt-1" />
+                    <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600 mx-auto mt-1" />
                   )}
                 </div>
               </button>
@@ -289,7 +289,7 @@ const Reports = () => {
           {/* Step 2: Water System Selection */}
           {analysisType && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2 sm:mb-3">
                 Step 2: Select Water System <span className="text-red-500">*</span>
               </label>
               {waterSystemsLoading ? (
@@ -340,10 +340,10 @@ const Reports = () => {
           {/* Step 3: Report Type Selection */}
           {selectedWaterSystem && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2 sm:mb-3">
                 Step 3: Select Report Type <span className="text-red-500">*</span>
               </label>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                 {['daily', 'monthly', 'yearly'].map((type) => (
                   <button
                     key={type}
@@ -355,16 +355,16 @@ const Reports = () => {
                       setSelectedMonth('');
                       setSelectedYear('');
                     }}
-                    className={`p-4 rounded-lg border-2 transition-all ${
+                    className={`p-3 sm:p-4 rounded-lg border-2 transition-all ${
                       reportType === type
                         ? 'border-blue-500 bg-blue-50'
                         : 'border-gray-300 hover:border-gray-400'
                     }`}
                   >
-                    <Calendar className={`h-6 w-6 mx-auto mb-2 ${
+                    <Calendar className={`h-5 w-5 sm:h-6 sm:w-6 mx-auto mb-2 ${
                       reportType === type ? 'text-blue-600' : 'text-gray-400'
                     }`} />
-                    <div className={`text-center font-medium ${
+                    <div className={`text-center text-sm sm:text-base font-medium ${
                       reportType === type ? 'text-blue-900' : 'text-gray-700'
                     }`}>
                       {type.charAt(0).toUpperCase() + type.slice(1)}
@@ -378,40 +378,40 @@ const Reports = () => {
           {/* Step 4: Date/Month/Year Selection */}
           {reportType && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2 sm:mb-3">
                 Step 4: Select {reportType === 'daily' ? 'Date' : reportType === 'monthly' ? 'Month' : 'Year'} <span className="text-red-500">*</span>
               </label>
               
               {reportType === 'daily' && (
-                <div className="max-w-xs">
+                <div className="w-full sm:max-w-xs">
                   <input
                     type="date"
                     value={selectedDate}
                     onChange={(e) => setSelectedDate(e.target.value)}
                     max={new Date().toISOString().split('T')[0]} // Don't allow future dates
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               )}
 
               {reportType === 'monthly' && (
-                <div className="max-w-xs">
+                <div className="w-full sm:max-w-xs">
                   <input
                     type="month"
                     value={selectedMonth}
                     onChange={(e) => setSelectedMonth(e.target.value)}
                     max={`${currentYear}-12`} // Don't allow future months
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               )}
 
               {reportType === 'yearly' && (
-                <div className="max-w-xs">
+                <div className="w-full sm:max-w-xs">
                   <select
                     value={selectedYear}
                     onChange={(e) => setSelectedYear(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">Select a year...</option>
                     {years.map((year) => (
@@ -430,22 +430,22 @@ const Reports = () => {
            ((reportType === 'daily' && selectedDate) ||
             (reportType === 'monthly' && selectedMonth) ||
             (reportType === 'yearly' && selectedYear)) && (
-            <div className="pt-4 border-t space-y-4">
+            <div className="pt-3 sm:pt-4 border-t space-y-3 sm:space-y-4">
               {/* Generate Button - Only show when no PDF is generated */}
               {!generatedPdf && (
                 <button
                   onClick={handleGenerateReport}
                   disabled={generateReportMutation.isLoading}
-                  className="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                  className="w-full px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                 >
                   {generateReportMutation.isLoading ? (
                     <>
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                      <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-white mr-2"></div>
                       Generating...
                     </>
                   ) : (
                     <>
-                      <FileText className="h-5 w-5 mr-2" />
+                      <FileText className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                       Generate Report
                     </>
                   )}
@@ -454,19 +454,19 @@ const Reports = () => {
               
               {/* Download and Preview Buttons (shown after generation) */}
               {generatedPdf && !generateReportMutation.isLoading && (
-                <div className="flex flex-col sm:flex-row gap-3">
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                   <button
                     onClick={handleDownloadPdf}
-                    className="flex-1 px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 flex items-center justify-center"
+                    className="flex-1 px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 flex items-center justify-center"
                   >
-                    <Download className="h-5 w-5 mr-2" />
+                    <Download className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                     Download Report
                   </button>
                   <button
                     onClick={handlePreviewPdf}
-                    className="flex-1 px-6 py-3 bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 flex items-center justify-center"
+                    className="flex-1 px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 flex items-center justify-center"
                   >
-                    <Eye className="h-5 w-5 mr-2" />
+                    <Eye className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                     Preview Report
                   </button>
                 </div>
@@ -479,7 +479,7 @@ const Reports = () => {
       {/* PDF Preview Modal */}
       {showPreviewModal && generatedPdf && (
         <div className="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-          <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-4">
+          <div className="flex items-center justify-center min-h-screen pt-2 sm:pt-4 px-2 sm:px-4 pb-2 sm:pb-4">
             {/* Background overlay */}
             <div 
               className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity z-40"
@@ -487,33 +487,35 @@ const Reports = () => {
             ></div>
 
             {/* Modal panel */}
-            <div className="relative bg-white rounded-lg shadow-xl w-full max-w-6xl z-50 my-8">
+            <div className="relative bg-white rounded-lg shadow-xl w-full max-w-6xl z-50 my-2 sm:my-8">
               {/* Modal header */}
-              <div className="bg-white px-4 sm:px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sticky top-0 z-10">
-                <h3 className="text-base sm:text-lg font-medium text-gray-900 flex items-center break-words">
-                  <FileText className="h-5 w-5 mr-2 flex-shrink-0" />
-                  <span className="break-all">{generatedPdf.filename}</span>
+              <div className="bg-white px-3 sm:px-4 md:px-6 py-3 sm:py-4 border-b border-gray-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3 sticky top-0 z-10">
+                <h3 className="text-sm sm:text-base md:text-lg font-medium text-gray-900 flex items-center break-words flex-1 min-w-0">
+                  <FileText className="h-4 w-4 sm:h-5 sm:w-5 mr-2 flex-shrink-0" />
+                  <span className="break-all truncate">{generatedPdf.filename}</span>
                 </h3>
-                <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+                <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 w-full sm:w-auto">
                   <button
                     onClick={handleDownloadPdf}
-                    className="px-3 sm:px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 flex items-center text-sm sm:text-base"
+                    className="flex-1 sm:flex-none px-3 sm:px-4 py-1.5 sm:py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 flex items-center justify-center text-xs sm:text-sm md:text-base"
                   >
-                    <Download className="h-4 w-4 mr-2" />
+                    <Download className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                     <span className="hidden sm:inline">Download</span>
+                    <span className="sm:hidden">DL</span>
                   </button>
                   <button
                     onClick={handleClosePreview}
-                    className="text-gray-400 hover:text-gray-600 focus:outline-none p-1"
+                    className="text-gray-400 hover:text-gray-600 focus:outline-none p-1 sm:p-2"
+                    aria-label="Close"
                   >
-                    <X className="h-6 w-6" />
+                    <X className="h-5 w-5 sm:h-6 sm:w-6" />
                   </button>
                 </div>
               </div>
 
               {/* Modal body with PDF preview */}
-              <div className="bg-white px-4 sm:px-6 py-4">
-                <div className="w-full" style={{ height: 'calc(100vh - 250px)', minHeight: '500px' }}>
+              <div className="bg-white px-2 sm:px-4 md:px-6 py-2 sm:py-4">
+                <div className="w-full" style={{ height: 'calc(100vh - 180px)', minHeight: '400px' }}>
                   <iframe
                     src={generatedPdf.blobUrl}
                     className="w-full h-full border border-gray-300 rounded-md"
