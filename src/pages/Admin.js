@@ -8,7 +8,9 @@ import {
   Shield, 
   Eye,
   Search,
-  RefreshCw
+  RefreshCw,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { ButtonLoader, ContentLoader } from '../components/Loader';
 import toast from 'react-hot-toast';
@@ -22,6 +24,11 @@ const Admin = () => {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [togglingStatus, setTogglingStatus] = useState(null); // Track which user's status is being toggled
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
   const [formData, setFormData] = useState({
     email: '',
     username: '',
@@ -38,13 +45,23 @@ const Admin = () => {
     if (user?.is_admin || user?.is_general_user) {
       fetchUsers();
     }
-  }, [user]);
+  }, [user, currentPage, pageSize]);
 
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const data = await dataService.getUsers();
-      setUsers(data);
+      const data = await dataService.getUsers(currentPage, pageSize);
+      // Handle paginated response
+      if (data.results) {
+        setUsers(data.results);
+        setTotalPages(data.total_pages || 1);
+        setTotalCount(data.count || 0);
+      } else {
+        // Fallback for non-paginated response (backward compatibility)
+        setUsers(Array.isArray(data) ? data : []);
+        setTotalPages(1);
+        setTotalCount(Array.isArray(data) ? data.length : 0);
+      }
     } catch (error) {
       toast.error(error.message);
     } finally {
@@ -75,6 +92,8 @@ const Admin = () => {
       toast.success('User created successfully');
       setShowCreateForm(false);
       resetForm();
+      // Reset to first page after creating a new user
+      setCurrentPage(1);
       fetchUsers();
     } catch (error) {
       toast.error(error.message);
@@ -116,7 +135,13 @@ const Admin = () => {
       try {
         await dataService.deleteUser(userId);
         toast.success('User deleted successfully');
-        fetchUsers();
+        // If we're on the last page and it becomes empty, go to previous page
+        if (currentPage > 1 && users.length === 1) {
+          setCurrentPage(currentPage - 1);
+        } else {
+          // Re-fetch to update the list
+          fetchUsers();
+        }
       } catch (error) {
         toast.error(error.message);
       }
@@ -371,6 +396,106 @@ const Admin = () => {
               </tbody>
             </table>
           </div>
+          
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+              <div className="flex-1 flex justify-between sm:hidden">
+                <button
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1 || loading}
+                  className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Previous
+                </button>
+                <button
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages || loading}
+                  className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Next
+                </button>
+              </div>
+              <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-sm text-gray-700">
+                    Showing <span className="font-medium">{(currentPage - 1) * pageSize + 1}</span> to{' '}
+                    <span className="font-medium">{Math.min(currentPage * pageSize, totalCount)}</span> of{' '}
+                    <span className="font-medium">{totalCount}</span> results
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1">
+                    <label className="text-sm text-gray-700">Per page:</label>
+                    <select
+                      value={pageSize}
+                      onChange={(e) => {
+                        setPageSize(Number(e.target.value));
+                        setCurrentPage(1);
+                      }}
+                      className="input text-sm py-1 px-2 w-20"
+                      disabled={loading}
+                    >
+                      <option value="10">10</option>
+                      <option value="25">25</option>
+                      <option value="50">50</option>
+                      <option value="100">100</option>
+                    </select>
+                  </div>
+                  <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                    <button
+                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                      disabled={currentPage === 1 || loading}
+                      className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <ChevronLeft className="h-5 w-5" />
+                    </button>
+                    {[...Array(totalPages)].map((_, index) => {
+                      const pageNum = index + 1;
+                      // Show first page, last page, current page, and pages around current
+                      if (
+                        pageNum === 1 ||
+                        pageNum === totalPages ||
+                        (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+                      ) {
+                        return (
+                          <button
+                            key={pageNum}
+                            onClick={() => setCurrentPage(pageNum)}
+                            disabled={loading}
+                            className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                              currentPage === pageNum
+                                ? 'z-10 bg-primary-50 border-primary-500 text-primary-600'
+                                : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                            } disabled:opacity-50 disabled:cursor-not-allowed`}
+                          >
+                            {pageNum}
+                          </button>
+                        );
+                      } else if (pageNum === currentPage - 2 || pageNum === currentPage + 2) {
+                        return (
+                          <span
+                            key={pageNum}
+                            className="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700"
+                          >
+                            ...
+                          </span>
+                        );
+                      }
+                      return null;
+                    })}
+                    <button
+                      onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                      disabled={currentPage === totalPages || loading}
+                      className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <ChevronRight className="h-5 w-5" />
+                    </button>
+                  </nav>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </ContentLoader>
 

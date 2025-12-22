@@ -167,9 +167,14 @@ export const dataService = {
   },
 
   // Admin: Get all users
-  async getUsers() {
+  async getUsers(page = 1, pageSize = 10) {
     try {
-      const response = await api.get('/admin/users/');
+      const response = await api.get('/admin/users/', {
+        params: {
+          page,
+          page_size: pageSize
+        }
+      });
       return response.data;
     } catch (error) {
       throw new Error('Failed to fetch users');
