@@ -86,7 +86,7 @@ export const PageLoader = () => (
 
 // Navigation Loader for route changes
 export const NavigationLoader = () => (
-  <div className="fixed top-0 left-0 right-0 h-1 bg-gray-200 dark:bg-gray-700 z-50">
+  <div className="fixed top-0 left-0 right-0 h-1 bg-gray-200 dark:bg-gray-700 z-50 ">
     <div className="h-full bg-primary-600 dark:bg-primary-500 animate-pulse"></div>
   </div>
 );
