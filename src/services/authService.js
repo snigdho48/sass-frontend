@@ -95,18 +95,17 @@ export const authService = {
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
-      // Always clear tokens regardless of API call success
-      localStorage.removeItem('token');
-      localStorage.removeItem('refresh');
-      localStorage.removeItem('persist:root');
+      // Save theme before clearing
+      const theme = localStorage.getItem('theme');
+      
+      // Clear everything
+      localStorage.clear();
       sessionStorage.clear();
       
-      // Clear all persist-related items
-      Object.keys(localStorage).forEach(key => {
-        if (key.startsWith('persist:') || key === 'token' || key === 'refresh') {
-          localStorage.removeItem(key);
-        }
-      });
+      // Restore theme
+      if (theme) {
+        localStorage.setItem('theme', theme);
+      }
     }
   },
 

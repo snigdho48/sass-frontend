@@ -96,20 +96,17 @@ const authSlice = createSlice({
       state.loading = false;
       state.error = null;
       
-      // Clear all auth-related localStorage items
-      localStorage.removeItem('token');
-      localStorage.removeItem('refresh');
+      // Save theme before clearing
+      const theme = localStorage.getItem('theme');
       
-      // Clear any persisted state
-      localStorage.removeItem('persist:root');
+      // Clear everything
+      localStorage.clear();
       sessionStorage.clear();
       
-      // Force clear all localStorage to ensure complete logout
-      Object.keys(localStorage).forEach(key => {
-        if (key.startsWith('persist:') || key === 'token' || key === 'refresh') {
-          localStorage.removeItem(key);
-        }
-      });
+      // Restore theme
+      if (theme) {
+        localStorage.setItem('theme', theme);
+      }
       
       toast.success('Logged out successfully');
     },
