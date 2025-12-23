@@ -134,9 +134,9 @@ const SearchableUserSelect = ({
       <input
         ref={inputRef}
         type="text"
-        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-          error ? 'border-red-500' : 'border-gray-300'
-        } ${disabled ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 ${
+          error ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-gray-600'
+        } ${disabled ? 'bg-gray-100 dark:bg-gray-700 cursor-not-allowed' : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100'}`}
         placeholder={placeholder}
         value={isOpen ? searchTerm : (getDisplayValue() || searchTerm)}
         onChange={handleInputChange}
@@ -147,24 +147,24 @@ const SearchableUserSelect = ({
       />
       
       {isOpen && (
-        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+        <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-lg max-h-60 overflow-y-auto">
           {filteredOptions.length === 0 ? (
-            <div className="px-3 py-2 text-sm text-gray-500">
+            <div className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
               No users found
             </div>
           ) : (
             filteredOptions.map((option, index) => (
               <div
                 key={option.id}
-                className={`px-3 py-2 cursor-pointer text-sm hover:bg-gray-100 ${
-                  index === selectedIndex ? 'bg-blue-100' : ''
+                className={`px-3 py-2 cursor-pointer text-sm hover:bg-gray-100 dark:hover:bg-gray-700 ${
+                  index === selectedIndex ? 'bg-blue-100 dark:bg-gray-700' : ''
                 }`}
                 onClick={() => handleSelect(option)}
               >
-                <div className="font-medium">
+                <div className="font-medium text-gray-900 dark:text-gray-100">
                   {option.first_name} {option.last_name}
                 </div>
-                <div className="text-gray-500 text-xs">
+                <div className="text-gray-500 dark:text-gray-400 text-xs">
                   {option.email}
                 </div>
               </div>

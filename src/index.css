@@ -8,7 +8,7 @@
   }
   
   body {
-    @apply bg-gray-50 text-gray-900;
+    @apply bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100;
   }
 }
 
@@ -22,7 +22,7 @@
   }
   
   .btn-secondary {
-    @apply bg-gray-200 text-gray-900 hover:bg-gray-300 focus:ring-gray-500;
+    @apply bg-gray-200 text-gray-900 hover:bg-gray-300 focus:ring-gray-500 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600;
   }
   
   .btn-danger {
@@ -34,27 +34,27 @@
   }
   
   .input {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200;
+    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100 dark:focus:ring-primary-400;
   }
   
   .card {
-    @apply bg-white rounded-lg shadow-sm border border-gray-200 transition-all duration-200 hover:shadow-md;
+    @apply bg-white rounded-lg shadow-sm border border-gray-200 transition-all duration-200 hover:shadow-md dark:bg-gray-800 dark:border-gray-700;
   }
   
   .card-header {
-    @apply px-6 py-4 border-b border-gray-200;
+    @apply px-6 py-4 border-b border-gray-200 dark:border-gray-700;
   }
   
   .card-body {
-    @apply px-6 py-4;
+    @apply px-6 py-4 text-gray-900 dark:text-gray-100;
   }
   
   .sidebar-link {
-    @apply flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg transition-all duration-200;
+    @apply flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg transition-all duration-200 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white;
   }
   
   .sidebar-link.active {
-    @apply bg-primary-100 text-primary-700;
+    @apply bg-primary-100 text-primary-700 dark:bg-gray-700 dark:text-white;
   }
 
   /* Loading animations */
@@ -100,11 +100,11 @@
 
   /* Navigation progress bar */
   .navigation-progress {
-    @apply fixed top-0 left-0 right-0 h-1 bg-gray-200 z-50;
+    @apply fixed top-0 left-0 right-0 h-1 bg-gray-200 z-50 dark:bg-gray-700;
   }
 
   .navigation-progress-bar {
-    @apply h-full bg-primary-600 transition-all duration-300 ease-out;
+    @apply h-full bg-primary-600 transition-all duration-300 ease-out dark:bg-primary-500;
   }
 
   /* Page transition animations */
@@ -126,7 +126,7 @@
 
   /* Skeleton loading */
   .skeleton {
-    @apply animate-pulse bg-gray-200 rounded;
+    @apply animate-pulse bg-gray-200 rounded dark:bg-gray-700;
   }
 
   .skeleton-text {
@@ -167,6 +167,23 @@
 
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background: #94A3B8;
+  }
+
+  /* Dark mode scrollbar */
+  .dark .custom-scrollbar {
+    scrollbar-color: #475569 #1e293b;
+  }
+
+  .dark .custom-scrollbar::-webkit-scrollbar-track {
+    background: #1e293b;
+  }
+
+  .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #475569;
+  }
+
+  .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
   }
 }
 
@@ -238,11 +255,11 @@
 
   /* Loading states */
   .loading-overlay {
-    @apply fixed inset-0 bg-white bg-opacity-75 flex items-center justify-center z-50;
+    @apply fixed inset-0 bg-white bg-opacity-75 flex items-center justify-center z-50 dark:bg-gray-900 dark:bg-opacity-75;
   }
 
   .loading-spinner {
-    @apply animate-spin rounded-full border-4 border-gray-200 border-t-primary-600;
+    @apply animate-spin rounded-full border-4 border-gray-200 border-t-primary-600 dark:border-gray-700 dark:border-t-primary-500;
   }
 
   /* Disable pointer events during loading */

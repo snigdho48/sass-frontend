@@ -47,7 +47,7 @@ const StatCard = ({ title, value, change, icon: Icon, color = 'primary' }) => {
       <div className="card-body p-4 sm:p-6">
         <div className="flex items-end justify-center">
           <div>
-            <p className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
+            <p className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
               {value}
             </p>
 
@@ -64,10 +64,10 @@ const KPICards = ({ kpis, loading }) => {
       <div className="grid grid-cols-2 gap-3 sm:gap-6 sm:grid-cols-2 lg:grid-cols-2">
         {[1, 2].map((i) => (
           <div key={i} className="card border-2 animate-pulse">
-            <div className="h-16 bg-gray-200"></div>
+            <div className="h-16 bg-gray-200 dark:bg-gray-700"></div>
             <div className="card-body p-6">
-              <div className="h-10 bg-gray-200 rounded mb-3"></div>
-              <div className="h-6 bg-gray-200 rounded w-20"></div>
+              <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded mb-3"></div>
+              <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
             </div>
           </div>
         ))}

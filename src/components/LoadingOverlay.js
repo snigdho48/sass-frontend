@@ -22,15 +22,15 @@ const LoadingOverlay = ({ show = false, zIndexClass = 'z-40' }) => {
 
   if (timeoutReached) {
     return (
-      <div className={`absolute inset-0 ${zIndexClass} flex items-center justify-center bg-white/70`}>
+      <div className={`absolute inset-0 ${zIndexClass} flex items-center justify-center bg-white/70 dark:bg-gray-900/70`}>
         <div className="flex flex-col items-center justify-center select-none">
-          <div className="text-red-500 mb-4 text-center">
+          <div className="text-red-500 dark:text-red-400 mb-4 text-center">
             <div className="text-lg font-semibold mb-2">Loading Timeout</div>
             <div className="text-sm">Please refresh the page</div>
           </div>
           <button 
             onClick={() => window.location.reload()} 
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+            className="px-4 py-2 bg-blue-500 dark:bg-blue-600 text-white rounded hover:bg-blue-600 dark:hover:bg-blue-700 transition-colors"
           >
             Refresh Page
           </button>
@@ -40,9 +40,9 @@ const LoadingOverlay = ({ show = false, zIndexClass = 'z-40' }) => {
   }
 
   return (
-    <div className={`absolute inset-0 ${zIndexClass} flex items-center justify-center bg-white/70`}>
+    <div className={`absolute inset-0 ${zIndexClass} flex items-center justify-center bg-white/70 dark:bg-gray-900/70`}>
       <div className="flex flex-col items-center justify-center select-none">
-        <Droplets className="w-8 h-8 text-blue-600 mb-4 animate-bounce" />
+        <Droplets className="w-8 h-8 text-blue-600 dark:text-blue-400 mb-4 animate-bounce" />
         <div className="relative w-24 h-24">
           <svg
             viewBox="0 0 200 200"
@@ -61,23 +61,23 @@ const LoadingOverlay = ({ show = false, zIndexClass = 'z-40' }) => {
             </defs>
 
             <g clipPath="url(#circleClip)">
-              <circle cx="100" cy="100" r="90" fill="#eff6ff" />
+              <circle cx="100" cy="100" r="90" fill="#eff6ff" className="dark:fill-gray-800" />
 
               {/* Back wave */}
-              <path id="wave1" fill="url(#waterGrad)" opacity="0.6"
+              <path id="wave1" fill="url(#waterGrad)" opacity="0.6" className="dark:opacity-0.7"
                 d="M0 120 C 30 110, 70 130, 100 120 C 130 110, 170 130, 200 120 L 200 220 L 0 220 Z" >
                 <animateTransform attributeName="transform" type="translate" from="0 0" to="-200 0" dur="4s" repeatCount="indefinite" />
               </path>
 
               {/* Front wave */}
-              <path id="wave2" fill="url(#waterGrad)" opacity="0.9"
+              <path id="wave2" fill="url(#waterGrad)" opacity="0.9" className="dark:opacity-0.8"
                 d="M0 130 C 25 140, 75 120, 100 130 C 125 140, 175 120, 200 130 L 200 220 L 0 220 Z" >
                 <animateTransform attributeName="transform" type="translate" from="0 0" to="-200 0" dur="2.8s" repeatCount="indefinite" />
               </path>
             </g>
 
             {/* Circle border */}
-            <circle cx="100" cy="100" r="90" fill="none" stroke="#60a5fa" strokeWidth="4" />
+            <circle cx="100" cy="100" r="90" fill="none" stroke="#60a5fa" className="dark:stroke-blue-400" strokeWidth="4" />
           </svg>
         </div>
       </div>

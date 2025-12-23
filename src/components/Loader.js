@@ -76,18 +76,18 @@ export const TailSpinLoader = ({ visible = true, size = 20, color = '#3B82F6' })
 
 // Page Loader for full page loading
 export const PageLoader = () => (
-  <div className="fixed inset-0 bg-white bg-opacity-75 flex items-center justify-center z-50">
+  <div className="fixed inset-0 bg-white dark:bg-gray-900 bg-opacity-75 dark:bg-opacity-75 flex items-center justify-center z-50">
     <div className="text-center">
       <DNALoader size={100} />
-      <p className="mt-4 text-gray-600">Loading...</p>
+      <p className="mt-4 text-gray-600 dark:text-gray-400">Loading...</p>
     </div>
   </div>
 );
 
 // Navigation Loader for route changes
 export const NavigationLoader = () => (
-  <div className="fixed top-0 left-0 right-0 h-1 bg-gray-200 z-50">
-    <div className="h-full bg-primary-600 animate-pulse"></div>
+  <div className="fixed top-0 left-0 right-0 h-1 bg-gray-200 dark:bg-gray-700 z-50">
+    <div className="h-full bg-primary-600 dark:bg-primary-500 animate-pulse"></div>
   </div>
 );
 
@@ -118,10 +118,10 @@ export const ContentLoader = ({ children, loading, error, emptyMessage = "No dat
   if (timeoutReached) {
     return (
       <div className="flex flex-col items-center justify-center py-12">
-        <div className="text-red-500 mb-4">Loading timeout - please refresh the page</div>
+        <div className="text-red-500 dark:text-red-400 mb-4">Loading timeout - please refresh the page</div>
         <button 
           onClick={() => window.location.reload()} 
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          className="px-4 py-2 bg-blue-500 dark:bg-blue-600 text-white rounded hover:bg-blue-600 dark:hover:bg-blue-700"
         >
           Refresh Page
         </button>
@@ -133,9 +133,9 @@ export const ContentLoader = ({ children, loading, error, emptyMessage = "No dat
     return (
       <div className="flex items-center justify-center py-12">
         <div className="text-center">
-          <div className="text-red-500 text-6xl mb-4">⚠️</div>
-          <p className="text-gray-600">Something went wrong</p>
-          <p className="text-sm text-gray-500 mt-2">{error}</p>
+          <div className="text-red-500 dark:text-red-400 text-6xl mb-4">⚠️</div>
+          <p className="text-gray-600 dark:text-gray-400">Something went wrong</p>
+          <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">{error}</p>
         </div>
       </div>
     );
@@ -145,8 +145,8 @@ export const ContentLoader = ({ children, loading, error, emptyMessage = "No dat
     return (
       <div className="flex items-center justify-center py-12">
         <div className="text-center">
-          <div className="text-gray-400 text-6xl mb-4">📭</div>
-          <p className="text-gray-600">{emptyMessage}</p>
+          <div className="text-gray-400 dark:text-gray-500 text-6xl mb-4">📭</div>
+          <p className="text-gray-600 dark:text-gray-400">{emptyMessage}</p>
         </div>
       </div>
     );
@@ -179,7 +179,7 @@ export const SkeletonLoader = ({ className = '', lines = 3 }) => (
     {Array.from({ length: lines }).map((_, index) => (
       <div
         key={index}
-        className={`bg-gray-200 rounded h-4 mb-2 ${
+        className={`bg-gray-200 dark:bg-gray-700 rounded h-4 mb-2 ${
           index === lines - 1 ? 'w-3/4' : 'w-full'
         }`}
       ></div>

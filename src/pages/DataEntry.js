@@ -1063,10 +1063,10 @@ const DataEntry = () => {
         <div className=''>
         <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4 sm:mb-6'>
           <div>
-            <h2 className='text-xl sm:text-2xl font-bold text-gray-900'>
+            <h2 className='text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100'>
               Plant Management
             </h2>
-            <p className='mt-1 text-xs sm:text-sm text-gray-500'>
+            <p className='mt-1 text-xs sm:text-sm text-gray-500 dark:text-gray-400'>
               Create and manage plant parameters for water analysis.
             </p>
           </div>
@@ -1085,17 +1085,17 @@ const DataEntry = () => {
         {showPlantForm && user?.can_create_plants && (
                       <div className='card mb-6 relative'>
              {(createPlantMutation.isLoading || updatePlantMutation.isLoading) && (
-               <div className='absolute inset-0 z-50 flex items-center justify-center bg-white/80 rounded-lg'>
+               <div className='absolute inset-0 z-50 flex items-center justify-center bg-white/80 dark:bg-gray-800/80 rounded-lg'>
                  <div className='flex flex-col items-center'>
                    <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mb-4'></div>
-                   <p className='text-gray-700 font-medium'>
+                   <p className='text-gray-700 dark:text-gray-300 font-medium'>
                      {editingPlant ? 'Updating plant...' : 'Creating plant...'}
                    </p>
                  </div>
                </div>
              )}
              <div className='card-header'>
-              <h3 className='text-base sm:text-lg font-medium text-gray-900'>
+              <h3 className='text-base sm:text-lg font-medium text-gray-900 dark:text-gray-100'>
                                  {editingPlant
                    ? "Edit Plant"
                    : user?.can_create_plants
@@ -1108,7 +1108,7 @@ const DataEntry = () => {
                 {/* Basic Information */}
                 <div className='grid grid-cols-1 gap-3 sm:gap-4 sm:grid-cols-2'>
                   <div>
-                    <label className='block text-xs sm:text-sm font-medium text-gray-700 mb-1'>
+                    <label className='block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
                       Plant Name *
                     </label>
                     <input
@@ -1140,23 +1140,23 @@ const DataEntry = () => {
                         }
                         disabled={user?.is_client && !editingPlant}
                       />
-                      <span className='ml-2 text-xs sm:text-sm text-gray-700'>Active</span>
+                      <span className='ml-2 text-xs sm:text-sm text-gray-700 dark:text-gray-300'>Active</span>
                     </label>
                   </div>
                 </div>
 
                                   {/* Plant Owner (Super Admin Only) */}
                 {user?.can_create_plants && (
-                  <div className='border-t pt-4 sm:pt-6'>
-                    <h4 className='text-sm sm:text-md font-medium text-gray-900 mb-3 sm:mb-4'>
+                  <div className='border-t border-gray-200 dark:border-gray-700 pt-4 sm:pt-6'>
+                    <h4 className='text-sm sm:text-md font-medium text-gray-900 dark:text-gray-100 mb-3 sm:mb-4'>
                       Plant Owner
                     </h4>
                     <div className='space-y-2 sm:space-y-3'>
-                      <label className='block text-xs sm:text-sm font-medium text-gray-700 mb-2'>
+                      <label className='block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'>
                         Select Plant Owner *
                       </label>
                                               {adminUsersLoading ? (
-                          <div className='text-sm text-gray-500'>
+                          <div className='text-sm text-gray-500 dark:text-gray-400'>
                             Loading admin users...
                           </div>
                       ) : adminUsersError ? (
@@ -1177,7 +1177,7 @@ const DataEntry = () => {
                           required={true}
                         />
                       )}
-                      <p className='text-xs text-gray-500'>
+                      <p className='text-xs text-gray-500 dark:text-gray-400'>
                         Plant owner is required. Only the selected user can
                         access this plant.
                       </p>
@@ -1187,7 +1187,7 @@ const DataEntry = () => {
 
                 {/* Note: Water systems (cooling/boiler) are now managed separately via the + button next to each plant */}
                 <div className='border-t pt-6 mt-6'>
-                  <p className='text-sm text-gray-600 italic'>
+                  <p className='text-sm text-gray-600 dark:text-gray-400 italic'>
                     <Droplets className='w-4 h-4 inline mr-2 text-blue-600' />
                     To add cooling or boiler water systems with parameters, use the + button next to the plant in the table below.
                   </p>
@@ -1235,15 +1235,15 @@ const DataEntry = () => {
 
         {/* Water System Management Modal */}
         {showWaterSystemForm && (
-          <div className='fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-[60] p-2 sm:p-4 overflow-y-auto'>
-            <div className='bg-white rounded-lg p-3 sm:p-4 md:p-6 w-full max-w-5xl max-h-[95vh] my-4 overflow-y-auto'>
+          <div className='fixed inset-0 bg-gray-600 bg-opacity-50 dark:bg-gray-900 dark:bg-opacity-70 flex items-center justify-center z-[60] p-2 sm:p-4'>
+            <div className='bg-white dark:bg-gray-800 rounded-lg p-3 sm:p-4 md:p-6 w-full max-w-5xl max-h-[95vh] my-4 overflow-y-auto'>
               <div className='flex justify-between items-center mb-3 sm:mb-4'>
-                <h3 className='text-base sm:text-lg font-medium text-gray-900'>
+                <h3 className='text-base sm:text-lg font-medium text-gray-900 dark:text-gray-100'>
                   {editingWaterSystem ? 'Edit Water System' : 'Add New Water System'}
                 </h3>
                 <button
                   onClick={handleWaterSystemCancel}
-                  className='text-gray-400 hover:text-gray-600 p-1'
+                  className='text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 p-1'
                   aria-label="Close"
                 >
                   <X className='h-4 w-4 sm:h-5 sm:w-5' />
@@ -1251,8 +1251,8 @@ const DataEntry = () => {
               </div>
               
               {selectedPlantForWaterSystem && (
-                <div className='mb-3 sm:mb-4 p-2 sm:p-3 bg-blue-50 border border-blue-200 rounded-lg'>
-                  <p className='text-xs sm:text-sm text-blue-800'>
+                <div className='mb-3 sm:mb-4 p-2 sm:p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg'>
+                  <p className='text-xs sm:text-sm text-blue-800 dark:text-blue-300'>
                     <strong>Plant:</strong> {selectedPlantForWaterSystem.name}
                   </p>
                 </div>
@@ -1262,7 +1262,7 @@ const DataEntry = () => {
                 {/* Basic Information */}
                 <div className='grid grid-cols-1 gap-3 sm:gap-4 sm:grid-cols-2'>
                   <div>
-                    <label className='block text-xs sm:text-sm font-medium text-gray-700 mb-1'>
+                    <label className='block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
                       System Name *
                     </label>
                     <input
@@ -1280,7 +1280,7 @@ const DataEntry = () => {
                     />
                   </div>
                   <div>
-                    <label className='block text-xs sm:text-sm font-medium text-gray-700 mb-1'>
+                    <label className='block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
                       System Type *
                     </label>
                     <select
@@ -1312,28 +1312,28 @@ const DataEntry = () => {
                           })
                         }
                       />
-                      <span className='ml-2 text-xs sm:text-sm text-gray-700'>Active</span>
+                      <span className='ml-2 text-xs sm:text-sm text-gray-700 dark:text-gray-300'>Active</span>
                     </label>
                   </div>
                 </div>
 
                 {/* Parameters Section - Show based on system type */}
                 {waterSystemFormData.system_type === 'cooling' ? (
-                  <div className='border-t pt-4 sm:pt-6'>
-                    <h4 className='text-sm sm:text-base font-bold text-gray-900 mb-3 sm:mb-4'>
-                      <Droplets className='w-3 h-3 sm:w-4 sm:h-4 inline mr-2 text-blue-600' />
+                  <div className='border-t border-gray-200 dark:border-gray-700 pt-4 sm:pt-6'>
+                    <h4 className='text-sm sm:text-base font-bold text-gray-900 dark:text-gray-100 mb-3 sm:mb-4'>
+                      <Droplets className='w-3 h-3 sm:w-4 sm:h-4 inline mr-2 text-blue-600 dark:text-blue-400' />
                       Cooling Water Parameters (All Optional)
                     </h4>
-                    <p className='text-xs text-gray-500 mb-3 sm:mb-4 italic'>
+                    <p className='text-xs text-gray-500 dark:text-gray-400 mb-3 sm:mb-4 italic'>
                       Configure parameters for this cooling water system. All fields are optional.
                     </p>
                     <div className='space-y-6'>
                       {/* Basic Parameters */}
                       <div>
-                        <h5 className='text-xs sm:text-sm font-semibold text-gray-800 mb-2 sm:mb-3'>Basic Parameters</h5>
+                        <h5 className='text-xs sm:text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2 sm:mb-3'>Basic Parameters</h5>
                         <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'>
                           <div>
-                            <label className='block text-xs sm:text-sm font-medium text-gray-700 mb-1'>pH Min</label>
+                            <label className='block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>pH Min</label>
                             <input
                               type='number'
                               step='0.1'
@@ -1348,7 +1348,7 @@ const DataEntry = () => {
                             />
                           </div>
                           <div>
-                            <label className='block text-xs sm:text-sm font-medium text-gray-700 mb-1'>pH Max</label>
+                            <label className='block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>pH Max</label>
                             <input
                               type='number'
                               step='0.1'
@@ -1363,7 +1363,7 @@ const DataEntry = () => {
                             />
                           </div>
                           <div>
-                            <label className='block text-sm font-medium text-gray-700 mb-1'>TDS Min (ppm)</label>
+                            <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>TDS Min (ppm)</label>
                             <input
                               type='number'
                               step='0.01'
@@ -1378,7 +1378,7 @@ const DataEntry = () => {
                             />
                           </div>
                           <div>
-                            <label className='block text-sm font-medium text-gray-700 mb-1'>TDS Max (ppm)</label>
+                            <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>TDS Max (ppm)</label>
                             <input
                               type='number'
                               step='0.01'
@@ -1393,7 +1393,7 @@ const DataEntry = () => {
                             />
                           </div>
                           <div>
-                            <label className='block text-sm font-medium text-gray-700 mb-1'>Hardness Max (ppm)</label>
+                            <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>Hardness Max (ppm)</label>
                             <input
                               type='number'
                               step='0.01'
@@ -1408,7 +1408,7 @@ const DataEntry = () => {
                             />
                           </div>
                           <div>
-                            <label className='block text-sm font-medium text-gray-700 mb-1'>Alkalinity Max (ppm)</label>
+                            <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>Alkalinity Max (ppm)</label>
                             <input
                               type='number'
                               step='0.01'
@@ -1423,7 +1423,7 @@ const DataEntry = () => {
                             />
                           </div>
                           <div>
-                            <label className='block text-sm font-medium text-gray-700 mb-1'>Total Alkalinity Min (ppm)</label>
+                            <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>Total Alkalinity Min (ppm)</label>
                             <input
                               type='number'
                               step='0.01'
@@ -1438,7 +1438,7 @@ const DataEntry = () => {
                             />
                           </div>
                           <div>
-                            <label className='block text-sm font-medium text-gray-700 mb-1'>Total Alkalinity Max (ppm)</label>
+                            <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>Total Alkalinity Max (ppm)</label>
                             <input
                               type='number'
                               step='0.01'
@@ -1457,15 +1457,15 @@ const DataEntry = () => {
 
                       {/* Optional Parameters with Enable Toggles */}
                       <div>
-                        <h5 className='text-xs sm:text-sm font-semibold text-gray-800 mb-2 sm:mb-3'>Optional Parameters</h5>
+                        <h5 className='text-xs sm:text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2 sm:mb-3'>Optional Parameters</h5>
                         <div className='space-y-3 sm:space-y-4'>
                           {/* Chloride */}
-                          <div className='border rounded-lg p-3 sm:p-4 bg-gray-50'>
+                          <div className='border border-gray-200 dark:border-gray-600 rounded-lg p-3 sm:p-4 bg-gray-50 dark:bg-gray-700/50'>
                             <div className='flex items-center justify-between mb-2'>
-                              <label className='flex items-center text-xs sm:text-sm font-medium text-gray-700'>
+                              <label className='flex items-center text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300'>
                                 <input
                                   type='checkbox'
-                                  className='mr-2 h-3 w-3 sm:h-4 sm:w-4'
+                                  className='mr-2 h-3 w-3 sm:h-4 sm:w-4 rounded border-gray-300 dark:border-gray-600 text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-400 dark:bg-gray-700 dark:checked:bg-primary-600'
                                   checked={waterSystemFormData.cooling_chloride_enabled}
                                   onChange={(e) =>
                                     setWaterSystemFormData({
@@ -1479,7 +1479,7 @@ const DataEntry = () => {
                             </div>
                             {waterSystemFormData.cooling_chloride_enabled && (
                               <div>
-                                <label className='block text-xs text-gray-600 mb-1'>Chloride Max (ppm)</label>
+                                <label className='block text-xs text-gray-600 dark:text-gray-400 mb-1'>Chloride Max (ppm)</label>
                                 <input
                                   type='number'
                                   step='0.01'
@@ -1497,12 +1497,12 @@ const DataEntry = () => {
                           </div>
 
                           {/* Cycle of Concentration */}
-                          <div className='border rounded-lg p-3 sm:p-4 bg-gray-50'>
+                          <div className='border border-gray-200 dark:border-gray-600 rounded-lg p-3 sm:p-4 bg-gray-50 dark:bg-gray-700/50'>
                             <div className='flex items-center justify-between mb-2'>
-                              <label className='flex items-center text-xs sm:text-sm font-medium text-gray-700'>
+                              <label className='flex items-center text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300'>
                                 <input
                                   type='checkbox'
-                                  className='mr-2 h-3 w-3 sm:h-4 sm:w-4'
+                                  className='mr-2 h-3 w-3 sm:h-4 sm:w-4 rounded border-gray-300 dark:border-gray-600 text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-400 dark:bg-gray-700 dark:checked:bg-primary-600'
                                   checked={waterSystemFormData.cooling_cycle_enabled}
                                   onChange={(e) =>
                                     setWaterSystemFormData({
@@ -1517,7 +1517,7 @@ const DataEntry = () => {
                             {waterSystemFormData.cooling_cycle_enabled && (
                               <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'>
                                 <div>
-                                  <label className='block text-xs text-gray-600 mb-1'>Cycle Min</label>
+                                  <label className='block text-xs text-gray-600 dark:text-gray-400 mb-1'>Cycle Min</label>
                                   <input
                                     type='number'
                                     step='0.1'
@@ -1532,7 +1532,7 @@ const DataEntry = () => {
                                   />
                                 </div>
                                 <div>
-                                  <label className='block text-xs text-gray-600 mb-1'>Cycle Max</label>
+                                  <label className='block text-xs text-gray-600 dark:text-gray-400 mb-1'>Cycle Max</label>
                                   <input
                                     type='number'
                                     step='0.1'
@@ -1551,12 +1551,12 @@ const DataEntry = () => {
                           </div>
 
                           {/* Iron */}
-                          <div className='border rounded-lg p-3 sm:p-4 bg-gray-50'>
+                          <div className='border border-gray-200 dark:border-gray-600 rounded-lg p-3 sm:p-4 bg-gray-50 dark:bg-gray-700/50'>
                             <div className='flex items-center justify-between mb-2'>
-                              <label className='flex items-center text-xs sm:text-sm font-medium text-gray-700'>
+                              <label className='flex items-center text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300'>
                                 <input
                                   type='checkbox'
-                                  className='mr-2 h-3 w-3 sm:h-4 sm:w-4'
+                                  className='mr-2 h-3 w-3 sm:h-4 sm:w-4 rounded border-gray-300 dark:border-gray-600 text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-400 dark:bg-gray-700 dark:checked:bg-primary-600'
                                   checked={waterSystemFormData.cooling_iron_enabled}
                                   onChange={(e) =>
                                     setWaterSystemFormData({
@@ -1570,7 +1570,7 @@ const DataEntry = () => {
                             </div>
                             {waterSystemFormData.cooling_iron_enabled && (
                               <div>
-                                <label className='block text-xs text-gray-600 mb-1'>Iron Max (ppm)</label>
+                                <label className='block text-xs text-gray-600 dark:text-gray-400 mb-1'>Iron Max (ppm)</label>
                                 <input
                                   type='number'
                                   step='0.1'
@@ -1588,12 +1588,12 @@ const DataEntry = () => {
                           </div>
 
                           {/* Phosphate */}
-                          <div className='border rounded-lg p-3 sm:p-4 bg-gray-50'>
+                          <div className='border border-gray-200 dark:border-gray-600 rounded-lg p-3 sm:p-4 bg-gray-50 dark:bg-gray-700/50'>
                             <div className='flex items-center justify-between mb-2'>
-                              <label className='flex items-center text-xs sm:text-sm font-medium text-gray-700'>
+                              <label className='flex items-center text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300'>
                                 <input
                                   type='checkbox'
-                                  className='mr-2 h-3 w-3 sm:h-4 sm:w-4'
+                                  className='mr-2 h-3 w-3 sm:h-4 sm:w-4 rounded border-gray-300 dark:border-gray-600 text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-400 dark:bg-gray-700 dark:checked:bg-primary-600'
                                   checked={waterSystemFormData.cooling_phosphate_enabled}
                                   onChange={(e) =>
                                     setWaterSystemFormData({
@@ -1607,7 +1607,7 @@ const DataEntry = () => {
                             </div>
                             {waterSystemFormData.cooling_phosphate_enabled && (
                               <div>
-                                <label className='block text-xs text-gray-600 mb-1'>Phosphate Max (ppm)</label>
+                                <label className='block text-xs text-gray-600 dark:text-gray-400 mb-1'>Phosphate Max (ppm)</label>
                                 <input
                                   type='number'
                                   step='0.01'
@@ -1625,12 +1625,12 @@ const DataEntry = () => {
                           </div>
 
                           {/* Basin Temperature */}
-                          <div className='border rounded-lg p-3 sm:p-4 bg-gray-50'>
+                          <div className='border border-gray-200 dark:border-gray-600 rounded-lg p-3 sm:p-4 bg-gray-50 dark:bg-gray-700/50'>
                             <div className='flex items-center justify-between mb-2'>
-                              <label className='flex items-center text-xs sm:text-sm font-medium text-gray-700'>
+                              <label className='flex items-center text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300'>
                                 <input
                                   type='checkbox'
-                                  className='mr-2 h-3 w-3 sm:h-4 sm:w-4'
+                                  className='mr-2 h-3 w-3 sm:h-4 sm:w-4 rounded border-gray-300 dark:border-gray-600 text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-400 dark:bg-gray-700 dark:checked:bg-primary-600'
                                   checked={waterSystemFormData.cooling_temperature_enabled}
                                   onChange={(e) =>
                                     setWaterSystemFormData({
@@ -1645,7 +1645,7 @@ const DataEntry = () => {
                             {waterSystemFormData.cooling_temperature_enabled && (
                               <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'>
                                 <div>
-                                  <label className='block text-xs text-gray-600 mb-1'>Basin Temperature Min (°C)</label>
+                                  <label className='block text-xs text-gray-600 dark:text-gray-400 mb-1'>Basin Temperature Min (°C)</label>
                                   <input
                                     type='number'
                                     step='0.1'
@@ -1660,7 +1660,7 @@ const DataEntry = () => {
                                   />
                                 </div>
                                 <div>
-                                  <label className='block text-xs text-gray-600 mb-1'>Basin Temperature Max (°C)</label>
+                                  <label className='block text-xs text-gray-600 dark:text-gray-400 mb-1'>Basin Temperature Max (°C)</label>
                                   <input
                                     type='number'
                                     step='0.1'
@@ -1679,12 +1679,12 @@ const DataEntry = () => {
                           </div>
 
                           {/* Hot Side Temperature */}
-                          <div className='border rounded-lg p-3 sm:p-4 bg-gray-50'>
+                          <div className='border border-gray-200 dark:border-gray-600 rounded-lg p-3 sm:p-4 bg-gray-50 dark:bg-gray-700/50'>
                             <div className='flex items-center justify-between mb-2'>
-                              <label className='flex items-center text-xs sm:text-sm font-medium text-gray-700'>
+                              <label className='flex items-center text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300'>
                                 <input
                                   type='checkbox'
-                                  className='mr-2 h-3 w-3 sm:h-4 sm:w-4'
+                                  className='mr-2 h-3 w-3 sm:h-4 sm:w-4 rounded border-gray-300 dark:border-gray-600 text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-400 dark:bg-gray-700 dark:checked:bg-primary-600'
                                   checked={waterSystemFormData.cooling_hot_temperature_enabled}
                                   onChange={(e) =>
                                     setWaterSystemFormData({
@@ -1699,7 +1699,7 @@ const DataEntry = () => {
                             {waterSystemFormData.cooling_hot_temperature_enabled && (
                               <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'>
                                 <div>
-                                  <label className='block text-xs text-gray-600 mb-1'>Hot Side Temperature Min (°C)</label>
+                                  <label className='block text-xs text-gray-600 dark:text-gray-400 mb-1'>Hot Side Temperature Min (°C)</label>
                                   <input
                                     type='number'
                                     step='0.1'
@@ -1714,7 +1714,7 @@ const DataEntry = () => {
                                   />
                                 </div>
                                 <div>
-                                  <label className='block text-xs text-gray-600 mb-1'>Hot Side Temperature Max (°C)</label>
+                                  <label className='block text-xs text-gray-600 dark:text-gray-400 mb-1'>Hot Side Temperature Max (°C)</label>
                                   <input
                                     type='number'
                                     step='0.1'
@@ -1733,12 +1733,12 @@ const DataEntry = () => {
                           </div>
 
                           {/* LSI */}
-                          <div className='border rounded-lg p-3 sm:p-4 bg-gray-50'>
+                          <div className='border border-gray-200 dark:border-gray-600 rounded-lg p-3 sm:p-4 bg-gray-50 dark:bg-gray-700/50'>
                             <div className='flex items-center justify-between mb-2'>
-                              <label className='flex items-center text-xs sm:text-sm font-medium text-gray-700'>
+                              <label className='flex items-center text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300'>
                                 <input
                                   type='checkbox'
-                                  className='mr-2 h-3 w-3 sm:h-4 sm:w-4'
+                                  className='mr-2 h-3 w-3 sm:h-4 sm:w-4 rounded border-gray-300 dark:border-gray-600 text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-400 dark:bg-gray-700 dark:checked:bg-primary-600'
                                   checked={waterSystemFormData.cooling_lsi_enabled}
                                   onChange={(e) =>
                                     setWaterSystemFormData({
@@ -1753,7 +1753,7 @@ const DataEntry = () => {
                             {waterSystemFormData.cooling_lsi_enabled && (
                               <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'>
                                 <div>
-                                  <label className='block text-xs text-gray-600 mb-1'>LSI Min</label>
+                                  <label className='block text-xs text-gray-600 dark:text-gray-400 mb-1'>LSI Min</label>
                                   <input
                                     type='number'
                                     step='0.1'
@@ -1768,7 +1768,7 @@ const DataEntry = () => {
                                   />
                                 </div>
                                 <div>
-                                  <label className='block text-xs text-gray-600 mb-1'>LSI Max</label>
+                                  <label className='block text-xs text-gray-600 dark:text-gray-400 mb-1'>LSI Max</label>
                                   <input
                                     type='number'
                                     step='0.1'
@@ -1787,12 +1787,12 @@ const DataEntry = () => {
                           </div>
 
                           {/* RSI */}
-                          <div className='border rounded-lg p-3 sm:p-4 bg-gray-50'>
+                          <div className='border border-gray-200 dark:border-gray-600 rounded-lg p-3 sm:p-4 bg-gray-50 dark:bg-gray-700/50'>
                             <div className='flex items-center justify-between mb-2'>
-                              <label className='flex items-center text-xs sm:text-sm font-medium text-gray-700'>
+                              <label className='flex items-center text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300'>
                                 <input
                                   type='checkbox'
-                                  className='mr-2 h-3 w-3 sm:h-4 sm:w-4'
+                                  className='mr-2 h-3 w-3 sm:h-4 sm:w-4 rounded border-gray-300 dark:border-gray-600 text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-400 dark:bg-gray-700 dark:checked:bg-primary-600'
                                   checked={waterSystemFormData.cooling_rsi_enabled}
                                   onChange={(e) =>
                                     setWaterSystemFormData({
@@ -1807,7 +1807,7 @@ const DataEntry = () => {
                             {waterSystemFormData.cooling_rsi_enabled && (
                               <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'>
                                 <div>
-                                  <label className='block text-xs text-gray-600 mb-1'>RSI Min</label>
+                                  <label className='block text-xs text-gray-600 dark:text-gray-400 mb-1'>RSI Min</label>
                                   <input
                                     type='number'
                                     step='0.1'
@@ -1822,7 +1822,7 @@ const DataEntry = () => {
                                   />
                                 </div>
                                 <div>
-                                  <label className='block text-xs text-gray-600 mb-1'>RSI Max</label>
+                                  <label className='block text-xs text-gray-600 dark:text-gray-400 mb-1'>RSI Max</label>
                                   <input
                                     type='number'
                                     step='0.1'
@@ -1844,21 +1844,21 @@ const DataEntry = () => {
                     </div>
                   </div>
                 ) : (
-                  <div className='border-t pt-6'>
-                    <h4 className='text-md font-bold text-gray-900 mb-4'>
-                      <Thermometer className='w-4 h-4 inline mr-2 text-red-600' />
+                  <div className='border-t border-gray-200 dark:border-gray-700 pt-6'>
+                    <h4 className='text-md font-bold text-gray-900 dark:text-gray-100 mb-4'>
+                      <Thermometer className='w-4 h-4 inline mr-2 text-red-600 dark:text-red-400' />
                       Boiler Water Parameters (All Optional)
                     </h4>
-                    <p className='text-xs text-gray-500 mb-4 italic'>
+                    <p className='text-xs text-gray-500 dark:text-gray-400 mb-4 italic'>
                       Configure parameters for this boiler water system. All fields are optional.
                     </p>
                     <div className='space-y-6'>
                       {/* Basic Parameters */}
                       <div>
-                        <h5 className='text-sm font-semibold text-gray-800 mb-3'>Basic Parameters</h5>
+                        <h5 className='text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3'>Basic Parameters</h5>
                         <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'>
                           <div>
-                            <label className='block text-sm font-medium text-gray-700 mb-1'>pH Min</label>
+                            <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>pH Min</label>
                             <input
                               type='number'
                               step='0.1'
@@ -1873,7 +1873,7 @@ const DataEntry = () => {
                             />
                           </div>
                           <div>
-                            <label className='block text-sm font-medium text-gray-700 mb-1'>pH Max</label>
+                            <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>pH Max</label>
                             <input
                               type='number'
                               step='0.1'
@@ -1888,7 +1888,7 @@ const DataEntry = () => {
                             />
                           </div>
                           <div>
-                            <label className='block text-sm font-medium text-gray-700 mb-1'>TDS Min (ppm)</label>
+                            <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>TDS Min (ppm)</label>
                             <input
                               type='number'
                               step='0.01'
@@ -1903,7 +1903,7 @@ const DataEntry = () => {
                             />
                           </div>
                           <div>
-                            <label className='block text-sm font-medium text-gray-700 mb-1'>TDS Max (ppm)</label>
+                            <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>TDS Max (ppm)</label>
                             <input
                               type='number'
                               step='0.01'
@@ -1918,7 +1918,7 @@ const DataEntry = () => {
                             />
                           </div>
                           <div>
-                            <label className='block text-sm font-medium text-gray-700 mb-1'>Hardness Max (ppm)</label>
+                            <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>Hardness Max (ppm)</label>
                             <input
                               type='number'
                               step='0.1'
@@ -1933,7 +1933,7 @@ const DataEntry = () => {
                             />
                           </div>
                           <div>
-                            <label className='block text-sm font-medium text-gray-700 mb-1'>Alkalinity Min (ppm)</label>
+                            <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>Alkalinity Min (ppm)</label>
                             <input
                               type='number'
                               step='0.01'
@@ -1948,7 +1948,7 @@ const DataEntry = () => {
                             />
                           </div>
                           <div>
-                            <label className='block text-sm font-medium text-gray-700 mb-1'>Alkalinity Max (ppm)</label>
+                            <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>Alkalinity Max (ppm)</label>
                             <input
                               type='number'
                               step='0.01'
@@ -1970,9 +1970,9 @@ const DataEntry = () => {
                         <h5 className='text-xs sm:text-sm font-semibold text-gray-800 mb-2 sm:mb-3'>Optional Parameters</h5>
                         <div className='space-y-3 sm:space-y-4'>
                           {/* P-Alkalinity */}
-                          <div className='border rounded-lg p-3 sm:p-4 bg-gray-50'>
+                          <div className='border border-gray-200 dark:border-gray-600 rounded-lg p-3 sm:p-4 bg-gray-50 dark:bg-gray-700/50'>
                             <div className='flex items-center justify-between mb-2'>
-                              <label className='flex items-center text-xs sm:text-sm font-medium text-gray-700'>
+                              <label className='flex items-center text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300'>
                                 <input
                                   type='checkbox'
                                   className='mr-2 h-3 w-3 sm:h-4 sm:w-4'
@@ -1990,7 +1990,7 @@ const DataEntry = () => {
                             {waterSystemFormData.boiler_p_alkalinity_enabled && (
                               <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'>
                                 <div>
-                                  <label className='block text-xs text-gray-600 mb-1'>P-Alkalinity Min (ppm)</label>
+                                  <label className='block text-xs text-gray-600 dark:text-gray-400 mb-1'>P-Alkalinity Min (ppm)</label>
                                   <input
                                     type='number'
                                     step='0.01'
@@ -2005,7 +2005,7 @@ const DataEntry = () => {
                                   />
                                 </div>
                                 <div>
-                                  <label className='block text-xs text-gray-600 mb-1'>P-Alkalinity Max (ppm)</label>
+                                  <label className='block text-xs text-gray-600 dark:text-gray-400 mb-1'>P-Alkalinity Max (ppm)</label>
                                   <input
                                     type='number'
                                     step='0.01'
@@ -2024,9 +2024,9 @@ const DataEntry = () => {
                           </div>
 
                           {/* OH-Alkalinity */}
-                          <div className='border rounded-lg p-3 sm:p-4 bg-gray-50'>
+                          <div className='border border-gray-200 dark:border-gray-600 rounded-lg p-3 sm:p-4 bg-gray-50 dark:bg-gray-700/50'>
                             <div className='flex items-center justify-between mb-2'>
-                              <label className='flex items-center text-xs sm:text-sm font-medium text-gray-700'>
+                              <label className='flex items-center text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300'>
                                 <input
                                   type='checkbox'
                                   className='mr-2 h-3 w-3 sm:h-4 sm:w-4'
@@ -2044,7 +2044,7 @@ const DataEntry = () => {
                             {waterSystemFormData.boiler_oh_alkalinity_enabled && (
                               <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'>
                                 <div>
-                                  <label className='block text-xs text-gray-600 mb-1'>OH-Alkalinity Min (ppm)</label>
+                                  <label className='block text-xs text-gray-600 dark:text-gray-400 mb-1'>OH-Alkalinity Min (ppm)</label>
                                   <input
                                     type='number'
                                     step='0.01'
@@ -2059,7 +2059,7 @@ const DataEntry = () => {
                                   />
                                 </div>
                                 <div>
-                                  <label className='block text-xs text-gray-600 mb-1'>OH-Alkalinity Max (ppm)</label>
+                                  <label className='block text-xs text-gray-600 dark:text-gray-400 mb-1'>OH-Alkalinity Max (ppm)</label>
                                   <input
                                     type='number'
                                     step='0.01'
@@ -2078,9 +2078,9 @@ const DataEntry = () => {
                           </div>
 
                           {/* Sulphite */}
-                          <div className='border rounded-lg p-3 sm:p-4 bg-gray-50'>
+                          <div className='border border-gray-200 dark:border-gray-600 rounded-lg p-3 sm:p-4 bg-gray-50 dark:bg-gray-700/50'>
                             <div className='flex items-center justify-between mb-2'>
-                              <label className='flex items-center text-xs sm:text-sm font-medium text-gray-700'>
+                              <label className='flex items-center text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300'>
                                 <input
                                   type='checkbox'
                                   className='mr-2 h-3 w-3 sm:h-4 sm:w-4'
@@ -2098,7 +2098,7 @@ const DataEntry = () => {
                             {waterSystemFormData.boiler_sulphite_enabled && (
                               <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'>
                                 <div>
-                                  <label className='block text-xs text-gray-600 mb-1'>Sulphite Min (ppm)</label>
+                                  <label className='block text-xs text-gray-600 dark:text-gray-400 mb-1'>Sulphite Min (ppm)</label>
                                   <input
                                     type='number'
                                     step='0.01'
@@ -2113,7 +2113,7 @@ const DataEntry = () => {
                                   />
                                 </div>
                                 <div>
-                                  <label className='block text-xs text-gray-600 mb-1'>Sulphite Max (ppm)</label>
+                                  <label className='block text-xs text-gray-600 dark:text-gray-400 mb-1'>Sulphite Max (ppm)</label>
                                   <input
                                     type='number'
                                     step='0.01'
@@ -2132,9 +2132,9 @@ const DataEntry = () => {
                           </div>
 
                           {/* Sodium Chloride */}
-                          <div className='border rounded-lg p-3 sm:p-4 bg-gray-50'>
+                          <div className='border border-gray-200 dark:border-gray-600 rounded-lg p-3 sm:p-4 bg-gray-50 dark:bg-gray-700/50'>
                             <div className='flex items-center justify-between mb-2'>
-                              <label className='flex items-center text-xs sm:text-sm font-medium text-gray-700'>
+                              <label className='flex items-center text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300'>
                                 <input
                                   type='checkbox'
                                   className='mr-2 h-3 w-3 sm:h-4 sm:w-4'
@@ -2151,7 +2151,7 @@ const DataEntry = () => {
                             </div>
                             {waterSystemFormData.boiler_sodium_chloride_enabled && (
                               <div>
-                                <label className='block text-xs text-gray-600 mb-1'>Sodium Chloride Max (ppm)</label>
+                                <label className='block text-xs text-gray-600 dark:text-gray-400 mb-1'>Sodium Chloride Max (ppm)</label>
                                 <input
                                   type='number'
                                   step='0.01'
@@ -2169,9 +2169,9 @@ const DataEntry = () => {
                           </div>
 
                           {/* Dissolved Oxygen (DO) */}
-                          <div className='border rounded-lg p-3 sm:p-4 bg-gray-50'>
+                          <div className='border border-gray-200 dark:border-gray-600 rounded-lg p-3 sm:p-4 bg-gray-50 dark:bg-gray-700/50'>
                             <div className='flex items-center justify-between mb-2'>
-                              <label className='flex items-center text-xs sm:text-sm font-medium text-gray-700'>
+                              <label className='flex items-center text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300'>
                                 <input
                                   type='checkbox'
                                   className='mr-2 h-3 w-3 sm:h-4 sm:w-4'
@@ -2189,7 +2189,7 @@ const DataEntry = () => {
                             {waterSystemFormData.boiler_do_enabled && (
                               <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'>
                                 <div>
-                                  <label className='block text-xs text-gray-600 mb-1'>DO Min (ppm)</label>
+                                  <label className='block text-xs text-gray-600 dark:text-gray-400 mb-1'>DO Min (ppm)</label>
                                   <input
                                     type='number'
                                     step='0.01'
@@ -2204,7 +2204,7 @@ const DataEntry = () => {
                                   />
                                 </div>
                                 <div>
-                                  <label className='block text-xs text-gray-600 mb-1'>DO Max (ppm)</label>
+                                  <label className='block text-xs text-gray-600 dark:text-gray-400 mb-1'>DO Max (ppm)</label>
                                   <input
                                     type='number'
                                     step='0.01'
@@ -2223,9 +2223,9 @@ const DataEntry = () => {
                           </div>
 
                           {/* Phosphate */}
-                          <div className='border rounded-lg p-3 sm:p-4 bg-gray-50'>
+                          <div className='border border-gray-200 dark:border-gray-600 rounded-lg p-3 sm:p-4 bg-gray-50 dark:bg-gray-700/50'>
                             <div className='flex items-center justify-between mb-2'>
-                              <label className='flex items-center text-xs sm:text-sm font-medium text-gray-700'>
+                              <label className='flex items-center text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300'>
                                 <input
                                   type='checkbox'
                                   className='mr-2 h-3 w-3 sm:h-4 sm:w-4'
@@ -2243,7 +2243,7 @@ const DataEntry = () => {
                             {waterSystemFormData.boiler_phosphate_enabled && (
                               <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'>
                                 <div>
-                                  <label className='block text-xs text-gray-600 mb-1'>Phosphate Min (ppm)</label>
+                                  <label className='block text-xs text-gray-600 dark:text-gray-400 mb-1'>Phosphate Min (ppm)</label>
                                   <input
                                     type='number'
                                     step='0.01'
@@ -2258,7 +2258,7 @@ const DataEntry = () => {
                                   />
                                 </div>
                                 <div>
-                                  <label className='block text-xs text-gray-600 mb-1'>Phosphate Max (ppm)</label>
+                                  <label className='block text-xs text-gray-600 dark:text-gray-400 mb-1'>Phosphate Max (ppm)</label>
                                   <input
                                     type='number'
                                     step='0.01'
@@ -2277,9 +2277,9 @@ const DataEntry = () => {
                           </div>
 
                           {/* Iron */}
-                          <div className='border rounded-lg p-3 sm:p-4 bg-gray-50'>
+                          <div className='border border-gray-200 dark:border-gray-600 rounded-lg p-3 sm:p-4 bg-gray-50 dark:bg-gray-700/50'>
                             <div className='flex items-center justify-between mb-2'>
-                              <label className='flex items-center text-xs sm:text-sm font-medium text-gray-700'>
+                              <label className='flex items-center text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300'>
                                 <input
                                   type='checkbox'
                                   className='mr-2 h-3 w-3 sm:h-4 sm:w-4'
@@ -2296,7 +2296,7 @@ const DataEntry = () => {
                             </div>
                             {waterSystemFormData.boiler_iron_enabled && (
                               <div>
-                                <label className='block text-xs text-gray-600 mb-1'>Iron Max (ppm)</label>
+                                <label className='block text-xs text-gray-600 dark:text-gray-400 mb-1'>Iron Max (ppm)</label>
                                 <input
                                   type='number'
                                   step='0.1'
@@ -2319,11 +2319,11 @@ const DataEntry = () => {
                 )}
 
                 {/* Submit Buttons */}
-                <div className='flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 mt-4 sm:mt-6 border-t border-gray-200 pt-4 sm:pt-5'>
+                <div className='flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 mt-4 sm:mt-6 border-t border-gray-200 dark:border-gray-700 pt-4 sm:pt-5'>
                   <button
                     type='button'
                     onClick={handleWaterSystemCancel}
-                    className='inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors w-full sm:w-auto'
+                    className='inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:focus:ring-offset-gray-800 transition-colors w-full sm:w-auto'
                   >
                     Cancel
                   </button>
@@ -2333,7 +2333,7 @@ const DataEntry = () => {
                       createWaterSystemMutation.isLoading ||
                       updateWaterSystemMutation.isLoading
                     }
-                    className='inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium text-white bg-primary-600 border border-transparent rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors w-full sm:w-auto'
+                    className='inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium text-white bg-primary-600 dark:bg-primary-500 border border-transparent rounded-md hover:bg-primary-700 dark:hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors w-full sm:w-auto'
                   >
                     {(createWaterSystemMutation.isLoading || updateWaterSystemMutation.isLoading) ? (
                       <>
@@ -2355,15 +2355,15 @@ const DataEntry = () => {
 
         {/* Assign Users to Water System Modal */}
         {assigningUsersToWaterSystem && (
-          <div className='fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-[60] p-2 sm:p-4 overflow-y-auto'>
-            <div className='bg-white rounded-lg p-3 sm:p-4 md:p-6 w-full max-w-lg max-h-[95vh] my-4 overflow-y-auto'>
+                  <div className='fixed inset-0 bg-gray-600 bg-opacity-50 dark:bg-gray-900 dark:bg-opacity-70 flex items-center justify-center z-[60] p-2 sm:p-4 overflow-y-auto'>
+            <div className='bg-white dark:bg-gray-800 rounded-lg p-3 sm:p-4 md:p-6 w-full max-w-lg max-h-[95vh] my-4 overflow-y-auto'>
               <div className='flex justify-between items-center mb-3 sm:mb-4'>
-                <h3 className='text-base sm:text-lg font-medium text-gray-900'>
+                <h3 className='text-base sm:text-lg font-medium text-gray-900 dark:text-gray-100'>
                   Manage Users for {assigningUsersToWaterSystem.name}
                 </h3>
                 <button
                   onClick={handleAssignUsersToWaterSystemCancel}
-                  className='text-gray-400 hover:text-gray-600 p-1'
+                  className='text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 p-1'
                   aria-label="Close"
                 >
                   <X className='h-4 w-4 sm:h-5 sm:w-5' />
@@ -2373,24 +2373,24 @@ const DataEntry = () => {
               <div className='space-y-4 sm:space-y-6'>
                 {/* Section 1: Currently Assigned Users (with delete option) */}
                 <div>
-                  <label className='block text-sm font-medium text-gray-700 mb-2'>
+                  <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'>
                     Currently Assigned Users
                   </label>
                   {usersLoading ? (
                     <div className='text-sm text-gray-500'>Loading users...</div>
                   ) : assignWaterSystemUserIds.length === 0 ? (
-                    <div className='text-sm text-gray-400 italic py-4 bg-gray-50 rounded border border-gray-200 text-center'>
+                    <div className='text-sm text-gray-400 dark:text-gray-500 italic py-4 bg-gray-50 dark:bg-gray-700/50 rounded border border-gray-200 dark:border-gray-600 text-center'>
                       No users assigned
                     </div>
                   ) : (
                     <div className='space-y-2'>
-                      <div className='max-h-48 overflow-y-auto border border-gray-200 rounded-md p-3 bg-gray-50'>
+                      <div className='max-h-48 overflow-y-auto border border-gray-200 dark:border-gray-600 rounded-md p-3 bg-gray-50 dark:bg-gray-700/50'>
                         {assignWaterSystemUserIds.map((userId) => {
                           const userObj = users.find(u => u.id === userId);
                           if (!userObj) return null;
                           const isSelected = selectedUsersToDelete.includes(userId);
                           return (
-                            <div key={userId} className='flex items-center space-x-2 py-2 px-2 hover:bg-white rounded transition-colors'>
+                            <div key={userId} className='flex items-center space-x-2 py-2 px-2 hover:bg-white dark:hover:bg-gray-600 rounded transition-colors'>
                               <input
                                 type='checkbox'
                                 checked={isSelected}
@@ -2401,9 +2401,9 @@ const DataEntry = () => {
                                     setSelectedUsersToDelete(selectedUsersToDelete.filter(id => id !== userId));
                                   }
                                 }}
-                                className='h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded'
+                                className='h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded'
                               />
-                              <span className='text-sm text-gray-700 flex-1'>
+                              <span className='text-sm text-gray-700 dark:text-gray-300 flex-1'>
                                 {userObj.first_name} {userObj.last_name} ({userObj.email})
                               </span>
                             </div>
@@ -2427,7 +2427,7 @@ const DataEntry = () => {
 
                 {/* Section 2: Add New Users */}
                 <div>
-                  <label className='block text-sm font-medium text-gray-700 mb-2'>
+                  <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'>
                     Add Users
                   </label>
                   {usersError ? (
@@ -2503,24 +2503,24 @@ const DataEntry = () => {
          {assigningUser && !user?.can_create_plants && (
            <div className='card mb-4 sm:mb-6 relative'>
              {(updatePlantMutation.isLoading) && (
-               <div className='absolute inset-0 z-50 flex items-center justify-center bg-white/80 rounded-lg'>
+               <div className='absolute inset-0 z-50 flex items-center justify-center bg-white/80 dark:bg-gray-800/80 rounded-lg'>
                  <div className='flex flex-col items-center'>
                    <div className='animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-primary-600 mb-3 sm:mb-4'></div>
-                   <p className='text-sm sm:text-base text-gray-700 font-medium'>
+                   <p className='text-sm sm:text-base text-gray-700 dark:text-gray-300 font-medium'>
                      Assigning user...
                    </p>
                  </div>
                </div>
              )}
              <div className='card-header'>
-               <h3 className='text-base sm:text-lg font-medium text-gray-900'>
+               <h3 className='text-base sm:text-lg font-medium text-gray-900 dark:text-gray-100'>
                  Assign/Change User - {assigningUser.name}
                </h3>
              </div>
              <div className='card-body p-4 sm:p-6'>
                <form onSubmit={handleAssignUserSubmit} className='space-y-3 sm:space-y-4'>
                  <div>
-                   <label className='block text-xs sm:text-sm font-medium text-gray-700 mb-2'>
+                   <label className='block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'>
                      Select Plant Owner *
                    </label>
                    {usersLoading ? (
@@ -2542,7 +2542,7 @@ const DataEntry = () => {
                          required={true}
                        />
                      )}
-                     <p className='text-xs text-gray-500 mt-2'>
+                     <p className='text-xs text-gray-500 dark:text-gray-400 mt-2'>
                        Select one or more users who will be assigned as owners of this plant.
                      </p>
                  </div>
@@ -2581,20 +2581,20 @@ const DataEntry = () => {
 
         {/* Manage Water Systems Modal */}
         {managingWaterSystems && (
-          <div className='fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4 overflow-y-auto'>
-            <div className='bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[95vh] my-4 overflow-hidden flex flex-col'>
-              <div className='px-3 sm:px-4 md:px-6 py-3 sm:py-4 border-b border-gray-200 flex items-center justify-between'>
+          <div className='fixed inset-0 bg-gray-600 bg-opacity-50 dark:bg-gray-900 dark:bg-opacity-70 flex items-center justify-center z-50 p-2 sm:p-4 overflow-y-auto'>
+            <div className='bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl max-h-[95vh] my-4 overflow-hidden flex flex-col'>
+              <div className='px-3 sm:px-4 md:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between'>
                 <div className='flex-1 min-w-0 pr-2'>
-                  <h3 className='text-base sm:text-lg font-semibold text-gray-900 truncate'>
+                  <h3 className='text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100 truncate'>
                     Manage {managingWaterSystems.systemType === 'cooling' ? 'Cooling' : 'Boiler'} Water Systems
                   </h3>
-                  <p className='text-xs sm:text-sm text-gray-500 mt-1 truncate'>
+                  <p className='text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1 truncate'>
                     {managingWaterSystems.plant.name}
                   </p>
                 </div>
                 <button
                   onClick={handleCloseWaterSystemsModal}
-                  className='text-gray-400 hover:text-gray-600 transition-colors p-1 flex-shrink-0'
+                  className='text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors p-1 flex-shrink-0'
                   aria-label="Close"
                 >
                   <X className='h-4 w-4 sm:h-5 sm:w-5' />
@@ -2620,10 +2620,10 @@ const DataEntry = () => {
                           <div className='flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0 mb-3 sm:mb-4'>
                             <div className='flex items-center space-x-2'>
                               <Droplets className='h-4 w-4 sm:h-5 sm:w-5 text-blue-500' />
-                              <h4 className='text-sm sm:text-base font-semibold text-gray-900'>
+                              <h4 className='text-sm sm:text-base font-semibold text-gray-900 dark:text-gray-100'>
                                 Cooling Water Systems
                               </h4>
-                              <span className='text-xs sm:text-sm text-gray-500'>
+                              <span className='text-xs sm:text-sm text-gray-500 dark:text-gray-400'>
                                 ({coolingSystems.length})
                               </span>
                             </div>
@@ -2647,9 +2647,9 @@ const DataEntry = () => {
                             )}
                           </div>
                           {coolingSystems.length === 0 ? (
-                            <div className='text-center py-6 sm:py-8 bg-gray-50 rounded-lg border border-gray-200'>
-                              <Droplets className='h-6 w-6 sm:h-8 sm:w-8 text-gray-400 mx-auto mb-2' />
-                              <p className='text-xs sm:text-sm text-gray-500'>No cooling water systems</p>
+                            <div className='text-center py-6 sm:py-8 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600'>
+                              <Droplets className='h-6 w-6 sm:h-8 sm:w-8 text-gray-400 dark:text-gray-500 mx-auto mb-2' />
+                              <p className='text-xs sm:text-sm text-gray-500 dark:text-gray-400'>No cooling water systems</p>
                             </div>
                           ) : (
                             <div className='space-y-3 sm:space-y-4'>
@@ -2679,7 +2679,7 @@ const DataEntry = () => {
                                 return (
                                   <div
                                     key={ws.id}
-                                    className='bg-white border border-gray-200 rounded-lg hover:border-blue-300 hover:shadow-md transition-all overflow-hidden'
+                                    className='bg-white dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg hover:border-blue-300 dark:hover:border-blue-500 hover:shadow-md transition-all overflow-hidden'
                                   >
                                     {/* Mobile Layout - Stacked */}
                                     <div className='md:hidden p-4'>
@@ -2687,26 +2687,26 @@ const DataEntry = () => {
                                       <div className='flex items-start justify-between mb-3'>
                                         <div className='flex items-start space-x-3 flex-1 min-w-0'>
                                           <div className='flex-shrink-0 mt-0.5'>
-                                            <div className='h-10 w-10 rounded-lg bg-blue-50 flex items-center justify-center'>
-                                              <Droplets className='h-5 w-5 text-blue-600' />
+                                            <div className='h-10 w-10 rounded-lg bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center'>
+                                              <Droplets className='h-5 w-5 text-blue-600 dark:text-blue-400' />
                                             </div>
                                           </div>
                                           <div className='flex-1 min-w-0'>
                                             <div className='flex items-center gap-2 flex-wrap mb-1'>
-                                              <h5 className='text-sm font-semibold text-gray-900 truncate'>
+                                              <h5 className='text-sm font-semibold text-gray-900 dark:text-gray-100 truncate'>
                                                 {ws.name}
                                               </h5>
                                               <span
                                                 className={`inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full flex-shrink-0 ${
                                                   ws.is_active
-                                                    ? "bg-green-100 text-green-700"
-                                                    : "bg-red-100 text-red-700"
+                                                    ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300"
+                                                    : "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300"
                                                 }`}
                                               >
                                                 {ws.is_active ? "Active" : "Inactive"}
                                               </span>
                                             </div>
-                                            <p className='text-xs text-gray-500'>
+                                            <p className='text-xs text-gray-500 dark:text-gray-400'>
                                               Cooling Water System
                                             </p>
                                           </div>
@@ -2714,9 +2714,9 @@ const DataEntry = () => {
                                       </div>
 
                                       {/* Users Section */}
-                                      <div className='mb-4 pb-4 border-b border-gray-100'>
+                                      <div className='mb-4 pb-4 border-b border-gray-100 dark:border-gray-600'>
                                         <div className='flex items-center justify-between'>
-                                          <span className='text-xs font-medium text-gray-500 uppercase tracking-wide mb-2 block'>
+                                          <span className='text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2 block'>
                                             Assigned Users
                                           </span>
                                         </div>
@@ -2725,19 +2725,19 @@ const DataEntry = () => {
                                             {displayedUsers.map((user) => (
                                               <span
                                                 key={user.id}
-                                                className='inline-flex items-center px-2.5 py-1 text-xs font-medium bg-blue-50 text-blue-700 rounded-md border border-blue-200'
+                                                className='inline-flex items-center px-2.5 py-1 text-xs font-medium bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-md border border-blue-200 dark:border-blue-700'
                                               >
                                                 {user.name}
                                               </span>
                                             ))}
                                             {remainingCount > 0 && (
-                                              <span className='inline-flex items-center px-2.5 py-1 text-xs font-medium text-gray-600 bg-gray-50 rounded-md border border-gray-200'>
+                                              <span className='inline-flex items-center px-2.5 py-1 text-xs font-medium text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-700 rounded-md border border-gray-200 dark:border-gray-600'>
                                                 +{remainingCount} more
                                               </span>
                                             )}
                                           </div>
                                         ) : (
-                                          <span className='text-xs text-gray-400 italic'>
+                                          <span className='text-xs text-gray-400 dark:text-gray-500 italic'>
                                             No users assigned
                                           </span>
                                         )}
@@ -2752,7 +2752,7 @@ const DataEntry = () => {
                                               onClick={() => {
                                                 handleAssignUsersToWaterSystem(ws);
                                               }}
-                                              className='flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-md transition-colors'
+                                              className='flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 border border-blue-200 dark:border-blue-700 rounded-md transition-colors'
                                               title='Assign Users'
                                             >
                                               <UserPlus className='h-4 w-4 mr-1.5' />
@@ -2765,7 +2765,7 @@ const DataEntry = () => {
                                               onClick={() => {
                                                 handleWaterSystemEdit(ws);
                                               }}
-                                              className='flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-md transition-colors'
+                                              className='flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 border border-blue-200 dark:border-blue-700 rounded-md transition-colors'
                                               title='Edit Water System'
                                             >
                                               <Edit className='h-4 w-4 mr-1.5' />
@@ -2775,7 +2775,7 @@ const DataEntry = () => {
                                               onClick={() => {
                                                 handleWaterSystemDelete(ws);
                                               }}
-                                              className='flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 rounded-md transition-colors'
+                                              className='flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 border border-red-200 dark:border-red-700 rounded-md transition-colors'
                                               title='Delete Water System'
                                             >
                                               <Trash2 className='h-4 w-4 mr-1.5' />
@@ -2791,26 +2791,26 @@ const DataEntry = () => {
                                       {/* Left: Icon and Name/Status */}
                                       <div className='flex items-center space-x-3 flex-1 min-w-0'>
                                         <div className='flex-shrink-0'>
-                                          <div className='h-10 w-10 rounded-lg bg-blue-50 flex items-center justify-center'>
-                                            <Droplets className='h-5 w-5 text-blue-600' />
+                                          <div className='h-10 w-10 rounded-lg bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center'>
+                                            <Droplets className='h-5 w-5 text-blue-600 dark:text-blue-400' />
                                           </div>
                                         </div>
                                         <div className='flex-1 min-w-0'>
                                           <div className='flex items-center gap-2 flex-wrap'>
-                                            <h5 className='text-sm font-semibold text-gray-900 truncate'>
+                                            <h5 className='text-sm font-semibold text-gray-900 dark:text-gray-100 truncate'>
                                               {ws.name}
                                             </h5>
                                             <span
                                               className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full flex-shrink-0 ${
                                                 ws.is_active
-                                                  ? "bg-green-100 text-green-700"
-                                                  : "bg-red-100 text-red-700"
+                                                  ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300"
+                                                  : "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300"
                                               }`}
                                             >
                                               {ws.is_active ? "Active" : "Inactive"}
                                             </span>
                                           </div>
-                                          <p className='text-xs text-gray-500 mt-0.5'>
+                                          <p className='text-xs text-gray-500 dark:text-gray-400 mt-0.5'>
                                             Cooling Water System
                                           </p>
                                         </div>
@@ -2823,19 +2823,19 @@ const DataEntry = () => {
                                             {displayedUsers.map((user) => (
                                               <span
                                                 key={user.id}
-                                                className='inline-flex items-center px-2 py-1 text-xs font-medium bg-blue-50 text-blue-700 rounded border border-blue-200 whitespace-nowrap'
+                                                className='inline-flex items-center px-2 py-1 text-xs font-medium bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded border border-blue-200 dark:border-blue-700 whitespace-nowrap'
                                               >
                                                 {user.name}
                                               </span>
                                             ))}
                                             {remainingCount > 0 && (
-                                              <span className='inline-flex items-center px-2 py-1 text-xs font-medium text-gray-600 whitespace-nowrap'>
+                                              <span className='inline-flex items-center px-2 py-1 text-xs font-medium text-gray-600 dark:text-gray-400 whitespace-nowrap'>
                                                 ... +{remainingCount} more
                                               </span>
                                             )}
                                           </div>
                                         ) : (
-                                          <span className='text-xs text-gray-400 italic'>
+                                          <span className='text-xs text-gray-400 dark:text-gray-500 italic'>
                                             No users
                                           </span>
                                         )}
@@ -2850,7 +2850,7 @@ const DataEntry = () => {
                                               onClick={() => {
                                                 handleAssignUsersToWaterSystem(ws);
                                               }}
-                                              className='inline-flex items-center px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors'
+                                              className='inline-flex items-center px-3 py-1.5 text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-md transition-colors'
                                               title='Assign Users'
                                             >
                                               <UserPlus className='h-4 w-4 mr-1' />
@@ -2863,7 +2863,7 @@ const DataEntry = () => {
                                               onClick={() => {
                                                 handleWaterSystemEdit(ws);
                                               }}
-                                              className='inline-flex items-center px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors'
+                                              className='inline-flex items-center px-3 py-1.5 text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-md transition-colors'
                                               title='Edit Water System'
                                             >
                                               <Edit className='h-4 w-4 mr-1' />
@@ -2873,7 +2873,7 @@ const DataEntry = () => {
                                               onClick={() => {
                                                 handleWaterSystemDelete(ws);
                                               }}
-                                              className='inline-flex items-center px-3 py-1.5 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-md transition-colors'
+                                              className='inline-flex items-center px-3 py-1.5 text-sm font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 rounded-md transition-colors'
                                               title='Delete Water System'
                                             >
                                               <Trash2 className='h-4 w-4 mr-1' />
@@ -2898,10 +2898,10 @@ const DataEntry = () => {
                           <div className='flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0 mb-3 sm:mb-4'>
                             <div className='flex items-center space-x-2'>
                               <Thermometer className='h-4 w-4 sm:h-5 sm:w-5 text-red-500' />
-                              <h4 className='text-sm sm:text-base font-semibold text-gray-900'>
+                              <h4 className='text-sm sm:text-base font-semibold text-gray-900 dark:text-gray-100'>
                                 Boiler Water Systems
                               </h4>
-                              <span className='text-xs sm:text-sm text-gray-500'>
+                              <span className='text-xs sm:text-sm text-gray-500 dark:text-gray-400'>
                                 ({boilerSystems.length})
                               </span>
                             </div>
@@ -2925,9 +2925,9 @@ const DataEntry = () => {
                             )}
                           </div>
                           {boilerSystems.length === 0 ? (
-                            <div className='text-center py-6 sm:py-8 bg-gray-50 rounded-lg border border-gray-200'>
-                              <Thermometer className='h-6 w-6 sm:h-8 sm:w-8 text-gray-400 mx-auto mb-2' />
-                              <p className='text-xs sm:text-sm text-gray-500'>No boiler water systems</p>
+                            <div className='text-center py-6 sm:py-8 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600'>
+                              <Thermometer className='h-6 w-6 sm:h-8 sm:w-8 text-gray-400 dark:text-gray-500 mx-auto mb-2' />
+                              <p className='text-xs sm:text-sm text-gray-500 dark:text-gray-400'>No boiler water systems</p>
                             </div>
                           ) : (
                             <div className='space-y-3 sm:space-y-4'>
@@ -2957,7 +2957,7 @@ const DataEntry = () => {
                                 return (
                                   <div
                                     key={ws.id}
-                                    className='bg-white border border-gray-200 rounded-lg hover:border-red-300 hover:shadow-md transition-all overflow-hidden'
+                                    className='bg-white dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg hover:border-red-300 dark:hover:border-red-500 hover:shadow-md transition-all overflow-hidden'
                                   >
                                     {/* Mobile Layout - Stacked */}
                                     <div className='md:hidden p-4'>
@@ -2965,26 +2965,26 @@ const DataEntry = () => {
                                       <div className='flex items-start justify-between mb-3'>
                                         <div className='flex items-start space-x-3 flex-1 min-w-0'>
                                           <div className='flex-shrink-0 mt-0.5'>
-                                            <div className='h-10 w-10 rounded-lg bg-red-50 flex items-center justify-center'>
-                                              <Thermometer className='h-5 w-5 text-red-600' />
+                                            <div className='h-10 w-10 rounded-lg bg-red-50 dark:bg-red-900/30 flex items-center justify-center'>
+                                              <Thermometer className='h-5 w-5 text-red-600 dark:text-red-400' />
                                             </div>
                                           </div>
                                           <div className='flex-1 min-w-0'>
                                             <div className='flex items-center gap-2 flex-wrap mb-1'>
-                                              <h5 className='text-sm font-semibold text-gray-900 truncate'>
+                                              <h5 className='text-sm font-semibold text-gray-900 dark:text-gray-100 truncate'>
                                                 {ws.name}
                                               </h5>
                                               <span
                                                 className={`inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full flex-shrink-0 ${
                                                   ws.is_active
-                                                    ? "bg-green-100 text-green-700"
-                                                    : "bg-red-100 text-red-700"
+                                                    ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300"
+                                                    : "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300"
                                                 }`}
                                               >
                                                 {ws.is_active ? "Active" : "Inactive"}
                                               </span>
                                             </div>
-                                            <p className='text-xs text-gray-500'>
+                                            <p className='text-xs text-gray-500 dark:text-gray-400'>
                                               Boiler Water System
                                             </p>
                                           </div>
@@ -2992,9 +2992,9 @@ const DataEntry = () => {
                                       </div>
 
                                       {/* Users Section */}
-                                      <div className='mb-4 pb-4 border-b border-gray-100'>
+                                      <div className='mb-4 pb-4 border-b border-gray-100 dark:border-gray-600'>
                                         <div className='flex items-center justify-between'>
-                                          <span className='text-xs font-medium text-gray-500 uppercase tracking-wide mb-2 block'>
+                                          <span className='text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2 block'>
                                             Assigned Users
                                           </span>
                                         </div>
@@ -3003,19 +3003,19 @@ const DataEntry = () => {
                                             {displayedUsers.map((user) => (
                                               <span
                                                 key={user.id}
-                                                className='inline-flex items-center px-2.5 py-1 text-xs font-medium bg-red-50 text-red-700 rounded-md border border-red-200'
+                                                className='inline-flex items-center px-2.5 py-1 text-xs font-medium bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-md border border-red-200 dark:border-red-700'
                                               >
                                                 {user.name}
                                               </span>
                                             ))}
                                             {remainingCount > 0 && (
-                                              <span className='inline-flex items-center px-2.5 py-1 text-xs font-medium text-gray-600 bg-gray-50 rounded-md border border-gray-200'>
+                                              <span className='inline-flex items-center px-2.5 py-1 text-xs font-medium text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-700 rounded-md border border-gray-200 dark:border-gray-600'>
                                                 +{remainingCount} more
                                               </span>
                                             )}
                                           </div>
                                         ) : (
-                                          <span className='text-xs text-gray-400 italic'>
+                                          <span className='text-xs text-gray-400 dark:text-gray-500 italic'>
                                             No users assigned
                                           </span>
                                         )}
@@ -3030,7 +3030,7 @@ const DataEntry = () => {
                                               onClick={() => {
                                                 handleAssignUsersToWaterSystem(ws);
                                               }}
-                                              className='flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-md transition-colors'
+                                              className='flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 border border-blue-200 dark:border-blue-700 rounded-md transition-colors'
                                               title='Assign Users'
                                             >
                                               <UserPlus className='h-4 w-4 mr-1.5' />
@@ -3043,7 +3043,7 @@ const DataEntry = () => {
                                               onClick={() => {
                                                 handleWaterSystemEdit(ws);
                                               }}
-                                              className='flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-md transition-colors'
+                                              className='flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 border border-blue-200 dark:border-blue-700 rounded-md transition-colors'
                                               title='Edit Water System'
                                             >
                                               <Edit className='h-4 w-4 mr-1.5' />
@@ -3053,7 +3053,7 @@ const DataEntry = () => {
                                               onClick={() => {
                                                 handleWaterSystemDelete(ws);
                                               }}
-                                              className='flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 rounded-md transition-colors'
+                                              className='flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 border border-red-200 dark:border-red-700 rounded-md transition-colors'
                                               title='Delete Water System'
                                             >
                                               <Trash2 className='h-4 w-4 mr-1.5' />
@@ -3069,26 +3069,26 @@ const DataEntry = () => {
                                       {/* Left: Icon and Name/Status */}
                                       <div className='flex items-center space-x-3 flex-1 min-w-0'>
                                         <div className='flex-shrink-0'>
-                                          <div className='h-10 w-10 rounded-lg bg-red-50 flex items-center justify-center'>
-                                            <Thermometer className='h-5 w-5 text-red-600' />
+                                          <div className='h-10 w-10 rounded-lg bg-red-50 dark:bg-red-900/30 flex items-center justify-center'>
+                                            <Thermometer className='h-5 w-5 text-red-600 dark:text-red-400' />
                                           </div>
                                         </div>
                                         <div className='flex-1 min-w-0'>
                                           <div className='flex items-center gap-2 flex-wrap'>
-                                            <h5 className='text-sm font-semibold text-gray-900 truncate'>
+                                            <h5 className='text-sm font-semibold text-gray-900 dark:text-gray-100 truncate'>
                                               {ws.name}
                                             </h5>
                                             <span
                                               className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full flex-shrink-0 ${
                                                 ws.is_active
-                                                  ? "bg-green-100 text-green-700"
-                                                  : "bg-red-100 text-red-700"
+                                                  ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300"
+                                                  : "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300"
                                               }`}
                                             >
                                               {ws.is_active ? "Active" : "Inactive"}
                                             </span>
                                           </div>
-                                          <p className='text-xs text-gray-500 mt-0.5'>
+                                          <p className='text-xs text-gray-500 dark:text-gray-400 mt-0.5'>
                                             Boiler Water System
                                           </p>
                                         </div>
@@ -3101,19 +3101,19 @@ const DataEntry = () => {
                                             {displayedUsers.map((user) => (
                                               <span
                                                 key={user.id}
-                                                className='inline-flex items-center px-2 py-1 text-xs font-medium bg-red-50 text-red-700 rounded border border-red-200 whitespace-nowrap'
+                                                className='inline-flex items-center px-2 py-1 text-xs font-medium bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded border border-red-200 dark:border-red-700 whitespace-nowrap'
                                               >
                                                 {user.name}
                                               </span>
                                             ))}
                                             {remainingCount > 0 && (
-                                              <span className='inline-flex items-center px-2 py-1 text-xs font-medium text-gray-600 whitespace-nowrap'>
+                                              <span className='inline-flex items-center px-2 py-1 text-xs font-medium text-gray-600 dark:text-gray-400 whitespace-nowrap'>
                                                 ... +{remainingCount} more
                                               </span>
                                             )}
                                           </div>
                                         ) : (
-                                          <span className='text-xs text-gray-400 italic'>
+                                          <span className='text-xs text-gray-400 dark:text-gray-500 italic'>
                                             No users
                                           </span>
                                         )}
@@ -3128,7 +3128,7 @@ const DataEntry = () => {
                                               onClick={() => {
                                                 handleAssignUsersToWaterSystem(ws);
                                               }}
-                                              className='inline-flex items-center px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors'
+                                              className='inline-flex items-center px-3 py-1.5 text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-md transition-colors'
                                               title='Assign Users'
                                             >
                                               <UserPlus className='h-4 w-4 mr-1' />
@@ -3141,7 +3141,7 @@ const DataEntry = () => {
                                               onClick={() => {
                                                 handleWaterSystemEdit(ws);
                                               }}
-                                              className='inline-flex items-center px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors'
+                                              className='inline-flex items-center px-3 py-1.5 text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-md transition-colors'
                                               title='Edit Water System'
                                             >
                                               <Edit className='h-4 w-4 mr-1' />
@@ -3151,7 +3151,7 @@ const DataEntry = () => {
                                               onClick={() => {
                                                 handleWaterSystemDelete(ws);
                                               }}
-                                              className='inline-flex items-center px-3 py-1.5 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-md transition-colors'
+                                              className='inline-flex items-center px-3 py-1.5 text-sm font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 rounded-md transition-colors'
                                               title='Delete Water System'
                                             >
                                               <Trash2 className='h-4 w-4 mr-1' />
@@ -3173,10 +3173,10 @@ const DataEntry = () => {
                 })()}
               </div>
               
-              <div className='px-3 sm:px-4 md:px-6 py-3 sm:py-4 border-t border-gray-200 flex justify-end'>
+              <div className='px-3 sm:px-4 md:px-6 py-3 sm:py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end'>
                 <button
                   onClick={handleCloseWaterSystemsModal}
-                  className='px-3 py-2 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors w-full sm:w-auto'
+                  className='px-3 py-2 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors w-full sm:w-auto'
                 >
                   Close
                 </button>
@@ -3189,7 +3189,7 @@ const DataEntry = () => {
         <div className='card'>
           <div className='card-header'>
             <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0'>
-              <h3 className='text-base sm:text-lg font-medium text-gray-900'>Plants</h3>
+              <h3 className='text-base sm:text-lg font-medium text-gray-900 dark:text-gray-100'>Plants</h3>
               <div className='flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:space-x-4 w-full sm:w-auto'>
                 <input
                   type='text'
@@ -3234,37 +3234,37 @@ const DataEntry = () => {
             ) : (
               <>
                 <div className='overflow-x-auto -mx-2 sm:mx-0'>
-                  <table className='min-w-full divide-y divide-gray-200'>
-                    <thead className='bg-gray-50 sticky top-0 z-10'>
+                  <table className='min-w-full divide-y divide-gray-200 dark:divide-gray-700'>
+                    <thead className='bg-gray-50 dark:bg-gray-800 sticky top-0 z-10'>
                       <tr>
-                        <th className='px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                        <th className='px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider'>
                           Plant Name
                         </th>
-                        <th className='px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                        <th className='px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider'>
                           Status
                         </th>
-                        <th className='hidden sm:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                        <th className='hidden sm:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider'>
                           Cooling Water
                         </th>
-                        <th className='hidden sm:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                        <th className='hidden sm:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider'>
                           Boiler Water
                         </th>
-                        <th className='hidden md:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                        <th className='hidden md:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider'>
                           Created
                         </th>
                         {user?.can_create_plants && (
-                          <th className='hidden lg:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                          <th className='hidden lg:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider'>
                             Owner
                           </th>
                         )}
                         {user?.can_create_plants && (
-                          <th className='px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                          <th className='px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider'>
                             Actions
                           </th>
                         )}
                       </tr>
                     </thead>
-                    <tbody className='bg-white divide-y divide-gray-200'>
+                    <tbody className='bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700'>
                       {plantsData.results.map((plant) => {
                         const plantWaterSystems = allWaterSystems.filter(ws => 
                           (typeof ws.plant === 'object' ? ws.plant.id : ws.plant) === plant.id
@@ -3274,38 +3274,38 @@ const DataEntry = () => {
                         
                         return (
                           <React.Fragment key={plant.id}>
-                            <tr className='hover:bg-gray-50'>
+                            <tr className='hover:bg-gray-50 dark:hover:bg-gray-700/50'>
                               <td className='px-3 sm:px-6 py-3 sm:py-4'>
-                                <div className='text-xs sm:text-sm font-medium text-gray-900 truncate max-w-[150px] sm:max-w-none'>
+                                <div className='text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-100 truncate max-w-[150px] sm:max-w-none'>
                                   {plant.name}
                                 </div>
                                 <div className='sm:hidden mt-1 space-y-1'>
                                   <div className='flex items-center space-x-2'>
                                     <Droplets className='h-3 w-3 text-blue-500' />
-                                    <span className='text-xs text-gray-700'>
+                                    <span className='text-xs text-gray-700 dark:text-gray-300'>
                                       Cooling: {coolingSystems.length}
                                     </span>
                                     <button
                                       onClick={() => handleManageWaterSystems(plant, 'cooling')}
-                                      className='text-blue-600 hover:text-blue-700 text-xs font-medium ml-1'
+                                      className='text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 text-xs font-medium ml-1'
                                     >
                                       Manage
                                     </button>
                                   </div>
                                   <div className='flex items-center space-x-2'>
                                     <Thermometer className='h-3 w-3 text-red-500' />
-                                    <span className='text-xs text-gray-700'>
+                                    <span className='text-xs text-gray-700 dark:text-gray-300'>
                                       Boiler: {boilerSystems.length}
                                     </span>
                                     <button
                                       onClick={() => handleManageWaterSystems(plant, 'boiler')}
-                                      className='text-red-600 hover:text-red-700 text-xs font-medium ml-1'
+                                      className='text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 text-xs font-medium ml-1'
                                     >
                                       Manage
                                     </button>
                                   </div>
                                   {user?.can_create_plants && plant.owner && (
-                                    <div className='text-xs text-gray-500 mt-1'>
+                                    <div className='text-xs text-gray-500 dark:text-gray-400 mt-1'>
                                       Owner: {plant.owner.first_name} {plant.owner.last_name}
                                     </div>
                                   )}
@@ -3315,8 +3315,8 @@ const DataEntry = () => {
                                 <span
                                   className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                                     plant.is_active
-                                      ? "bg-green-100 text-green-800"
-                                      : "bg-red-100 text-red-800"
+                                      ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300"
+                                      : "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300"
                                   }`}
                                 >
                                   {plant.is_active ? "Active" : "Inactive"}
@@ -3325,12 +3325,12 @@ const DataEntry = () => {
                               <td className='hidden sm:table-cell px-6 py-4 whitespace-nowrap text-sm'>
                                 <div className='flex items-center space-x-2'>
                                   <Droplets className='h-4 w-4 text-blue-500' />
-                                  <span className='font-medium text-gray-700'>
+                                  <span className='font-medium text-gray-700 dark:text-gray-300'>
                                     {coolingSystems.length}
                                   </span>
                                   <button
                                     onClick={() => handleManageWaterSystems(plant, 'cooling')}
-                                    className='text-blue-600 hover:text-blue-700 hover:underline text-sm font-medium'
+                                    className='text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 hover:underline text-sm font-medium'
                                     title='Manage Cooling Water Systems'
                                   >
                                     Manage
@@ -3340,35 +3340,35 @@ const DataEntry = () => {
                               <td className='hidden sm:table-cell px-6 py-4 whitespace-nowrap text-sm'>
                                 <div className='flex items-center space-x-2'>
                                   <Thermometer className='h-4 w-4 text-red-500' />
-                                  <span className='font-medium text-gray-700'>
+                                  <span className='font-medium text-gray-700 dark:text-gray-300'>
                                     {boilerSystems.length}
                                   </span>
                                   <button
                                     onClick={() => handleManageWaterSystems(plant, 'boiler')}
-                                    className='text-red-600 hover:text-red-700 hover:underline text-sm font-medium'
+                                    className='text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 hover:underline text-sm font-medium'
                                     title='Manage Boiler Water Systems'
                                   >
                                     Manage
                                   </button>
                                 </div>
                               </td>
-                              <td className='hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
+                              <td className='hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400'>
                                 {new Date(plant.created_at).toLocaleDateString()}
                               </td>
                               {user?.can_create_plants && (
-                                <td className='hidden lg:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
+                                <td className='hidden lg:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400'>
                                   {plant.owner ? (
                                     <>
-                                      <div className='text-xs font-semibold'>
+                                      <div className='text-xs font-semibold text-gray-900 dark:text-gray-100'>
                                         {plant.owner.first_name}{" "}
                                         {plant.owner.last_name}
                                       </div>
-                                      <div className='text-xs'>
+                                      <div className='text-xs text-gray-600 dark:text-gray-400'>
                                         {plant.owner.email}
                                       </div>
                                     </>
                                   ) : (
-                                    <span className='text-gray-400 text-xs'>
+                                    <span className='text-gray-400 dark:text-gray-500 text-xs'>
                                       No owner
                                     </span>
                                   )}
@@ -3379,14 +3379,14 @@ const DataEntry = () => {
                                   <div className='flex space-x-1 sm:space-x-2'>
                                     <button
                                       onClick={() => handlePlantEdit(plant)}
-                                      className='text-primary-600 hover:text-primary-900 p-1'
+                                      className='text-primary-600 hover:text-primary-900 dark:text-primary-400 dark:hover:text-primary-300 p-1'
                                       title='Edit Plant'
                                     >
                                       <Edit className='h-4 w-4' />
                                     </button>
                                     <button
                                       onClick={() => handlePlantDelete(plant)}
-                                      className='text-danger-600 hover:text-danger-900 p-1'
+                                      className='text-danger-600 hover:text-danger-900 dark:text-danger-400 dark:hover:text-danger-300 p-1'
                                       title='Delete Plant'
                                     >
                                       <Trash2 className='h-4 w-4' />
@@ -3404,18 +3404,18 @@ const DataEntry = () => {
 
                 {/* Pagination */}
                 {plantsData.results.length > 0 && (
-                  <div className='bg-white px-3 sm:px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-gray-200 sm:px-6'>
+                  <div className='bg-white dark:bg-gray-800 px-3 sm:px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-gray-200 dark:border-gray-700 sm:px-6'>
                     <div className='flex-1 flex justify-between sm:hidden w-full'>
                       <button
                         onClick={() =>
                           setCurrentPage((prev) => Math.max(prev - 1, 1))
                         }
                         disabled={currentPage === 1}
-                        className='relative inline-flex items-center px-3 py-2 border border-gray-300 text-xs sm:text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed'
+                        className='relative inline-flex items-center px-3 py-2 border border-gray-300 dark:border-gray-600 text-xs sm:text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed'
                       >
                         Previous
                       </button>
-                      <span className='px-3 py-2 text-xs sm:text-sm text-gray-700'>
+                      <span className='px-3 py-2 text-xs sm:text-sm text-gray-700 dark:text-gray-300'>
                         Page {currentPage} of {totalPages}
                       </span>
                       <button
@@ -3425,14 +3425,14 @@ const DataEntry = () => {
                           )
                         }
                         disabled={currentPage === totalPages}
-                        className='relative inline-flex items-center px-3 py-2 border border-gray-300 text-xs sm:text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed'
+                        className='relative inline-flex items-center px-3 py-2 border border-gray-300 dark:border-gray-600 text-xs sm:text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed'
                       >
                         Next
                       </button>
                     </div>
                     <div className='hidden sm:flex sm:flex-1 sm:items-center sm:justify-between'>
                       <div>
-                        <p className='text-sm text-gray-700'>
+                        <p className='text-sm text-gray-700 dark:text-gray-300'>
                           Showing <span className='font-medium'>{(currentPage - 1) * 10 + 1}</span> to{' '}
                           <span className='font-medium'>{Math.min(currentPage * 10, plantsData.count)}</span> of{' '}
                           <span className='font-medium'>{plantsData.count}</span> plants
@@ -3444,7 +3444,7 @@ const DataEntry = () => {
                             setCurrentPage((prev) => Math.max(prev - 1, 1))
                           }
                           disabled={currentPage === 1}
-                          className='relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed'
+                          className='relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed'
                         >
                           <span className='sr-only'>Previous</span>
                           <svg className='h-5 w-5' fill='currentColor' viewBox='0 0 20 20'>
@@ -3464,8 +3464,8 @@ const DataEntry = () => {
                                 onClick={() => setCurrentPage(pageNum)}
                                 className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
                                   currentPage === pageNum
-                                    ? 'z-10 bg-primary-50 border-primary-500 text-primary-600'
-                                    : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                                    ? 'z-10 bg-primary-50 dark:bg-primary-900/30 border-primary-500 dark:border-primary-400 text-primary-600 dark:text-primary-300'
+                                    : 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'
                                 }`}
                               >
                                 {pageNum}
@@ -3475,7 +3475,7 @@ const DataEntry = () => {
                             return (
                               <span
                                 key={pageNum}
-                                className='relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700'
+                                className='relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300'
                               >
                                 ...
                               </span>
@@ -3490,7 +3490,7 @@ const DataEntry = () => {
                             )
                           }
                           disabled={currentPage === totalPages}
-                          className='relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed'
+                          className='relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed'
                         >
                           <span className='sr-only'>Next</span>
                           <svg className='h-5 w-5' fill='currentColor' viewBox='0 0 20 20'>

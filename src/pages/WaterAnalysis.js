@@ -20,9 +20,12 @@ import {
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import SearchableSelect from '../components/SearchableSelect';
 import LoadingOverlay from '../components/LoadingOverlay';
+import { useTheme } from '../contexts/ThemeContext';
 
 const WaterAnalysis = () => {
   const { user } = useAppSelector(state => state.auth);
+  const { effectiveTheme } = useTheme();
+  const isDark = effectiveTheme === 'dark';
   const navigate = useNavigate();
   
   // All hooks must be declared at the top level before any early returns
@@ -324,10 +327,10 @@ const WaterAnalysis = () => {
   if (user?.is_general_user && !user?.is_active) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center max-w-md mx-auto p-6 bg-red-50 border border-red-200 rounded-lg">
-          <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-red-900 mb-2">Account Inactive</h2>
-          <p className="text-red-700">
+        <div className="text-center max-w-md mx-auto p-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+          <AlertTriangle className="h-12 w-12 text-red-500 dark:text-red-400 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-red-900 dark:text-red-300 mb-2">Account Inactive</h2>
+          <p className="text-red-700 dark:text-red-300">
             Your account is inactive. Please contact your administrator to activate your account to access Water Analysis.
           </p>
         </div>
@@ -1294,20 +1297,20 @@ const WaterAnalysis = () => {
 
   // Get status color based on exact status descriptions from images
   const getStatusColor = (status) => {
-    if (!status) return 'text-gray-500';
+    if (!status) return 'text-gray-500 dark:text-gray-400';
     
     if (status.includes('Near Balance') || status.includes('Little scale or corrosion') || 
         status.includes('Water is in optimal range') || status.includes('will not interfere') ||
         status.includes('Within target range')) {
-        return 'text-green-600';
+        return 'text-green-600 dark:text-green-400';
     } else if (status.includes('Corrosion') || status.includes('corrode') || 
                status.includes('Scale') || status.includes('scale') || 
                status.includes('interfere') || status.includes('high corrosion rates')) {
-        return 'text-red-600';
+        return 'text-red-600 dark:text-red-400';
     } else if (status.includes('Moderate') || status.includes('may interfere')) {
-        return 'text-yellow-600';
+        return 'text-yellow-600 dark:text-yellow-400';
     }
-        return 'text-gray-600';
+        return 'text-gray-600 dark:text-gray-400';
   };
   
   // Map current value to display in Suggested Actions table
@@ -1328,21 +1331,21 @@ const WaterAnalysis = () => {
     if (status.includes('Near Balance') || status.includes('Little scale or corrosion') || 
         status.includes('Water is in optimal range') || status.includes('will not interfere') ||
         status.includes('Within target range')) {
-        return <CheckCircle className="w-5 h-5 text-green-600" />;
+        return <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />;
     } else if (status.includes('Corrosion') || status.includes('corrode') || 
                status.includes('Scale') || status.includes('scale') || 
                status.includes('interfere') || status.includes('high corrosion rates')) {
-        return <XCircle className="w-5 h-5 text-red-600" />;
+        return <XCircle className="w-5 h-5 text-red-600 dark:text-red-400" />;
     } else if (status.includes('Moderate') || status.includes('may interfere')) {
-        return <AlertTriangle className="w-5 h-5 text-yellow-600" />;
+        return <AlertTriangle className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />;
     }
-        return <Info className="w-5 h-5 text-gray-600" />;
+        return <Info className="w-5 h-5 text-gray-600 dark:text-gray-400" />;
   };
   
   const getStabilityScoreColor = (score) => {
-    if (score >= 70) return 'text-green-600';
-    if (score >= 50) return 'text-yellow-600';
-    return 'text-red-600';
+    if (score >= 70) return 'text-green-600 dark:text-green-400';
+    if (score >= 50) return 'text-yellow-600 dark:text-yellow-400';
+    return 'text-red-600 dark:text-red-400';
   };
 
   // Prefer plant targets for index display status when available
@@ -1365,17 +1368,17 @@ const WaterAnalysis = () => {
   };
   
   return (
-    <div className='min-h-screen bg-gray-50 p-3 sm:p-4 md:p-6'>
+    <div className='min-h-screen bg-gray-50 dark:bg-gray-900 p-3 sm:p-4 md:p-6'>
       <div className='relative max-w-7xl mx-auto'>
         <LoadingOverlay
           show={plantsLoading || plantDetailsLoading || calculating || loading}
         />
         {/* Header */}
         <div className='mb-4 sm:mb-6 md:mb-8'>
-          <h1 className='text-2xl sm:text-3xl font-bold text-gray-900 mb-1 sm:mb-2'>
+          <h1 className='text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1 sm:mb-2'>
             Water Stability Analysis
           </h1>
-          <p className='text-sm sm:text-base text-gray-600'>
+          <p className='text-sm sm:text-base text-gray-600 dark:text-gray-400'>
             Analyze water parameters and calculate stability indices using
             WaterS8 standards
           </p>
@@ -1383,9 +1386,9 @@ const WaterAnalysis = () => {
 
         {/* Plant Selection */}
         <div className='mb-4 sm:mb-6'>
-          <div className='bg-white rounded-lg shadow-md p-3 sm:p-4'>
+          <div className='bg-white dark:bg-gray-800 rounded-lg shadow-md p-3 sm:p-4'>
             <div className='flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 sm:space-x-4'>
-              <span className='text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap'>
+              <span className='text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap'>
                 Select Plant: <span className='text-red-500'>*</span>
               </span>
               <div className='flex-1 w-full sm:max-w-md'>
@@ -1401,7 +1404,7 @@ const WaterAnalysis = () => {
               </div>
             </div>
             {plantDetailsLoading && (
-              <div className='mt-2 text-sm text-gray-600'>
+              <div className='mt-2 text-sm text-gray-600 dark:text-gray-400'>
                 <p>Loading plant details...</p>
               </div>
             )}
@@ -1415,7 +1418,7 @@ const WaterAnalysis = () => {
                 
                 {/* Analysis Type Selector - Only shown after plant is selected */}
                 <div className='flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 sm:space-x-4'>
-                  <span className='text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap'>
+                  <span className='text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap'>
                     Analysis Type: <span className='text-red-500'>*</span>
                   </span>
                   <div className='flex flex-col sm:flex-row gap-2 sm:space-x-2'>
@@ -1424,7 +1427,7 @@ const WaterAnalysis = () => {
                       className={`px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-medium transition-colors ${
                         analysisType === "cooling"
                           ? "bg-blue-600 text-white"
-                          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                          : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
                       }`}
                     >
                       <Droplets className='w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2' />
@@ -1435,7 +1438,7 @@ const WaterAnalysis = () => {
                       className={`px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-medium transition-colors ${
                         analysisType === "boiler"
                           ? "bg-blue-600 text-white"
-                          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                          : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
                       }`}
                     >
                       <Thermometer className='w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2' />
@@ -1448,10 +1451,10 @@ const WaterAnalysis = () => {
                 {analysisType && (
                   <>
                     {waterSystemsLoading ? (
-                      <div className='text-xs sm:text-sm text-gray-500'>Loading water systems...</div>
+                      <div className='text-xs sm:text-sm text-gray-500 dark:text-gray-400'>Loading water systems...</div>
                     ) : waterSystems.length > 0 ? (
                       <div className='flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 sm:space-x-4'>
-                        <span className='text-xs sm:text-sm font-medium text-gray-700 whitespace-nowrap'>
+                        <span className='text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap'>
                           Select Water System: <span className='text-red-500'>*</span>
                         </span>
                         <div className='flex-1 w-full sm:max-w-md'>
@@ -1475,13 +1478,13 @@ const WaterAnalysis = () => {
                         </div>
                       </div>
                     ) : (
-                      <div className='text-sm text-yellow-600'>
+                      <div className='text-sm text-yellow-600 dark:text-yellow-400'>
                         <p>⚠️ No water systems found for this plant. Please add water systems in Plant Management.</p>
                       </div>
                     )}
                     
                     {/* {selectedWaterSystem && (
-                      <div className='text-sm text-gray-600'>
+                      <div className='text-sm text-gray-600 dark:text-gray-400'>
                         <p>
                           Selected: <strong>{selectedWaterSystem.name}</strong> ({selectedWaterSystem.system_type_display || (selectedWaterSystem.system_type === 'cooling' ? 'Cooling Water' : 'Boiler Water')})
                         </p>
@@ -1492,17 +1495,17 @@ const WaterAnalysis = () => {
               </div>
             )}
             {!selectedPlant && !plantDetailsLoading && (
-              <div className='mt-2 text-sm text-red-600'>
+              <div className='mt-2 text-sm text-red-600 dark:text-red-400'>
                 <p>⚠️ Please select a plant to continue</p>
               </div>
             )}
             {selectedPlant && !analysisType && (
-              <div className='mt-2 text-sm text-red-600'>
+              <div className='mt-2 text-sm text-red-600 dark:text-red-400'>
                 <p>⚠️ Please select an analysis type (Cooling or Boiler Water)</p>
               </div>
             )}
             {selectedPlant && analysisType && !selectedWaterSystem && !waterSystemsLoading && waterSystems.length > 0 && (
-              <div className='mt-2 text-sm text-red-600'>
+              <div className='mt-2 text-sm text-red-600 dark:text-red-400'>
                 <p>⚠️ Please select a water system to calculate water analysis</p>
               </div>
             )}
@@ -1511,10 +1514,10 @@ const WaterAnalysis = () => {
         
         <div className='grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6'>
           {/* Input Data */}
-          <div className='bg-white rounded-lg shadow-md p-4 sm:p-6'>
+          <div className='bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 sm:p-6'>
             <div className='flex items-center mb-3 sm:mb-4'>
-              <Calculator className='w-4 h-4 sm:w-5 sm:h-5 text-blue-600 mr-2' />
-              <h2 className='text-lg sm:text-xl font-semibold text-gray-900'>
+              <Calculator className='w-4 h-4 sm:w-5 sm:h-5 text-blue-600 dark:text-blue-400 mr-2' />
+              <h2 className='text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100'>
                 Input Data
               </h2>
             </div>
@@ -1522,7 +1525,7 @@ const WaterAnalysis = () => {
             <div className='space-y-3 sm:space-y-4'>
               {plantParameters?.ph && (
               <div>
-                <label className='block text-xs sm:text-sm font-medium text-gray-700 mb-1'>
+                <label className='block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
                   pH <span className='text-red-500'>*</span>
                 </label>
                 <input
@@ -1540,18 +1543,18 @@ const WaterAnalysis = () => {
                     }
                     handleInputChange("ph", value);
                   }}
-                  className='w-full px-2.5 sm:px-3 py-1.5 sm:py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                  className='w-full px-2.5 sm:px-3 py-1.5 sm:py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100'
                   placeholder='0-14'
                 />
                 {inputData.ph !== '' && inputData.ph != null && (inputData.ph < 0 || inputData.ph > 14) && (
-                  <p className='text-red-500 text-xs mt-1'>pH must be between 0 and 14</p>
+                  <p className='text-red-500 dark:text-red-400 text-xs mt-1'>pH must be between 0 and 14</p>
                 )}
               </div>
               )}
               
               {plantParameters?.tds && (
               <div>
-                <label className='block text-xs sm:text-sm font-medium text-gray-700 mb-1'>
+                <label className='block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
                   TDS (ppm)
                 </label>
                 <input
@@ -1565,7 +1568,7 @@ const WaterAnalysis = () => {
                       e.target.value === "" ? "" : parseFloat(e.target.value)
                     )
                   }
-                  className='w-full px-2.5 sm:px-3 py-1.5 sm:py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                  className='w-full px-2.5 sm:px-3 py-1.5 sm:py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100'
                 />
               </div>
               )}
@@ -1574,7 +1577,7 @@ const WaterAnalysis = () => {
                 <>
               {(plantParameters?.total_alkalinity || plantParameters?.alkalinity) && (
               <div>
-                    <label className='block text-sm font-medium text-gray-700 mb-1'>
+                    <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
                       Total Alkalinity as CaCO₃ (ppm)
                     </label>
                 <input
@@ -1590,14 +1593,14 @@ const WaterAnalysis = () => {
                             : parseFloat(e.target.value)
                         )
                       }
-                      className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                      className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100'
                 />
               </div>
               )}
               
               {plantParameters?.hardness && (
               <div>
-                    <label className='block text-sm font-medium text-gray-700 mb-1'>
+                    <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
                       Hardness as CaCO₃ (ppm)
                     </label>
                 <input
@@ -1613,7 +1616,7 @@ const WaterAnalysis = () => {
                             : parseFloat(e.target.value)
                         )
                       }
-                      className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                      className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100'
                 />
               </div>
               )}
@@ -1624,7 +1627,7 @@ const WaterAnalysis = () => {
                 <>
                   {plantParameters?.hardness && (
                   <div>
-                    <label className='block text-sm font-medium text-gray-700 mb-1'>
+                    <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
                       Hardness as CaCO₃ (ppm)
                     </label>
                     <input
@@ -1640,14 +1643,14 @@ const WaterAnalysis = () => {
                             : parseFloat(e.target.value)
                         )
                       }
-                      className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                      className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100'
                     />
                   </div>
                   )}
                   
                   {plantParameters?.p_alkalinity && (
                     <div>
-                      <label className='block text-sm font-medium text-gray-700 mb-1'>
+                      <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
                         P-Alkalinity as CaCO₃ (ppm)
                       </label>
                       <input
@@ -1663,14 +1666,14 @@ const WaterAnalysis = () => {
                               : parseFloat(e.target.value)
                           )
                         }
-                        className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                        className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100'
                       />
                     </div>
                   )}
                   
                   {plantParameters?.oh_alkalinity && (
                     <div>
-                      <label className='block text-sm font-medium text-gray-700 mb-1'>
+                      <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
                         OH-Alkalinity as CaCO₃ (ppm)
                       </label>
                       <input
@@ -1686,14 +1689,14 @@ const WaterAnalysis = () => {
                               : parseFloat(e.target.value)
                           )
                         }
-                        className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                        className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100'
                       />
                     </div>
                   )}
                   
                   {plantParameters?.sulphite && (
                     <div>
-                      <label className='block text-sm font-medium text-gray-700 mb-1'>
+                      <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
                         Sulphite as SO₃ (ppm)
                       </label>
                       <input
@@ -1709,14 +1712,14 @@ const WaterAnalysis = () => {
                               : parseFloat(e.target.value)
                           )
                         }
-                        className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                        className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100'
                       />
                     </div>
                   )}
                   
                   {plantParameters?.sodium_chloride && (
                     <div>
-                      <label className='block text-sm font-medium text-gray-700 mb-1'>
+                      <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
                         Sodium Chloride (ppm)
                       </label>
                       <input
@@ -1732,14 +1735,14 @@ const WaterAnalysis = () => {
                               : parseFloat(e.target.value)
                           )
                         }
-                        className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                        className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100'
                       />
                     </div>
                   )}
                   
                   {plantParameters?.do && (
                     <div>
-                      <label className='block text-sm font-medium text-gray-700 mb-1'>
+                      <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
                         DO (Dissolved Oxygen) (ppm)
                       </label>
                       <input
@@ -1755,14 +1758,14 @@ const WaterAnalysis = () => {
                               : parseFloat(e.target.value)
                           )
                         }
-                        className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                        className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100'
                       />
                     </div>
                   )}
                   
                   {plantParameters?.boiler_phosphate && (
                     <div>
-                      <label className='block text-sm font-medium text-gray-700 mb-1'>
+                      <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
                         Phosphate (ppm)
                       </label>
                       <input
@@ -1778,14 +1781,14 @@ const WaterAnalysis = () => {
                               : parseFloat(e.target.value)
                           )
                         }
-                        className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                        className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100'
                       />
                     </div>
                   )}
                   
                   {plantParameters?.iron && (
                     <div>
-                      <label className='block text-sm font-medium text-gray-700 mb-1'>
+                      <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
                         Iron as Fe (ppm)
                       </label>
                       <input
@@ -1801,7 +1804,7 @@ const WaterAnalysis = () => {
                               : parseFloat(e.target.value)
                           )
                         }
-                        className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                        className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100'
                       />
                     </div>
                   )}
@@ -1812,7 +1815,7 @@ const WaterAnalysis = () => {
                 <>
               {plantParameters?.chloride && (
                 <div>
-                      <label className='block text-sm font-medium text-gray-700 mb-1'>
+                      <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
                         Chloride as NaCl (ppm)
                       </label>
                   <input
@@ -1828,14 +1831,14 @@ const WaterAnalysis = () => {
                               : parseFloat(e.target.value)
                           )
                         }
-                        className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                        className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100'
                   />
                 </div>
               )}
                   
                   {plantParameters?.basin_temperature && (
                   <div>
-                    <label className='block text-sm font-medium text-gray-700 mb-1'>
+                    <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
                       Basin Temperature (°C)
                     </label>
                 <input
@@ -1851,14 +1854,14 @@ const WaterAnalysis = () => {
                             : parseFloat(e.target.value)
                         )
                       }
-                      className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                      className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100'
                 />
               </div>
                   )}
                   
                   {plantParameters?.hot_temperature && (
                   <div>
-                    <label className='block text-sm font-medium text-gray-700 mb-1'>
+                    <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
                       Hot Side Temperature (°C)
                     </label>
                     <input
@@ -1874,14 +1877,14 @@ const WaterAnalysis = () => {
                             : parseFloat(e.target.value)
                         )
                       }
-                      className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                      className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100'
                     />
                   </div>
                   )}
                   
                   {plantParameters?.cycle && (
                     <div>
-                      <label className='block text-sm font-medium text-gray-700 mb-1'>
+                      <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
                         Cycle of Concentration (as Cl)
                       </label>
                       <input
@@ -1897,14 +1900,14 @@ const WaterAnalysis = () => {
                               : parseFloat(e.target.value)
                           )
                         }
-                        className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                        className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100'
                       />
                     </div>
                   )}
                   
                   {plantParameters?.iron && (
                     <div>
-                      <label className='block text-sm font-medium text-gray-700 mb-1'>
+                      <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
                         Iron as Fe (ppm)
                       </label>
                       <input
@@ -1920,14 +1923,14 @@ const WaterAnalysis = () => {
                               : parseFloat(e.target.value)
                           )
                         }
-                        className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                        className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100'
                       />
                     </div>
                   )}
                   
                   {plantParameters?.phosphate && (
                     <div>
-                      <label className='block text-sm font-medium text-gray-700 mb-1'>
+                      <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
                         Phosphate (ppm)
                       </label>
                       <input
@@ -1943,7 +1946,7 @@ const WaterAnalysis = () => {
                               : parseFloat(e.target.value)
                           )
                         }
-                        className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                        className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100'
                       />
                     </div>
                   )}
@@ -1954,7 +1957,7 @@ const WaterAnalysis = () => {
                 <>
                   {plantParameters?.alkalinity && (
                   <div>
-                    <label className='block text-sm font-medium text-gray-700 mb-1'>
+                    <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
                       M-Alkalinity as CaCO₃ (ppm)
                     </label>
                     <input
@@ -1970,7 +1973,7 @@ const WaterAnalysis = () => {
                             : parseFloat(e.target.value)
                         )
                       }
-                      className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                      className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100'
                     />
                   </div>
                   )}
@@ -1984,7 +1987,7 @@ const WaterAnalysis = () => {
                 }
                 className={`w-full py-2 sm:py-2.5 px-3 sm:px-4 rounded-md flex items-center justify-center text-sm sm:text-base ${
                   !selectedPlant || !areRequiredFieldsFilled()
-                    ? "bg-gray-400 text-gray-600 cursor-not-allowed"
+                    ? "bg-gray-400 dark:bg-gray-600 text-gray-600 dark:text-gray-400 cursor-not-allowed"
                     : "bg-blue-600 text-white hover:bg-blue-700"
                 } disabled:opacity-50 disabled:cursor-not-allowed`}
               >
@@ -2014,25 +2017,25 @@ const WaterAnalysis = () => {
           </div>
           
           {/* Results */}
-          <div className='bg-white rounded-lg shadow-md p-4 sm:p-6'>
+          <div className='bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 sm:p-6'>
             <div className='flex items-center mb-3 sm:mb-4'>
-              <TrendingUp className='w-4 h-4 sm:w-5 sm:h-5 text-green-600 mr-2' />
-              <h2 className='text-lg sm:text-xl font-semibold text-gray-900'>Results</h2>
+              <TrendingUp className='w-4 h-4 sm:w-5 sm:h-5 text-green-600 dark:text-green-400 mr-2' />
+              <h2 className='text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100'>Results</h2>
             </div>
             
             <div className='space-y-3 sm:space-y-4'>
               {/* Show water indices only for cooling water */}
               {analysisType === "cooling" && (
                 <>
-                  <div className='border-b pb-3 sm:pb-4'>
+                  <div className='border-b border-gray-200 dark:border-gray-700 pb-3 sm:pb-4'>
                     <div className='flex items-center justify-between mb-2'>
-                      <span className='text-xs sm:text-sm font-medium text-gray-700'>
+                      <span className='text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300'>
                         LSI (Langelier Saturation Index)
                       </span>
                   {results.lsi_status && getStatusIcon(results.lsi_status)}
                 </div>
                     <div className='flex flex-col space-y-1 sm:space-y-2'>
-                      <span className='text-xl sm:text-2xl font-bold'>
+                      <span className='text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100'>
                         {results.lsi?.toFixed(1) || "--"}
                       </span>
                       <span
@@ -2045,15 +2048,15 @@ const WaterAnalysis = () => {
                 </div>
               </div>
               
-                  <div className='border-b pb-3 sm:pb-4'>
+                  <div className='border-b border-gray-200 dark:border-gray-700 pb-3 sm:pb-4'>
                     <div className='flex items-center justify-between mb-2'>
-                      <span className='text-xs sm:text-sm font-medium text-gray-700'>
+                      <span className='text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300'>
                         RSI (Ryznar Stability Index)
                       </span>
                   {results.rsi_status && getStatusIcon(results.rsi_status)}
                 </div>
                     <div className='flex flex-col space-y-1 sm:space-y-2'>
-                      <span className='text-xl sm:text-2xl font-bold'>
+                      <span className='text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100'>
                         {results.rsi?.toFixed(1) || "--"}
                       </span>
                       <span
@@ -2069,7 +2072,7 @@ const WaterAnalysis = () => {
                   {/* 
               <div className="border-b pb-4">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-gray-700">PSI (Puckorius Scaling Index)</span>
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">PSI (Puckorius Scaling Index)</span>
                   {results.psi_status && getStatusIcon(results.psi_status)}
                 </div>
                 <div className="flex flex-col space-y-2">
@@ -2082,15 +2085,15 @@ const WaterAnalysis = () => {
               
               {/* Only show LR if chloride monitoring is enabled */}
               {selectedPlant?.cooling_chloride_enabled && (
-                    <div className='border-b pb-3 sm:pb-4'>
+                    <div className='border-b border-gray-200 dark:border-gray-700 pb-3 sm:pb-4'>
                       <div className='flex items-center justify-between mb-2'>
-                        <span className='text-xs sm:text-sm font-medium text-gray-700'>
+                        <span className='text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300'>
                           LR (Langelier Ratio)
                         </span>
                     {results.lr_status && getStatusIcon(results.lr_status)}
                   </div>
                       <div className='flex flex-col space-y-1 sm:space-y-2'>
-                        <span className='text-xl sm:text-2xl font-bold'>
+                        <span className='text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100'>
                           {results.lr
                             ? results.lr > 100 || results.lr < -100
                               ? "High Risk"
@@ -2113,12 +2116,12 @@ const WaterAnalysis = () => {
               {/* Show boiler water specific message and status */}
               {analysisType === "boiler" && (
                 <>
-                  <div className='bg-blue-50 border border-blue-200 rounded-lg p-4'>
+                  <div className='bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4'>
                     <div className='text-center'>
-                      <span className='text-sm font-medium text-blue-700 block mb-2'>
+                      <span className='text-sm font-medium text-blue-700 dark:text-blue-300 block mb-2'>
                         Boiler Water Analysis
                       </span>
-                      <span className='text-sm text-blue-600'>
+                      <span className='text-sm text-blue-600 dark:text-blue-400'>
                         Analysis completed using the simplified 4-parameter
                         scoring system (pH, TDS, Hardness, M-Alkalinity)
                   </span>
@@ -2127,9 +2130,9 @@ const WaterAnalysis = () => {
                   
                   {/* Boiler Water Overall Status */}
                   {results.overall_status && (
-                    <div className='bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-4'>
+                    <div className='bg-gradient-to-r from-green-50 dark:from-green-900/20 to-blue-50 dark:to-blue-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4'>
                       <div className='text-center'>
-                        <span className='text-sm font-medium text-gray-700 block mb-2'>
+                        <span className='text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2'>
                           Overall Status
                         </span>
                         <span
@@ -2146,9 +2149,9 @@ const WaterAnalysis = () => {
               )}
               
               {/* Stability Score */}
-              <div className='bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg'>
+              <div className='bg-gradient-to-r from-blue-50 dark:from-blue-900/20 to-purple-50 dark:to-purple-900/20 p-4 rounded-lg'>
                 <div className='text-center'>
-                  <span className='text-sm font-medium text-gray-700 block mb-1'>
+                  <span className='text-sm font-medium text-gray-700 dark:text-gray-300 block mb-1'>
                     Stability Score
                   </span>
                   <span
@@ -2165,7 +2168,7 @@ const WaterAnalysis = () => {
                 <button
                   onClick={saveAnalysis}
                   disabled={loading}
-                  className='w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center'
+                  className='w-full bg-green-600 dark:bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-700 dark:hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center'
                 >
                   {loading ? (
                     <>
@@ -2185,11 +2188,11 @@ const WaterAnalysis = () => {
           
           {/* Trends - Only show for cooling water when there are trends data */}
             {analysisType === "cooling" && !areAllTrendsEmpty() && (
-              <div className='bg-white rounded-lg shadow-md p-6'>
+              <div className='bg-white dark:bg-gray-800 rounded-lg shadow-md p-6'>
                 <div className='flex items-center justify-between mb-4'>
                   <div className='flex items-center'>
-                    <TrendingUp className='w-5 h-5 text-purple-600 mr-2' />
-                    <h2 className='text-xl font-semibold text-gray-900'>
+                    <TrendingUp className='w-5 h-5 text-purple-600 dark:text-purple-400 mr-2' />
+                    <h2 className='text-xl font-semibold text-gray-900 dark:text-gray-100'>
                       Trends
                     </h2>
               </div>
@@ -2197,20 +2200,20 @@ const WaterAnalysis = () => {
             
                 {!selectedPlant ? (
                   <div className='text-center py-8'>
-                    <TrendingUp className='w-12 h-12 text-gray-400 mx-auto mb-4' />
-                    <h3 className='text-lg font-medium text-gray-900 mb-2'>
+                    <TrendingUp className='w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4' />
+                    <h3 className='text-lg font-medium text-gray-900 dark:text-gray-100 mb-2'>
                       Select a Plant
                     </h3>
-                    <p className='text-gray-600 mb-4'>
+                    <p className='text-gray-600 dark:text-gray-400 mb-4'>
                       Please select a plant and calculate an analysis to view historical trends.
                     </p>
                   </div>
                 ) : Object.keys(trends).length > 0 ? (
                   <div className='space-y-4'>
                     {Object.keys(trends).map((parameter) => (
-                      <div key={parameter} className='border rounded-lg p-3'>
+                      <div key={parameter} className='border border-gray-200 dark:border-gray-700 rounded-lg p-3'>
                         <div className="flex items-center justify-between mb-2">
-                          <h3 className="text-sm font-medium text-gray-700">
+                          <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">
                             {parameter.toUpperCase() === "PH"
                               ? "pH"
                               : parameter.toUpperCase()}
@@ -2218,21 +2221,22 @@ const WaterAnalysis = () => {
                           <div className="flex items-center space-x-3 text-xs">
                             <div className="flex items-center">
                               <div className="w-3 h-0.5 bg-blue-500 mr-1" style={{borderTop: '2px dashed #3B82F6'}}></div>
-                              <span className="text-gray-600">Min</span>
+                              <span className="text-gray-600 dark:text-gray-400">Min</span>
                             </div>
                             <div className="flex items-center">
                               <div className="w-3 h-0.5 bg-blue-700 mr-1"></div>
-                              <span className="text-gray-600">Max</span>
+                              <span className="text-gray-600 dark:text-gray-400">Max</span>
                             </div>
                           </div>
                         </div>
                         <div className='h-32'>
                           <ResponsiveContainer width='100%' height='100%'>
                       <LineChart data={trends[parameter]}>
-                              <CartesianGrid strokeDasharray='3 3' />
+                              <CartesianGrid strokeDasharray='3 3' stroke={isDark ? '#374151' : '#e5e7eb'} />
                         <XAxis 
                                 dataKey='date'
-                          tick={{ fontSize: 10 }}
+                          tick={{ fontSize: 10, fill: isDark ? '#9ca3af' : '#6b7280' }}
+                                stroke={isDark ? '#9ca3af' : '#6b7280'}
                                 tickFormatter={(value) =>
                                   new Date(value).toLocaleDateString('en-US', {
                                     month: 'short',
@@ -2241,7 +2245,8 @@ const WaterAnalysis = () => {
                                 }
                               />
                               <YAxis
-                                tick={{ fontSize: 10 }}
+                                tick={{ fontSize: 10, fill: isDark ? '#9ca3af' : '#6b7280' }}
+                                stroke={isDark ? '#9ca3af' : '#6b7280'}
                                 domain={['dataMin - 0.5', 'dataMax + 0.5']}
                               />
                         <Tooltip 
@@ -2259,6 +2264,13 @@ const WaterAnalysis = () => {
                                   if (name === 'Min') return [value, 'Min'];
                                   if (name === 'Max') return [value, 'Max'];
                                   return [value, parameter.toUpperCase()];
+                                }}
+                                labelStyle={{ color: isDark ? '#f3f4f6' : '#374151', fontWeight: '600' }}
+                                contentStyle={{
+                                  backgroundColor: isDark ? '#1f2937' : '#fff',
+                                  border: `1px solid ${isDark ? '#374151' : '#e5e7eb'}`,
+                                  borderRadius: '8px',
+                                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                                 }}
                               />
                               {/* Min value line */}
@@ -2319,11 +2331,11 @@ const WaterAnalysis = () => {
         {/* WaterS8 Suggested Actions Table - Show for both cooling and boiler water when there are results */}
         {results.overall_status && (
           <div className='mt-8'>
-            <div className='bg-white rounded-lg shadow-md p-6'>
+            <div className='bg-white dark:bg-gray-800 rounded-lg shadow-md p-6'>
               <div className='flex items-center justify-between mb-4'>
                 <div className='flex items-center'>
-                  <Zap className='w-5 h-5 text-yellow-600 mr-2' />
-                  <h2 className='text-xl font-semibold text-gray-900'>
+                  <Zap className='w-5 h-5 text-yellow-600 dark:text-yellow-500 mr-2' />
+                  <h2 className='text-xl font-semibold text-gray-900 dark:text-gray-100'>
                     WaterS8{" "}
                     {analysisType === "cooling"
                       ? "Cooling Water"
@@ -2334,24 +2346,24 @@ const WaterAnalysis = () => {
         </div>
         
               <div className='overflow-x-auto'>
-                <table className='min-w-full divide-y divide-gray-200'>
-                  <thead className='bg-gray-50'>
+                <table className='min-w-full divide-y divide-gray-200 dark:divide-gray-700'>
+                  <thead className='bg-gray-50 dark:bg-gray-700'>
                     <tr>
-                      <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                      <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider'>
                         Parameter
                       </th>
-                      <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                      <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider'>
                         Target Range
                       </th>
-                      <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                      <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider'>
                         Current Value
                       </th>
-                      <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                      <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider'>
                         Suggested Action
                       </th>
                     </tr>
                   </thead>
-                  <tbody className='bg-white divide-y divide-gray-200'>
+                  <tbody className='bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700'>
                     {Object.entries(
                       analysisType === "cooling"
                         ? getCoolingWaterActions()
@@ -2373,10 +2385,10 @@ const WaterAnalysis = () => {
                       return (
                         <tr
                           key={param}
-                          className={isOutOfRange ? "bg-red-50" : "bg-green-50"}
+                          className={isOutOfRange ? "bg-red-50 dark:bg-red-900/20" : "bg-green-50 dark:bg-green-900/20"}
                         >
                           <td
-                            className={`px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 ${
+                            className={`px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100 ${
                               param === "ph" ? "" : "capitalize"
                             }`}
                           >
@@ -2386,26 +2398,26 @@ const WaterAnalysis = () => {
                               ? param.toUpperCase()
                               : param.replace(/_/g, " ")}
                           </td>
-                          <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
+                          <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400'>
                             {config.target}
                           </td>
-                          <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900'>
+                          <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100'>
                             {currentValue === null || currentValue === undefined
                               ? "-"
                               : currentValue}
                           </td>
-                          <td className='px-6 py-4 text-sm text-gray-900'>
+                          <td className='px-6 py-4 text-sm text-gray-900 dark:text-gray-100'>
                             {suggestedAction ? (
                               <div className='flex items-center'>
-                                <AlertTriangle className='w-4 h-4 text-red-500 mr-2' />
-                                <span className='text-red-700'>
+                                <AlertTriangle className='w-4 h-4 text-red-500 dark:text-red-400 mr-2' />
+                                <span className='text-red-700 dark:text-red-400'>
                                   {suggestedAction}
                                 </span>
                               </div>
                             ) : (
                               <div className='flex items-center'>
-                                <CheckCircle className='w-4 h-4 text-green-500 mr-2' />
-                                <span className='text-green-700'>
+                                <CheckCircle className='w-4 h-4 text-green-500 dark:text-green-400 mr-2' />
+                                <span className='text-green-700 dark:text-green-400'>
                                   Within target range
                                 </span>
                               </div>

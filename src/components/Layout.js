@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { NavigationLoader } from './Loader';
 import InstallPrompt from './InstallPrompt';
+import ThemeToggle from './ThemeToggle';
 import toast from 'react-hot-toast';
 
 const Layout = () => {
@@ -112,7 +113,7 @@ const Layout = () => {
   }
 
   return (
-    <div className='min-h-screen bg-gray-50'>
+    <div className='min-h-screen bg-gray-50 dark:bg-gray-900'>
       {/* Navigation Loader */}
       {navigationLoading && <NavigationLoader />}
 
@@ -123,10 +124,10 @@ const Layout = () => {
         }`}
       >
         <div
-          className='fixed inset-0 bg-gray-600 bg-opacity-75'
+          className='fixed inset-0 bg-gray-600 bg-opacity-75 dark:bg-gray-900 dark:bg-opacity-75'
           onClick={handleSidebarClose}
         />
-        <div className='fixed inset-y-0 left-0 flex w-64 flex-col bg-white'>
+        <div className='fixed inset-y-0 left-0 flex w-64 flex-col bg-white dark:bg-gray-800'>
           <div className='flex h-14 sm:h-16 items-center justify-between px-3 sm:px-4'>
             <div className='flex h-14 sm:h-16 items-center px-3 sm:px-4 justify-center'>
               <img
@@ -137,7 +138,7 @@ const Layout = () => {
             </div>
             <button
               onClick={handleSidebarClose}
-              className='text-gray-400 hover:text-gray-600 p-1'
+              className='text-gray-400 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-200 p-1'
               aria-label="Close sidebar"
             >
               <X size={20} className="sm:w-6 sm:h-6" />
@@ -167,7 +168,7 @@ const Layout = () => {
 
       {/* Desktop sidebar */}
       <div className='hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col'>
-        <div className='flex flex-col flex-grow bg-white border-r border-gray-200'>
+        <div className='flex flex-col flex-grow bg-white border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700'>
           <div className='flex h-16 items-center px-4 justify-center'>
             <img src='/logo.png' alt='WaterSight' className='h-12 w-auto' />
           </div>
@@ -193,10 +194,10 @@ const Layout = () => {
       {/* Main content */}
       <div className='lg:pl-64'>
         {/* Top header */}
-        <div className='sticky top-0 z-40 flex h-14 sm:h-16 shrink-0 items-center gap-x-2 sm:gap-x-4 border-b border-gray-200 bg-white px-3 sm:px-4 shadow-sm sm:gap-x-6 lg:px-8'>
+        <div className='sticky top-0 z-40 flex h-14 sm:h-16 shrink-0 items-center gap-x-2 sm:gap-x-4 border-b border-gray-200 bg-white dark:bg-gray-800 dark:border-gray-700 px-3 sm:px-4 shadow-sm sm:gap-x-6 lg:px-8'>
           <button
             type='button'
-            className='-m-2.5 p-2 text-gray-700 lg:hidden'
+            className='-m-2.5 p-2 text-gray-700 dark:text-gray-300 lg:hidden'
             onClick={handleSidebarToggle}
             aria-label="Toggle sidebar"
           >
@@ -215,7 +216,7 @@ const Layout = () => {
               <div className='relative'>
                 <div className='flex items-center gap-x-2 sm:gap-x-3'>
                   <div className='flex flex-col text-right min-w-0'>
-                    <span className='text-xs sm:text-sm font-medium text-gray-900 truncate max-w-[100px] sm:max-w-[120px] lg:max-w-none' title={user?.get_full_name || user?.email}>
+                    <span className='text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-100 truncate max-w-[100px] sm:max-w-[120px] lg:max-w-none' title={user?.get_full_name || user?.email}>
                       {(() => {
                         const fullName = user?.get_full_name || user?.email || '';
                         // Truncate to 10 characters on mobile
@@ -225,10 +226,10 @@ const Layout = () => {
                         return fullName;
                       })()}
                     </span>
-                    <span className='text-xs text-gray-500 hidden sm:block'>
+                    <span className='text-xs text-gray-500 dark:text-gray-400 hidden sm:block'>
                       {user?.role_display?.replace('General User', 'User').replace('Administrator', 'Admin').replace('Super Administrator', 'Super Admin') || user?.role}
                     </span>
-                    <span className='text-xs text-gray-500 sm:hidden truncate max-w-[100px]' title={user?.role_display || user?.role}>
+                    <span className='text-xs text-gray-500 dark:text-gray-400 sm:hidden truncate max-w-[100px]' title={user?.role_display || user?.role}>
                       {user?.role_display?.replace('General User', 'User').replace('Administrator', 'Admin').replace('Super Administrator', 'Super Admin') || user?.role}
                     </span>
                   </div>
@@ -254,9 +255,11 @@ const Layout = () => {
                 </div>
               </div>
 
+              <ThemeToggle />
+
               <button
                 onClick={handleLogout}
-                className='text-gray-400 hover:text-gray-600 p-1 sm:p-0'
+                className='text-gray-400 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-200 p-1 sm:p-0 transition-colors duration-200'
                 title='Logout'
                 aria-label="Logout"
               >

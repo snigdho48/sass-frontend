@@ -8,6 +8,7 @@ import { Toaster } from 'react-hot-toast';
 import './index.css';
 import App from './App';
 import { store, persistor } from './store';
+import { ThemeProvider } from './contexts/ThemeContext';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -46,19 +47,18 @@ root.render(
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
         <QueryClientProvider client={queryClient}>
-          <BrowserRouter>
-            <App />
-            <Toaster
-              position="top-right"
-              toastOptions={{
-                duration: 4000,
-                style: {
-                  background: '#363636',
-                  color: '#fff',
-                },
-              }}
-            />
-          </BrowserRouter>
+          <ThemeProvider>
+            <BrowserRouter>
+              <App />
+              <Toaster
+                position="top-right"
+                toastOptions={{
+                  duration: 4000,
+                  className: '!bg-white !text-gray-900 !border-gray-200 dark:!bg-gray-800 dark:!text-gray-100 dark:!border-gray-700',
+                }}
+              />
+            </BrowserRouter>
+          </ThemeProvider>
         </QueryClientProvider>
       </PersistGate>
     </Provider>

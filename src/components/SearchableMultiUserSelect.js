@@ -109,8 +109,8 @@ const SearchableMultiUserSelect = ({
 
   return (
     <div className="relative" ref={containerRef}>
-      <div className={`w-full min-h-[42px] px-3 py-2 border rounded-md focus-within:ring-2 focus-within:ring-blue-500 ${
-        disabled ? 'bg-gray-100 cursor-not-allowed' : 'border-gray-300'
+      <div className={`w-full min-h-[42px] px-3 py-2 border rounded-md focus-within:ring-2 focus-within:ring-blue-500 dark:focus-within:ring-blue-400 ${
+        disabled ? 'bg-gray-100 dark:bg-gray-700 cursor-not-allowed' : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800'
       }`}>
         {/* Selected items */}
         {selectedOptions.length > 0 && (
@@ -118,13 +118,13 @@ const SearchableMultiUserSelect = ({
             {selectedOptions.map((option) => (
               <span
                 key={option.id}
-                className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-800"
+                className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300"
               >
                 {option.first_name} {option.last_name}
                 <button
                   type="button"
                   onClick={() => handleRemove(option.id)}
-                  className="ml-1 inline-flex items-center justify-center w-4 h-4 rounded-full hover:bg-blue-200"
+                  className="ml-1 inline-flex items-center justify-center w-4 h-4 rounded-full hover:bg-blue-200 dark:hover:bg-blue-800"
                   disabled={disabled}
                 >
                   <X className="w-3 h-3" />
@@ -135,7 +135,7 @@ const SearchableMultiUserSelect = ({
               <button
                 type="button"
                 onClick={handleClearAll}
-                className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-600 hover:bg-gray-200"
+                className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
                 disabled={disabled}
               >
                 Clear all
@@ -148,8 +148,8 @@ const SearchableMultiUserSelect = ({
         <input
           ref={inputRef}
           type="text"
-          className={`w-full border-0 p-0 focus:outline-none focus:ring-0 ${
-            disabled ? 'bg-transparent cursor-not-allowed' : ''
+          className={`w-full border-0 p-0 focus:outline-none focus:ring-0 bg-transparent text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 ${
+            disabled ? 'cursor-not-allowed' : ''
           }`}
           placeholder={selectedOptions.length === 0 ? placeholder : "Add more users..."}
           value={searchTerm}
@@ -161,24 +161,24 @@ const SearchableMultiUserSelect = ({
       </div>
       
       {isOpen && (
-        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+        <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-lg max-h-60 overflow-y-auto">
           {filteredOptions.length === 0 ? (
-            <div className="px-3 py-2 text-sm text-gray-500">
+            <div className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
               {searchTerm ? 'No users found' : 'All users selected'}
             </div>
           ) : (
             filteredOptions.map((option, index) => (
               <div
                 key={option.id}
-                className={`px-3 py-2 cursor-pointer text-sm hover:bg-gray-100 ${
-                  index === selectedIndex ? 'bg-blue-100' : ''
+                className={`px-3 py-2 cursor-pointer text-sm hover:bg-gray-100 dark:hover:bg-gray-700 ${
+                  index === selectedIndex ? 'bg-blue-100 dark:bg-gray-700' : ''
                 }`}
                 onClick={() => handleSelect(option)}
               >
-                <div className="font-medium">
+                <div className="font-medium text-gray-900 dark:text-gray-100">
                   {option.first_name} {option.last_name}
                 </div>
-                <div className="text-gray-500 text-xs">
+                <div className="text-gray-500 dark:text-gray-400 text-xs">
                   {option.email}
                 </div>
               </div>

@@ -77,7 +77,7 @@ const Login = () => {
         }}
         user={user}
       />
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-6 sm:space-y-8">
         <div>
           <div className="mx-auto flex items-center justify-center">
@@ -87,14 +87,14 @@ const Login = () => {
               className="h-12 sm:h-16 w-auto"
             />
           </div>
-          <h2 className="mt-4 sm:mt-6 text-center text-2xl sm:text-3xl font-extrabold text-gray-900">
+          <h2 className="mt-4 sm:mt-6 text-center text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-gray-100">
             Sign in to your account
           </h2>
-          <p className="mt-2 text-center text-xs sm:text-sm text-gray-600">
+          <p className="mt-2 text-center text-xs sm:text-sm text-gray-600 dark:text-gray-400">
             Or{' '}
             <Link
               to="/register"
-              className="font-medium text-primary-600 hover:text-primary-500"
+              className="font-medium text-primary-600 dark:text-primary-400 hover:text-primary-500 dark:hover:text-primary-300"
             >
               create a new account
             </Link>
@@ -102,8 +102,8 @@ const Login = () => {
         </div>
         <form className="mt-6 sm:mt-8 space-y-4 sm:space-y-6" onSubmit={handleSubmit}>
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-md p-3 sm:p-4">
-              <p className="text-xs sm:text-sm text-red-600">{error}</p>
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md p-3 sm:p-4">
+              <p className="text-xs sm:text-sm text-red-600 dark:text-red-400">{error}</p>
             </div>
           )}
           
@@ -114,7 +114,7 @@ const Login = () => {
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+                  <Mail className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 dark:text-gray-500" />
                 </div>
                 <input
                   id="email"
@@ -135,7 +135,7 @@ const Login = () => {
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+                  <Lock className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 dark:text-gray-500" />
                 </div>
                 <input
                   id="password"
@@ -154,9 +154,9 @@ const Login = () => {
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
-                    <EyeOff className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+                    <EyeOff className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 dark:text-gray-500" />
                   ) : (
-                    <Eye className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+                    <Eye className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 dark:text-gray-500" />
                   )}
                 </button>
               </div>
@@ -169,9 +169,9 @@ const Login = () => {
                 id="remember-me"
                 name="remember-me"
                 type="checkbox"
-                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded"
               />
-              <label htmlFor="remember-me" className="ml-2 block text-xs sm:text-sm text-gray-900">
+              <label htmlFor="remember-me" className="ml-2 block text-xs sm:text-sm text-gray-900 dark:text-gray-100">
                 Remember me
               </label>
             </div>
@@ -179,7 +179,7 @@ const Login = () => {
             <div className="text-xs sm:text-sm">
               <button
                 type="button"
-                className="font-medium text-primary-600 hover:text-primary-500"
+                className="font-medium text-primary-600 dark:text-primary-400 hover:text-primary-500 dark:hover:text-primary-300"
                 onClick={() => {/* TODO: Implement forgot password */}}
               >
                 Forgot your password?

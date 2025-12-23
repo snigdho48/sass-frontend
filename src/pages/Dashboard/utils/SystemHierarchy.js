@@ -18,7 +18,7 @@ const SystemHierarchy = ({ systems, systemType, color = 'blue' }) => {
       border: 'border-purple-200',
       text: 'text-purple-700',
       textLight: 'text-purple-600',
-      badge: 'bg-purple-100 text-purple-700',
+      badge: 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300',
       icon: 'text-purple-600'
     }
   };
@@ -29,7 +29,7 @@ const SystemHierarchy = ({ systems, systemType, color = 'blue' }) => {
 
   if (!systems || systems.length === 0) {
     return (
-      <div className={`card border-2 ${colors.border} ${colors.light}`}>
+      <div className={`card border-2 ${colors.border} ${colors.light} dark:bg-gray-800/50`}>
         <div className="card-body p-4 sm:p-6 text-center">
           <div className={`inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full ${colors.badge} mb-3 sm:mb-4`}>
             <Icon className={`h-6 w-6 sm:h-8 sm:w-8 ${colors.icon}`} />
@@ -37,8 +37,8 @@ const SystemHierarchy = ({ systems, systemType, color = 'blue' }) => {
           <h3 className={`text-lg sm:text-xl font-bold ${colors.text} mb-2`}>
             {systemName}
           </h3>
-          <p className="text-sm sm:text-base font-medium text-gray-600 mb-1">Not Available</p>
-          <p className="text-xs sm:text-sm text-gray-500">No water systems configured</p>
+          <p className="text-sm sm:text-base font-medium text-gray-600 dark:text-gray-400 mb-1">Not Available</p>
+          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">No water systems configured</p>
         </div>
       </div>
     );
@@ -79,7 +79,7 @@ const SystemHierarchy = ({ systems, systemType, color = 'blue' }) => {
               {plantName !== 'Unassigned' && (
                 <div className="flex items-center space-x-2 mb-2">
                   <div className={`w-1 h-3 sm:h-4 ${colors.primary} rounded-full`}></div>
-                  <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide truncate">
+                  <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide truncate">
                     {plantName}
                   </span>
                 </div>
@@ -87,11 +87,11 @@ const SystemHierarchy = ({ systems, systemType, color = 'blue' }) => {
               {plantSystems.map((system) => (
                 <div
                   key={system.id}
-                  className={`flex items-center justify-between p-2.5 sm:p-3 rounded-lg border ${colors.border} ${colors.light} hover:shadow-md transition-all duration-200`}
+                  className={`flex items-center justify-between p-2.5 sm:p-3 rounded-lg border ${colors.border} ${colors.light} dark:bg-gray-700/30 dark:border-gray-600 hover:shadow-md transition-all duration-200`}
                 >
                   <div className="flex items-center space-x-2 sm:space-x-3 flex-1 min-w-0">
                     <div className={`w-2 h-2 rounded-full ${colors.primary} flex-shrink-0`}></div>
-                    <span className="text-xs sm:text-sm font-semibold text-gray-800 truncate">
+                    <span className="text-xs sm:text-sm font-semibold text-gray-800 dark:text-gray-200 truncate">
                       {system.name}
                     </span>
                   </div>

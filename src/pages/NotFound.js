@@ -4,13 +4,13 @@ import { Home, ArrowLeft } from 'lucide-react';
 
 const NotFound = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full text-center">
-        <div className="mx-auto h-24 w-24 flex items-center justify-center rounded-full bg-primary-100 mb-6">
-          <span className="text-4xl font-bold text-primary-600">404</span>
+        <div className="mx-auto h-24 w-24 flex items-center justify-center rounded-full bg-primary-100 dark:bg-primary-900/30 mb-6">
+          <span className="text-4xl font-bold text-primary-600 dark:text-primary-400">404</span>
         </div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-4">Page Not Found</h1>
-        <p className="text-lg text-gray-600 mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">Page Not Found</h1>
+        <p className="text-lg text-gray-600 dark:text-gray-400 mb-8">
           Sorry, we couldn't find the page you're looking for.
         </p>
         <div className="space-y-4">

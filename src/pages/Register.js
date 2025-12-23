@@ -57,7 +57,7 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-6 sm:space-y-8">
         <div>
           <div className="mx-auto flex items-center justify-center">
@@ -67,14 +67,14 @@ const Register = () => {
               className="h-12 sm:h-16 w-auto"
             />
           </div>
-          <h2 className="mt-4 sm:mt-6 text-center text-2xl sm:text-3xl font-extrabold text-gray-900">
+          <h2 className="mt-4 sm:mt-6 text-center text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-gray-100">
             Create your account
           </h2>
-          <p className="mt-2 text-center text-xs sm:text-sm text-gray-600">
+          <p className="mt-2 text-center text-xs sm:text-sm text-gray-600 dark:text-gray-400">
             Or{' '}
             <Link
               to="/login"
-              className="font-medium text-primary-600 hover:text-primary-500"
+              className="font-medium text-primary-600 dark:text-primary-400 hover:text-primary-500 dark:hover:text-primary-300"
             >
               sign in to your existing account
             </Link>
@@ -84,12 +84,12 @@ const Register = () => {
           <div className="space-y-3 sm:space-y-4">
             <div className="grid grid-cols-1 gap-3 sm:gap-4 sm:grid-cols-2">
               <div>
-                <label htmlFor="first_name" className="block text-xs sm:text-sm font-medium text-gray-700">
+                <label htmlFor="first_name" className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
                   First Name
                 </label>
                 <div className="relative mt-1">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <User className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+                    <User className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 dark:text-gray-500" />
                   </div>
                   <input
                     id="first_name"
@@ -104,12 +104,12 @@ const Register = () => {
                 </div>
               </div>
               <div>
-                <label htmlFor="last_name" className="block text-xs sm:text-sm font-medium text-gray-700">
+                <label htmlFor="last_name" className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
                   Last Name
                 </label>
                 <div className="relative mt-1">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <User className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+                    <User className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 dark:text-gray-500" />
                   </div>
                   <input
                     id="last_name"
@@ -126,12 +126,12 @@ const Register = () => {
             </div>
             
             <div>
-              <label htmlFor="email" className="block text-xs sm:text-sm font-medium text-gray-700">
+              <label htmlFor="email" className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
                 Email Address
               </label>
               <div className="relative mt-1">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+                  <Mail className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 dark:text-gray-500" />
                 </div>
                 <input
                   id="email"
@@ -148,7 +148,7 @@ const Register = () => {
             </div>
 
             <div>
-              <label htmlFor="username" className="block text-xs sm:text-sm font-medium text-gray-700">
+              <label htmlFor="username" className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
                 Username
               </label>
               <div className="relative mt-1">
@@ -169,12 +169,12 @@ const Register = () => {
             </div>
 
             <div>
-              <label htmlFor="company" className="block text-xs sm:text-sm font-medium text-gray-700">
+              <label htmlFor="company" className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
                 Company
               </label>
               <div className="relative mt-1">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Building className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+                  <Building className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 dark:text-gray-500" />
                 </div>
                 <input
                   id="company"
@@ -189,12 +189,12 @@ const Register = () => {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-xs sm:text-sm font-medium text-gray-700">
+              <label htmlFor="password" className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
                 Password
               </label>
               <div className="relative mt-1">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+                  <Lock className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 dark:text-gray-500" />
                 </div>
                 <input
                   id="password"
@@ -213,21 +213,21 @@ const Register = () => {
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
-                    <EyeOff className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+                    <EyeOff className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 dark:text-gray-500" />
                   ) : (
-                    <Eye className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+                    <Eye className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 dark:text-gray-500" />
                   )}
                 </button>
               </div>
             </div>
 
             <div>
-              <label htmlFor="confirm_password" className="block text-xs sm:text-sm font-medium text-gray-700">
+              <label htmlFor="confirm_password" className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
                 Confirm Password
               </label>
               <div className="relative mt-1">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+                  <Lock className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 dark:text-gray-500" />
                 </div>
                 <input
                   id="confirm_password"
@@ -246,9 +246,9 @@ const Register = () => {
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 >
                   {showConfirmPassword ? (
-                    <EyeOff className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+                    <EyeOff className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 dark:text-gray-500" />
                   ) : (
-                    <Eye className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+                    <Eye className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 dark:text-gray-500" />
                   )}
                 </button>
               </div>

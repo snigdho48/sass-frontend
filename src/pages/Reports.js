@@ -213,20 +213,20 @@ const Reports = () => {
     <div className="space-y-4 sm:space-y-6 p-4 sm:p-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Water Analysis Reports</h1>
-        <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-gray-500">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">Water Analysis Reports</h1>
+        <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
           Generate detailed reports for your water analysis data
         </p>
       </div>
 
       {/* Report Generation Form */}
-      <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
-        <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6">Generate Report</h2>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 sm:p-6">
+        <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4 sm:mb-6">Generate Report</h2>
 
         <div className="space-y-4 sm:space-y-6">
           {/* Step 1: Analysis Type Selection */}
           <div>
-            <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2 sm:mb-3">
+            <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 sm:mb-3">
               Step 1: Select Analysis Type <span className="text-red-500">*</span>
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
@@ -238,21 +238,21 @@ const Reports = () => {
                 }}
                 className={`p-3 sm:p-4 rounded-lg border-2 transition-all ${
                   analysisType === 'cooling'
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-300 hover:border-gray-400'
+                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-400'
+                    : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
                 }`}
               >
                 <Droplet className={`h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2 ${
-                  analysisType === 'cooling' ? 'text-blue-600' : 'text-gray-400'
+                  analysisType === 'cooling' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'
                 }`} />
                 <div className="text-center">
                   <div className={`text-sm sm:text-base font-medium ${
-                    analysisType === 'cooling' ? 'text-blue-900' : 'text-gray-700'
+                    analysisType === 'cooling' ? 'text-blue-900 dark:text-blue-300' : 'text-gray-700 dark:text-gray-300'
                   }`}>
                     Cooling Water
                   </div>
                   {analysisType === 'cooling' && (
-                    <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 mx-auto mt-1" />
+                    <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 dark:text-blue-400 mx-auto mt-1" />
                   )}
                 </div>
               </button>
@@ -265,21 +265,21 @@ const Reports = () => {
                 }}
                 className={`p-3 sm:p-4 rounded-lg border-2 transition-all ${
                   analysisType === 'boiler'
-                    ? 'border-orange-500 bg-orange-50'
-                    : 'border-gray-300 hover:border-gray-400'
+                    ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20 dark:border-orange-400'
+                    : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
                 }`}
               >
                 <Flame className={`h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2 ${
-                  analysisType === 'boiler' ? 'text-orange-600' : 'text-gray-400'
+                  analysisType === 'boiler' ? 'text-orange-600 dark:text-orange-400' : 'text-gray-400 dark:text-gray-500'
                 }`} />
                 <div className="text-center">
                   <div className={`text-sm sm:text-base font-medium ${
-                    analysisType === 'boiler' ? 'text-orange-900' : 'text-gray-700'
+                    analysisType === 'boiler' ? 'text-orange-900 dark:text-orange-300' : 'text-gray-700 dark:text-gray-300'
                   }`}>
                     Boiler Water
                   </div>
                   {analysisType === 'boiler' && (
-                    <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600 mx-auto mt-1" />
+                    <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600 dark:text-orange-400 mx-auto mt-1" />
                   )}
                 </div>
               </button>
@@ -289,7 +289,7 @@ const Reports = () => {
           {/* Step 2: Water System Selection */}
           {analysisType && (
             <div>
-              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2 sm:mb-3">
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 sm:mb-3">
                 Step 2: Select Water System <span className="text-red-500">*</span>
               </label>
               {waterSystemsLoading ? (
@@ -297,19 +297,19 @@ const Reports = () => {
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                 </div>
               ) : !Array.isArray(waterSystems) || waterSystems.length === 0 ? (
-                <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <p className="text-sm text-yellow-800 font-medium mb-2">
+                <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                  <p className="text-sm text-yellow-800 dark:text-yellow-300 font-medium mb-2">
                     No {analysisType === 'cooling' ? 'cooling' : 'boiler'} water systems available.
                   </p>
-                  <p className="text-xs text-yellow-700">
+                  <p className="text-xs text-yellow-700 dark:text-yellow-400">
                     {waterSystemsError 
                       ? 'Error loading water systems. Please try again or contact your administrator.'
                       : 'You may not have access to any ' + (analysisType === 'cooling' ? 'cooling' : 'boiler') + ' water systems, or none have been created yet. Please contact your administrator to create or assign a water system.'}
                   </p>
                   {waterSystemsError && (
-                    <details className="mt-2 text-xs text-yellow-600">
+                    <details className="mt-2 text-xs text-yellow-600 dark:text-yellow-400">
                       <summary className="cursor-pointer">Error details</summary>
-                      <pre className="mt-1 p-2 bg-yellow-100 rounded overflow-auto">
+                      <pre className="mt-1 p-2 bg-yellow-100 dark:bg-yellow-900/30 rounded overflow-auto text-gray-900 dark:text-gray-100">
                         {JSON.stringify(waterSystemsError.response?.data || waterSystemsError.message, null, 2)}
                       </pre>
                     </details>
@@ -340,7 +340,7 @@ const Reports = () => {
           {/* Step 3: Report Type Selection */}
           {selectedWaterSystem && (
             <div>
-              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2 sm:mb-3">
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 sm:mb-3">
                 Step 3: Select Report Type <span className="text-red-500">*</span>
               </label>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
@@ -357,15 +357,15 @@ const Reports = () => {
                     }}
                     className={`p-3 sm:p-4 rounded-lg border-2 transition-all ${
                       reportType === type
-                        ? 'border-blue-500 bg-blue-50'
-                        : 'border-gray-300 hover:border-gray-400'
+                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-400'
+                        : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
                     }`}
                   >
                     <Calendar className={`h-5 w-5 sm:h-6 sm:w-6 mx-auto mb-2 ${
-                      reportType === type ? 'text-blue-600' : 'text-gray-400'
+                      reportType === type ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'
                     }`} />
                     <div className={`text-center text-sm sm:text-base font-medium ${
-                      reportType === type ? 'text-blue-900' : 'text-gray-700'
+                      reportType === type ? 'text-blue-900 dark:text-blue-300' : 'text-gray-700 dark:text-gray-300'
                     }`}>
                       {type.charAt(0).toUpperCase() + type.slice(1)}
                     </div>
@@ -378,7 +378,7 @@ const Reports = () => {
           {/* Step 4: Date/Month/Year Selection */}
           {reportType && (
             <div>
-              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2 sm:mb-3">
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 sm:mb-3">
                 Step 4: Select {reportType === 'daily' ? 'Date' : reportType === 'monthly' ? 'Month' : 'Year'} <span className="text-red-500">*</span>
               </label>
               
@@ -389,7 +389,7 @@ const Reports = () => {
                     value={selectedDate}
                     onChange={(e) => setSelectedDate(e.target.value)}
                     max={new Date().toISOString().split('T')[0]} // Don't allow future dates
-                    className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                   />
                 </div>
               )}
@@ -401,7 +401,7 @@ const Reports = () => {
                     value={selectedMonth}
                     onChange={(e) => setSelectedMonth(e.target.value)}
                     max={`${currentYear}-12`} // Don't allow future months
-                    className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                   />
                 </div>
               )}
@@ -411,7 +411,7 @@ const Reports = () => {
                   <select
                     value={selectedYear}
                     onChange={(e) => setSelectedYear(e.target.value)}
-                    className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                   >
                     <option value="">Select a year...</option>
                     {years.map((year) => (
@@ -482,15 +482,15 @@ const Reports = () => {
           <div className="flex items-center justify-center min-h-screen pt-2 sm:pt-4 px-2 sm:px-4 pb-2 sm:pb-4">
             {/* Background overlay */}
             <div 
-              className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity z-40"
+              className="fixed inset-0 bg-gray-500 dark:bg-gray-900 bg-opacity-75 dark:bg-opacity-80 transition-opacity z-40"
               onClick={handleClosePreview}
             ></div>
 
             {/* Modal panel */}
-            <div className="relative bg-white rounded-lg shadow-xl w-full max-w-6xl z-50 my-2 sm:my-8">
+            <div className="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-6xl z-50 my-2 sm:my-8">
               {/* Modal header */}
-              <div className="bg-white px-3 sm:px-4 md:px-6 py-3 sm:py-4 border-b border-gray-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3 sticky top-0 z-10">
-                <h3 className="text-sm sm:text-base md:text-lg font-medium text-gray-900 flex items-center break-words flex-1 min-w-0">
+              <div className="bg-white dark:bg-gray-800 px-3 sm:px-4 md:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3 sticky top-0 z-10">
+                <h3 className="text-sm sm:text-base md:text-lg font-medium text-gray-900 dark:text-gray-100 flex items-center break-words flex-1 min-w-0">
                   <FileText className="h-4 w-4 sm:h-5 sm:w-5 mr-2 flex-shrink-0" />
                   <span className="break-all truncate">{generatedPdf.filename}</span>
                 </h3>
@@ -505,7 +505,7 @@ const Reports = () => {
                   </button>
                   <button
                     onClick={handleClosePreview}
-                    className="text-gray-400 hover:text-gray-600 focus:outline-none p-1 sm:p-2"
+                    className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none p-1 sm:p-2"
                     aria-label="Close"
                   >
                     <X className="h-5 w-5 sm:h-6 sm:w-6" />
@@ -514,11 +514,11 @@ const Reports = () => {
               </div>
 
               {/* Modal body with PDF preview */}
-              <div className="bg-white px-2 sm:px-4 md:px-6 py-2 sm:py-4">
+              <div className="bg-white dark:bg-gray-800 px-2 sm:px-4 md:px-6 py-2 sm:py-4">
                 <div className="w-full" style={{ height: 'calc(100vh - 180px)', minHeight: '400px' }}>
                   <iframe
                     src={generatedPdf.blobUrl}
-                    className="w-full h-full border border-gray-300 rounded-md"
+                    className="w-full h-full border border-gray-300 dark:border-gray-600 rounded-md"
                     title="PDF Preview"
                   />
                 </div>

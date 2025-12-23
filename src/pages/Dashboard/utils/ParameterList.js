@@ -33,11 +33,11 @@ const ParameterList = ({ parameters, systemType, loading }) => {
           <div key={param.key} className="card shadow-sm">
             <div className={`card-header bg-gradient-to-r ${
               systemType === 'cooling' 
-                ? 'from-blue-50 to-blue-100' 
-                : 'from-purple-50 to-purple-100'
+                ? 'from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20' 
+                : 'from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20'
             }`}>
-              <h4 className="text-sm sm:text-base font-semibold text-gray-900">{param.label}</h4>
-              <p className="text-xs text-gray-600 mt-1">Parameter trend area chart</p>
+              <h4 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-gray-100">{param.label}</h4>
+              <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Parameter trend area chart</p>
             </div>
             <div className="card-body p-3 sm:p-4">
               {hasData ? (
@@ -48,9 +48,9 @@ const ParameterList = ({ parameters, systemType, loading }) => {
                   loading={loading}
                 />
               ) : (
-                <div className="h-48 sm:h-64 flex flex-col items-center justify-center text-gray-500 bg-gray-50 rounded-lg">
+                <div className="h-48 sm:h-64 flex flex-col items-center justify-center text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
                   <p className="text-xs sm:text-sm font-medium">Not Available</p>
-                  <p className="text-xs mt-1 text-gray-400">No data available for this parameter</p>
+                  <p className="text-xs mt-1 text-gray-400 dark:text-gray-500">No data available for this parameter</p>
                 </div>
               )}
             </div>

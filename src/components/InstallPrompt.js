@@ -101,9 +101,9 @@ const InstallPrompt = () => {
 
   return (
     <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-4 sm:max-w-md z-50 animate-slide-up">
-      <div className="bg-white rounded-lg shadow-xl border border-gray-200 p-4 flex items-start gap-3">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 p-4 flex items-start gap-3">
         <div className="flex-shrink-0">
-          <div className="h-10 w-10 rounded-lg overflow-hidden bg-white border border-gray-200 flex items-center justify-center">
+          <div className="h-10 w-10 rounded-lg overflow-hidden bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 flex items-center justify-center">
             <img 
               src="/icon.png" 
               alt="WaterSight" 
@@ -114,29 +114,29 @@ const InstallPrompt = () => {
                 if (fallback) fallback.style.display = 'flex';
               }}
             />
-            <div className="h-full w-full items-center justify-center hidden icon-fallback bg-primary-100">
-              <Download className="h-5 w-5 text-primary-600" />
+            <div className="h-full w-full items-center justify-center hidden icon-fallback bg-primary-100 dark:bg-primary-900">
+              <Download className="h-5 w-5 text-primary-600 dark:text-primary-400" />
             </div>
           </div>
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-semibold text-gray-900 mb-1">
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1">
             Install WaterSight
           </h3>
-          <p className="text-xs text-gray-600 mb-3">
+          <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">
             Install our app for a better experience. Quick access, offline support, and more!
           </p>
           <div className="flex gap-2">
             <button
               onClick={handleInstallClick}
-              className="flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-md transition-colors"
+              className="flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-white bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 rounded-md transition-colors"
             >
               <Download className="h-3 w-3 mr-1.5" />
               Install
             </button>
             <button
               onClick={handleDismiss}
-              className="px-3 py-2 text-xs font-medium text-gray-700 hover:text-gray-900 transition-colors"
+              className="px-3 py-2 text-xs font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
             >
               Not now
             </button>
@@ -144,7 +144,7 @@ const InstallPrompt = () => {
         </div>
         <button
           onClick={handleDismiss}
-          className="flex-shrink-0 text-gray-400 hover:text-gray-600 p-1"
+          className="flex-shrink-0 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 p-1"
           aria-label="Close"
         >
           <X className="h-4 w-4" />
