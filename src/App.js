@@ -43,13 +43,14 @@ const PrivateRoute = ({ children }) => {
         }
       }
     }
-  }, [isAuthenticated, user, loading, navigate]);
+      if ((loading && !isAuthenticated) || pageLoading) {
+    return <PageLoader />;
+  }
+  }, [isAuthenticated, user, loading, navigate, pageLoading]);
   
   // Show loader only if we're loading AND not authenticated
   // If authenticated, show content even if still loading (from login process)
-  if ((loading && !isAuthenticated) || pageLoading) {
-    return <PageLoader />;
-  }
+
   
   // Check if user is inactive - don't render children (but allow super admin)
   if (user) {
@@ -78,19 +79,21 @@ const AdminRoute = ({ children }) => {
   useEffect(() => {
     if (!loading) {
       if (!isAuthenticated) {
-        navigate('/login', { replace: true });
+        navigate("/login", { replace: true });
       } else if (!user?.is_admin) {
         // Only Admin and Super Admin can access Admin Panel, not General Users
-        navigate('/dashboard', { replace: true });
+        navigate("/dashboard", { replace: true });
       }
     }
-  }, [isAuthenticated, user, loading, navigate]);
+    if ((loading && !isAuthenticated) || pageLoading) {
+      return <PageLoader />;
+    }
+  }, [isAuthenticated, user, loading, navigate, pageLoading]);
   
   // Show loader only if we're loading AND not authenticated
-  // If authenticated, show content even if still loading (from login process)
-  if ((loading && !isAuthenticated) || pageLoading) {
-    return <PageLoader />;
-  }
+
+  
+
   
   // Only Admin and Super Admin can access Admin Panel, not General Users
   if (!isAuthenticated || !user?.is_admin) {
