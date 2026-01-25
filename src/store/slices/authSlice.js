@@ -82,6 +82,7 @@ const initialState = {
   isAuthenticated: false,
   loading: false,
   error: null,
+  justLoggedIn: false, // Flag to track if we just logged in
 };
 
 const authSlice = createSlice({
@@ -95,6 +96,7 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       state.loading = false;
       state.error = null;
+      state.justLoggedIn = false;
       
       // Save theme before clearing
       const theme = localStorage.getItem('theme');
@@ -120,6 +122,11 @@ const authSlice = createSlice({
       state.loading = false;
       state.error = null;
     },
+    clearStaleUser: (state) => {
+      // Clear user data but keep token (for fetching correct user)
+      state.user = null;
+      state.isAuthenticated = false;
+    },
   },
   extraReducers: (builder) => {
     // Login
@@ -130,9 +137,11 @@ const authSlice = createSlice({
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.loading = false;
+        // Always update user on login to ensure we have the correct user from login response
         state.user = action.payload.user;
         state.token = action.payload.token;
         state.isAuthenticated = true;
+        state.justLoggedIn = true; // Set flag to prevent getCurrentUser from overwriting
         toast.success('Login successful!');
       })
       .addCase(loginUser.rejected, (state, action) => {
@@ -151,6 +160,7 @@ const authSlice = createSlice({
         state.user = action.payload.user;
         state.token = action.payload.token;
         state.isAuthenticated = true;
+        state.justLoggedIn = true; // Set flag to prevent getCurrentUser from overwriting
         toast.success('Registration successful!');
       })
       .addCase(registerUser.rejected, (state, action) => {
@@ -165,8 +175,13 @@ const authSlice = createSlice({
       })
       .addCase(getCurrentUser.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = action.payload;
+        // Only update user if we didn't just log in (to prevent overwriting login response)
+        // Or if the user ID is different (user switched accounts)
+        if (!state.justLoggedIn || (state.user && state.user.id !== action.payload.id)) {
+          state.user = action.payload;
+        }
         state.isAuthenticated = true;
+        state.justLoggedIn = false; // Reset flag after getCurrentUser completes
       })
       .addCase(getCurrentUser.rejected, (state) => {
         state.loading = false;
@@ -191,7 +206,7 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout, clearError, setLoading, resetLoading } = authSlice.actions;
+export const { logout, clearError, setLoading, resetLoading, clearStaleUser } = authSlice.actions;
 
 // Action to completely reset the store
 export const resetStore = () => ({

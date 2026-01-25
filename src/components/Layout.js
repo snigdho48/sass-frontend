@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { Outlet, useLocation, Link } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from '../hooks/useAppSelector';
 import { logout, resetStore } from '../store/slices/authSlice';
-import { setSidebarOpen, setNavigationLoading } from '../store/slices/uiSlice';
+import { setSidebarOpen, setNavigationLoading, setPageLoading } from '../store/slices/uiSlice';
 import { authService } from '../services/authService';
 import { useNavigationLoading } from '../hooks/useNavigationLoading';
 import {
@@ -62,6 +62,10 @@ const Layout = () => {
 
   const handleLogout = async () => {
     try {
+      // Reset page loading state first
+      dispatch(setPageLoading(false));
+      dispatch(setNavigationLoading(false));
+      
       // Clear React Query cache
       if (window.queryClient) {
         window.queryClient.clear();
@@ -72,9 +76,14 @@ const Layout = () => {
       dispatch(logout());
       // Reset the entire store
       dispatch(resetStore());
-      // Clear all localStorage completely
+      // Clear all localStorage completely (except theme which is handled in logout action)
+      const theme = localStorage.getItem('theme');
       localStorage.clear();
       sessionStorage.clear();
+      // Restore theme if it existed
+      if (theme) {
+        localStorage.setItem('theme', theme);
+      }
       // Force a hard redirect to ensure complete logout
       setTimeout(() => {
         window.location.href = '/login';
@@ -82,10 +91,16 @@ const Layout = () => {
     } catch (error) {
       console.error('Logout error:', error);
       // Even if there's an error, still logout locally
+      dispatch(setPageLoading(false));
+      dispatch(setNavigationLoading(false));
       dispatch(logout());
       dispatch(resetStore());
+      const theme = localStorage.getItem('theme');
       localStorage.clear();
       sessionStorage.clear();
+      if (theme) {
+        localStorage.setItem('theme', theme);
+      }
       setTimeout(() => {
         window.location.href = '/login';
       }, 100);

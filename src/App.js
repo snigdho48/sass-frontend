@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from './hooks/useAppSelector';
-import { getCurrentUser } from './store/slices/authSlice';
+import { getCurrentUser, clearStaleUser } from './store/slices/authSlice';
 import { setPageLoading } from './store/slices/uiSlice';
 import Layout from './components/Layout';
 import Login from './pages/Login';
@@ -17,43 +17,91 @@ import { PageLoader, NavigationLoader } from './components/Loader';
 import { authService } from './services/authService';
 import toast from 'react-hot-toast';
 
+// Utility function to decode JWT token and get user_id
+const decodeJWT = (token) => {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch (error) {
+    return null;
+  }
+};
+
 const PrivateRoute = ({ children }) => {
-  const { isAuthenticated, loading, user } = useAppSelector(state => state.auth);
+  const { isAuthenticated, loading, user, token } = useAppSelector(state => state.auth);
   const { pageLoading } = useAppSelector(state => state.ui);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   
+  // Show loader if we're loading (including initial load with token)
+  // or if pageLoading is true
   useEffect(() => {
-    if (!isAuthenticated && !loading) {
+    if (loading || (token && !isAuthenticated && !user)) {
       dispatch(setPageLoading(true));
+    } else {
+      dispatch(setPageLoading(false));
     }
-  }, [isAuthenticated, loading, dispatch]);
+  }, [loading, isAuthenticated, user, token, dispatch]);
   
   useEffect(() => {
+    let isMounted = true;
+    let timeoutId = null;
+    
     if (!loading) {
       if (!isAuthenticated) {
-        navigate('/login', { replace: true });
-      } else if (user) {
+        // Small delay to prevent navigation during unmount
+        timeoutId = setTimeout(() => {
+          if (isMounted) {
+            navigate('/login', { replace: true });
+          }
+        }, 0);
+      } else if (user && typeof user === 'object') {
         // Check if user is inactive - redirect to login to show modal
         // Super admin can always access
         const isSuperAdmin = user.is_super_admin || user.role === 'super_admin';
         const isInactive = !isSuperAdmin && (user.is_admin || user.is_general_user) && !user.is_active;
         if (isInactive) {
-          navigate('/login', { replace: true });
+          timeoutId = setTimeout(() => {
+            if (isMounted) {
+              navigate('/login', { replace: true });
+            }
+          }, 0);
         }
       }
     }
-      if ((loading && !isAuthenticated) || pageLoading) {
+    
+    return () => {
+      isMounted = false;
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [isAuthenticated, user, loading, navigate]);
+  
+  // Show loader if loading or pageLoading
+  if (loading || pageLoading || (token && !user)) {
     return <PageLoader />;
   }
-  }, [isAuthenticated, user, loading, navigate, pageLoading]);
   
-  // Show loader only if we're loading AND not authenticated
-  // If authenticated, show content even if still loading (from login process)
-
+  // If not authenticated and no token, don't render
+  if (!isAuthenticated && !token) {
+    return null;
+  }
+  
+  // If authenticated but no user yet, show loader
+  if (isAuthenticated && !user) {
+    return <PageLoader />;
+  }
   
   // Check if user is inactive - don't render children (but allow super admin)
-  if (user) {
+  if (user && typeof user === 'object') {
     const isSuperAdmin = user.is_super_admin || user.role === 'super_admin';
     const isInactive = !isSuperAdmin && (user.is_admin || user.is_general_user) && !user.is_active;
     if (isInactive) {
@@ -61,42 +109,59 @@ const PrivateRoute = ({ children }) => {
     }
   }
   
-  return isAuthenticated ? children : null;
+  return children;
 };
 
 const AdminRoute = ({ children }) => {
-  const { user, isAuthenticated, loading } = useAppSelector(state => state.auth);
+  const { user, isAuthenticated, loading, token } = useAppSelector(state => state.auth);
   const { pageLoading } = useAppSelector(state => state.ui);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   
   useEffect(() => {
-    if (!isAuthenticated && !loading) {
+    if (loading || (token && !isAuthenticated && !user)) {
       dispatch(setPageLoading(true));
+    } else {
+      dispatch(setPageLoading(false));
     }
-  }, [isAuthenticated, loading, dispatch]);
+  }, [loading, isAuthenticated, user, token, dispatch]);
   
   useEffect(() => {
+    let isMounted = true;
+    let timeoutId = null;
+    
     if (!loading) {
       if (!isAuthenticated) {
-        navigate("/login", { replace: true });
-      } else if (!user?.is_admin) {
+        timeoutId = setTimeout(() => {
+          if (isMounted) {
+            navigate("/login", { replace: true });
+          }
+        }, 0);
+      } else if (user && typeof user === 'object' && !user.is_admin) {
         // Only Admin and Super Admin can access Admin Panel, not General Users
-        navigate("/dashboard", { replace: true });
+        timeoutId = setTimeout(() => {
+          if (isMounted) {
+            navigate("/dashboard", { replace: true });
+          }
+        }, 0);
       }
     }
-    if ((loading && !isAuthenticated) || pageLoading) {
-      return <PageLoader />;
-    }
-  }, [isAuthenticated, user, loading, navigate, pageLoading]);
+    
+    return () => {
+      isMounted = false;
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [isAuthenticated, user, loading, navigate]);
   
-  // Show loader only if we're loading AND not authenticated
-
-  
-
+  // Show loader if loading or pageLoading
+  if (loading || pageLoading || (token && !user)) {
+    return <PageLoader />;
+  }
   
   // Only Admin and Super Admin can access Admin Panel, not General Users
-  if (!isAuthenticated || !user?.is_admin) {
+  if (!isAuthenticated || !user || typeof user !== 'object' || !user.is_admin) {
     return null;
   }
   
@@ -104,25 +169,39 @@ const AdminRoute = ({ children }) => {
 };
 
 const PublicRoute = ({ children }) => {
-  const { isAuthenticated, user } = useAppSelector(state => state.auth);
+  const { isAuthenticated, user, loading } = useAppSelector(state => state.auth);
   const navigate = useNavigate();
   
   useEffect(() => {
+    let isMounted = true;
+    let timeoutId = null;
+    
     // Only redirect if user is authenticated AND active (or super admin)
     // Inactive users should stay on login page to see the modal
-    if (isAuthenticated && user) {
+    if (!loading && isAuthenticated && user && typeof user === 'object') {
       const isSuperAdmin = user.is_super_admin || user.role === 'super_admin';
       const isInactive = !isSuperAdmin && (user.is_admin || user.is_general_user) && !user.is_active;
       if (!isInactive) {
-        navigate('/dashboard', { replace: true });
+        timeoutId = setTimeout(() => {
+          if (isMounted) {
+            navigate('/dashboard', { replace: true });
+          }
+        }, 0);
       }
     }
-  }, [isAuthenticated, user, navigate]);
+    
+    return () => {
+      isMounted = false;
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [isAuthenticated, user, loading, navigate]);
   
   // Show login/register page if not authenticated OR if user is inactive (to show modal)
   // Super admin can always access
-  const isSuperAdmin = user && (user.is_super_admin || user.role === 'super_admin');
-  const isInactive = user && !isSuperAdmin && (user.is_admin || user.is_general_user) && !user.is_active;
+  const isSuperAdmin = user && typeof user === 'object' && (user.is_super_admin || user.role === 'super_admin');
+  const isInactive = user && typeof user === 'object' && !isSuperAdmin && (user.is_admin || user.is_general_user) && !user.is_active;
   return (isAuthenticated && !isInactive) ? null : children;
 };
 
@@ -131,16 +210,35 @@ const DataEntryRoute = () => {
   const navigate = useNavigate();
   
   useEffect(() => {
-    if (!loading && isAuthenticated) {
+    let isMounted = true;
+    let timeoutId = null;
+    
+    if (!loading && isAuthenticated && user && typeof user === 'object') {
       // General Users cannot access Data Entry
-      if (user?.is_general_user) {
-        navigate('/dashboard', { replace: true });
+      if (user.is_general_user) {
+        timeoutId = setTimeout(() => {
+          if (isMounted) {
+            navigate('/dashboard', { replace: true });
+          }
+        }, 0);
       }
     }
+    
+    return () => {
+      isMounted = false;
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
   }, [user, isAuthenticated, loading, navigate]);
   
+  // Show loader if loading
+  if (loading || !user) {
+    return <PageLoader />;
+  }
+  
   // Show nothing if General User (will redirect)
-  if (user?.is_general_user) {
+  if (user && typeof user === 'object' && user.is_general_user) {
     return null;
   }
 
@@ -153,18 +251,37 @@ const WaterAnalysisRoute = () => {
   const navigate = useNavigate();
   
   useEffect(() => {
-    if (!loading && isAuthenticated) {
+    let isMounted = true;
+    let timeoutId = null;
+    
+    if (!loading && isAuthenticated && user && typeof user === 'object') {
       // Check if user is inactive general user - they cannot access Water Analysis
-      if (user?.is_general_user && !user?.is_active) {
+      if (user.is_general_user && !user.is_active) {
         // Show error message and redirect to dashboard
         toast.error('Your account is inactive. Please contact your administrator to activate your account to access Water Analysis.');
-        navigate('/dashboard', { replace: true });
+        timeoutId = setTimeout(() => {
+          if (isMounted) {
+            navigate('/dashboard', { replace: true });
+          }
+        }, 0);
       }
     }
+    
+    return () => {
+      isMounted = false;
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
   }, [user, isAuthenticated, loading, navigate]);
   
+  // Show loader if loading
+  if (loading || !user) {
+    return <PageLoader />;
+  }
+  
   // Show nothing if inactive general user (will redirect)
-  if (user?.is_general_user && !user?.is_active) {
+  if (user && typeof user === 'object' && user.is_general_user && !user.is_active) {
     return null;
   }
   
@@ -223,16 +340,41 @@ function AppRoutes() {
 
 function App() {
   const dispatch = useAppDispatch();
-  const { token } = useAppSelector(state => state.auth);
+  const { token, user, justLoggedIn } = useAppSelector(state => state.auth);
+  
+  // Validate persisted user against token on mount and when token changes
+  useEffect(() => {
+    if (token && user) {
+      const decodedToken = decodeJWT(token);
+      const tokenUserId = decodedToken?.user_id?.toString();
+      const persistedUserId = user?.id?.toString();
+      
+      // If token user_id doesn't match persisted user id, clear user and fetch correct one
+      if (tokenUserId && persistedUserId && tokenUserId !== persistedUserId) {
+        console.warn('Token user_id mismatch detected. Clearing stale user data.');
+        // Clear the stale user data
+        dispatch(clearStaleUser());
+        // Fetch the correct user
+        dispatch(getCurrentUser());
+      }
+    }
+  }, [token, user, dispatch]);
   
   useEffect(() => {
-    if (token) {
+    // Only call getCurrentUser if:
+    // 1. We have a token
+    // 2. We don't have a user yet (initial load or page refresh)
+    // 3. We didn't just log in (to prevent overwriting login response with stale data)
+    if (token && !user && !justLoggedIn) {
       dispatch(getCurrentUser());
     }
-  }, [token, dispatch]);
+  }, [token, user, justLoggedIn, dispatch]);
+  
 
   // On first load, if only refresh token exists, try refresh to get access token
   useEffect(() => {
+    let isMounted = true;
+    
     const tryRefresh = async () => {
       const access = localStorage.getItem('token');
       const refresh = localStorage.getItem('refresh');
@@ -240,16 +382,24 @@ function App() {
         try {
           const res = await authService.refreshToken(refresh);
           const newAccess = res?.access || res?.token || res;
-          if (newAccess) {
+          if (newAccess && isMounted) {
             localStorage.setItem('token', newAccess);
             dispatch(getCurrentUser());
           }
         } catch (_) {
+          // Clear invalid refresh token
+          if (isMounted) {
+            localStorage.removeItem('refresh');
+          }
           // ignore; user will be treated as logged out
         }
       }
     };
     tryRefresh();
+    
+    return () => {
+      isMounted = false;
+    };
   }, [dispatch]);
 
   return <AppRoutes />;
