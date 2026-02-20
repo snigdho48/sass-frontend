@@ -1,0 +1,333 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+/* Custom theme (Tailwind v4) */
+@theme {
+  --color-primary-50: #eff6ff;
+  --color-primary-100: #dbeafe;
+  --color-primary-200: #bfdbfe;
+  --color-primary-300: #93c5fd;
+  --color-primary-400: #60a5fa;
+  --color-primary-500: #3b82f6;
+  --color-primary-600: #2563eb;
+  --color-primary-700: #1d4ed8;
+  --color-primary-800: #1e40af;
+  --color-primary-900: #1e3a8a;
+  --color-secondary-50: #f8fafc;
+  --color-secondary-100: #f1f5f9;
+  --color-secondary-200: #e2e8f0;
+  --color-secondary-300: #cbd5e1;
+  --color-secondary-400: #94a3b8;
+  --color-secondary-500: #64748b;
+  --color-secondary-600: #475569;
+  --color-secondary-700: #334155;
+  --color-secondary-800: #1e293b;
+  --color-secondary-900: #0f172a;
+  --color-success-50: #f0fdf4;
+  --color-success-100: #dcfce7;
+  --color-success-200: #bbf7d0;
+  --color-success-300: #86efac;
+  --color-success-400: #4ade80;
+  --color-success-500: #22c55e;
+  --color-success-600: #16a34a;
+  --color-success-700: #15803d;
+  --color-success-800: #166534;
+  --color-success-900: #14532d;
+  --color-warning-50: #fffbeb;
+  --color-warning-100: #fef3c7;
+  --color-warning-200: #fde68a;
+  --color-warning-300: #fcd34d;
+  --color-warning-400: #fbbf24;
+  --color-warning-500: #f59e0b;
+  --color-warning-600: #d97706;
+  --color-warning-700: #b45309;
+  --color-warning-800: #92400e;
+  --color-warning-900: #78350f;
+  --color-danger-50: #fef2f2;
+  --color-danger-100: #fee2e2;
+  --color-danger-200: #fecaca;
+  --color-danger-300: #fca5a5;
+  --color-danger-400: #f87171;
+  --color-danger-500: #ef4444;
+  --color-danger-600: #dc2626;
+  --color-danger-700: #b91c1c;
+  --color-danger-800: #991b1b;
+  --color-danger-900: #7f1d1d;
+  --font-sans: 'Inter', ui-sans-serif, system-ui;
+  --animate-fade-in: fadeIn 0.5s ease-in-out;
+  --animate-slide-up: slideUp 0.3s ease-out;
+  --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes slideUp {
+    from { transform: translateY(10px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+}
+
+@layer base {
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  
+  body {
+    @apply bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply px-4 py-2 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+  }
+  
+  .btn-primary {
+    @apply bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500;
+  }
+  
+  .btn-secondary {
+    @apply bg-gray-200 text-gray-900 hover:bg-gray-300 focus:ring-gray-500 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600;
+  }
+  
+  .btn-danger {
+    @apply bg-danger-600 text-white hover:bg-danger-700 focus:ring-danger-500;
+  }
+  
+  .btn-success {
+    @apply bg-success-600 text-white hover:bg-success-700 focus:ring-success-500;
+  }
+  
+  .input {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100 dark:focus:ring-primary-400;
+  }
+  
+  .card {
+    @apply bg-white rounded-lg shadow-sm border border-gray-200 transition-all duration-200 hover:shadow-md dark:bg-gray-800 dark:border-gray-700;
+  }
+  
+  .card-header {
+    @apply px-6 py-4 border-b border-gray-200 dark:border-gray-700;
+  }
+  
+  .card-body {
+    @apply px-6 py-4 text-gray-900 dark:text-gray-100;
+  }
+  
+  .sidebar-link {
+    @apply flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg transition-all duration-200 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white;
+  }
+  
+  .sidebar-link.active {
+    @apply bg-primary-100 text-primary-700 dark:bg-gray-700 dark:text-white;
+  }
+
+  /* Loading animations */
+  .loading-fade {
+    @apply transition-opacity duration-300;
+  }
+
+  .loading-fade-enter {
+    @apply opacity-0;
+  }
+
+  .loading-fade-enter-active {
+    @apply opacity-100;
+  }
+
+  .loading-fade-exit {
+    @apply opacity-100;
+  }
+
+  .loading-fade-exit-active {
+    @apply opacity-0;
+  }
+
+  /* DNA Loader custom styles */
+  .dna-wrapper {
+    @apply flex items-center justify-center;
+  }
+
+  /* Grid Loader custom styles */
+  .grid-wrapper {
+    @apply flex items-center justify-center;
+  }
+
+  /* Rings Loader custom styles */
+  .rings-wrapper {
+    @apply flex items-center justify-center;
+  }
+
+  /* TailSpin Loader custom styles */
+  .tail-spin-wrapper {
+    @apply flex items-center justify-center;
+  }
+
+  /* Navigation progress bar */
+  .navigation-progress {
+    @apply fixed top-0 left-0 right-0 h-1 bg-gray-200 z-50 dark:bg-gray-700;
+  }
+
+  .navigation-progress-bar {
+    @apply h-full bg-primary-600 transition-all duration-300 ease-out dark:bg-primary-500;
+  }
+
+  /* Page transition animations */
+  .page-enter {
+    @apply opacity-0 transform translate-y-4;
+  }
+
+  .page-enter-active {
+    @apply opacity-100 transform translate-y-0 transition-all duration-300;
+  }
+
+  .page-exit {
+    @apply opacity-100 transform translate-y-0;
+  }
+
+  .page-exit-active {
+    @apply opacity-0 transform -translate-y-4 transition-all duration-300;
+  }
+
+  /* Skeleton loading */
+  .skeleton {
+    @apply animate-pulse bg-gray-200 rounded dark:bg-gray-700;
+  }
+
+  .skeleton-text {
+    @apply animate-pulse bg-gray-200 rounded h-4 mb-2 dark:bg-gray-700;
+  }
+
+  .skeleton-title {
+    @apply animate-pulse bg-gray-200 rounded h-6 mb-4 dark:bg-gray-700;
+  }
+
+  .skeleton-avatar {
+    @apply animate-pulse bg-gray-200 rounded-full w-12 h-12 dark:bg-gray-700;
+  }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Custom scrollbar */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #CBD5E1 #F1F5F9;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: #F1F5F9;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #CBD5E1;
+    border-radius: 3px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #94A3B8;
+  }
+
+  /* Dark mode scrollbar */
+  .dark .custom-scrollbar {
+    scrollbar-color: #475569 #1e293b;
+  }
+
+  .dark .custom-scrollbar::-webkit-scrollbar-track {
+    background: #1e293b;
+  }
+
+  .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #475569;
+  }
+
+  .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
+  }
+}
+
+@layer utilities {
+  .text-shadow {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Animation utilities */
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.3s ease-out;
+  }
+
+  .animate-bounce-in {
+    animation: bounceIn 0.6s ease-out;
+  }
+
+  /* Keyframes */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes bounceIn {
+    0% {
+      opacity: 0;
+      transform: scale(0.3);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.05);
+    }
+    70% {
+      transform: scale(0.9);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  /* Loading states */
+  .loading-overlay {
+    @apply fixed inset-0 bg-white/75 flex items-center justify-center z-50 dark:bg-gray-900/75;
+  }
+
+  .loading-spinner {
+    @apply animate-spin rounded-full border-4 border-gray-200 border-t-primary-600 dark:border-gray-700 dark:border-t-primary-500;
+  }
+
+  /* Disable pointer events during loading */
+  .loading-disabled {
+    @apply pointer-events-none opacity-50;
+  }
+} 
