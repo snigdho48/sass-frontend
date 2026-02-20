@@ -74,9 +74,9 @@ export const TailSpinLoader = ({ visible = true, size = 20, color = '#3B82F6' })
   />
 );
 
-// Page Loader for full page loading
+// Page Loader for full page loading (centered on viewport)
 export const PageLoader = () => (
-  <div className="fixed inset-0 bg-white dark:bg-gray-900 bg-opacity-75 dark:bg-opacity-75 flex items-center justify-center z-50">
+  <div className="fixed inset-0 bg-white/75 dark:bg-gray-900/75 flex items-center justify-center z-50">
     <div className="text-center">
       <DNALoader size={100} />
       <p className="mt-4 text-gray-600 dark:text-gray-400">Loading...</p>
@@ -109,7 +109,7 @@ export const ContentLoader = ({ children, loading, error, emptyMessage = "No dat
 
   if (loading && !timeoutReached) {
     return (
-      <div className="flex items-center justify-center py-12">
+      <div className="min-h-[70vh] flex items-center justify-center py-12">
         <GridLoader size={60} />
       </div>
     );

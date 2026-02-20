@@ -7,29 +7,32 @@ export default defineConfig({
   plugins: [
     tailwindcss(),
     {
-      name: 'treat-src-js-as-jsx',
-      enforce: 'pre',
+      name: "treat-src-js-as-jsx",
+      enforce: "pre",
       async transform(code, id) {
-        if (id.includes('node_modules')) return null
-        const normalized = id.replace(/\\/g, '/')
-        if (!/\/src\/.*\.js$/.test(normalized)) return null
-        return transformWithEsbuild(code, id, { loader: 'jsx', jsx: 'automatic' })
+        if (id.includes("node_modules")) return null;
+        const normalized = id.replace(/\\/g, "/");
+        if (!/\/src\/.*\.js$/.test(normalized)) return null;
+        return transformWithEsbuild(code, id, {
+          loader: "jsx",
+          jsx: "automatic",
+        });
       },
     },
     react({ include: /\.(js|jsx|ts|tsx)$/ }),
   ],
   optimizeDeps: {
     esbuildOptions: {
-      loader: { '.js': 'jsx' },
+      loader: { ".js": "jsx" },
     },
   },
   server: {
     port: 3000,
     proxy: {
-      '/api': {
-        target: 'http://127.0.0.1:8000',
+      "/api": {
+        target: "http://sassbackend.reachableads.com",
         changeOrigin: true,
       },
     },
   },
-})
+});

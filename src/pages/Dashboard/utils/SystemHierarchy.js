@@ -31,8 +31,8 @@ const SystemHierarchy = ({ systems, systemType, color = 'blue' }) => {
     return (
       <div className={`card border-2 ${colors.border} ${colors.light} dark:bg-gray-800/50`}>
         <div className="card-body p-4 sm:p-6 text-center">
-          <div className={`inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full ${colors.badge} mb-3 sm:mb-4`}>
-            <Icon className={`h-6 w-6 sm:h-8 sm:w-8 ${colors.icon}`} />
+          <div className={`inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full ${colors.badge} mb-3 sm:mb-4 shrink-0`}>
+            <Icon className={`h-6 w-6 sm:h-8 sm:w-8 ${colors.icon}`} aria-hidden />
           </div>
           <h3 className={`text-lg sm:text-xl font-bold ${colors.text} mb-2`}>
             {systemName}
@@ -59,12 +59,12 @@ const SystemHierarchy = ({ systems, systemType, color = 'blue' }) => {
       {/* Header */}
       <div className={`${colors.primary} px-4 sm:px-6 py-3 sm:py-4 text-white`}>
         <div className="flex items-center space-x-2 sm:space-x-3">
-          <div className="bg-white bg-opacity-20 p-1.5 sm:p-2 rounded-lg">
-            <Icon className="h-5 w-5 sm:h-6 sm:w-6" />
+          <div className="bg-white/20 p-1.5 sm:p-2 rounded-lg shrink-0">
+            <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-white" aria-hidden />
           </div>
           <div>
             <h3 className="text-base sm:text-lg font-bold">{systemName}</h3>
-            <p className="text-xs text-white text-opacity-90 mt-0.5">
+            <p className="text-xs text-white/90 mt-0.5">
               {systems.length} {systems.length === 1 ? 'system' : 'systems'} configured
             </p>
           </div>
