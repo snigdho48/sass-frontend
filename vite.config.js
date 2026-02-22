@@ -30,7 +30,7 @@ export default defineConfig({
     port: 3000,
     proxy: {
       "/api": {
-        target: "http://sassbackend.reachableads.com",
+        target: "https://sassbackend.reachableads.com",
         changeOrigin: true,
       },
     },
