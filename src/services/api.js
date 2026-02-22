@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Vite: use env var (e.g. VITE_API_URL=http://127.0.0.1:8000/api).
 // In dev, default is /api so the Vite proxy forwards to the backend (no CORS). Set VITE_API_URL to hit backend directly.
-const API_BASE_URL = 'https://sassbackend.reachableads.com'
+const API_BASE_URL = 'http://sassbackend.reachableads.com/api'
 
 const api = axios.create({
   baseURL: API_BASE_URL,
