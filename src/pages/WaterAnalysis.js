@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import api from '../services/api';
 import { dataService } from '../services/dataService';
@@ -27,6 +27,7 @@ const WaterAnalysis = () => {
   const { effectiveTheme } = useTheme();
   const isDark = effectiveTheme === 'dark';
   const navigate = useNavigate();
+  const location = useLocation();
   
   // All hooks must be declared at the top level before any early returns
   const [loading, setLoading] = useState(false);
@@ -208,10 +209,11 @@ const WaterAnalysis = () => {
     }
     
     try {
+      const ts = Date.now();
       const [phTrends, lsiTrends, rsiTrends] = await Promise.all([
-        api.get(`/water-trends/?parameter=ph&plant_id=${selectedPlant.id}`),
-        api.get(`/water-trends/?parameter=lsi&plant_id=${selectedPlant.id}`),
-        api.get(`/water-trends/?parameter=rsi&plant_id=${selectedPlant.id}`),
+        api.get(`/water-trends/?parameter=ph&plant_id=${selectedPlant.id}&_t=${ts}`),
+        api.get(`/water-trends/?parameter=lsi&plant_id=${selectedPlant.id}&_t=${ts}`),
+        api.get(`/water-trends/?parameter=rsi&plant_id=${selectedPlant.id}&_t=${ts}`),
       ]);
       
       setTrends({
@@ -243,14 +245,13 @@ const WaterAnalysis = () => {
     }
   }, [user, navigate]);
 
-  // Load plants on component mount (only if user is authenticated)
+  // Load plants on mount and whenever user returns to this route (location.key changes on each navigation)
   useEffect(() => {
     let isMounted = true;
-    
+
     if (user?.id && isMounted) {
       loadPlants();
     } else if (!user?.id) {
-      // Reset states when user is not authenticated
       resetLoadingStates();
       setPlants([]);
       setSelectedPlant(null);
@@ -260,7 +261,7 @@ const WaterAnalysis = () => {
     return () => {
       isMounted = false;
     };
-  }, [user?.id, loadPlants, resetLoadingStates]); // Only trigger when user.id changes
+  }, [user?.id, location.key, loadPlants, resetLoadingStates]);
 
   // Reset everything when plant selection changes
   useEffect(() => {

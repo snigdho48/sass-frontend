@@ -1,4 +1,4 @@
-const CACHE_NAME = 'watersight-v1';
+const CACHE_NAME = 'watersight-v2';
 const urlsToCache = [
   '/',
   '/manifest.json',
@@ -39,30 +39,37 @@ self.addEventListener('activate', (event) => {
   return self.clients.claim();
 });
 
-// Fetch event - serve from cache, fallback to network
+// Fetch event - serve static shell from cache; API calls always hit the network (never cache JSON/API)
 self.addEventListener('fetch', (event) => {
+  const url = new URL(event.request.url);
+  const isApi = url.pathname.startsWith('/api');
+
+  // Backend JSON APIs must not use stale SW cache — otherwise lists (plants, trends, etc.) update only once.
+  if (isApi || event.request.method !== 'GET') {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
-        // Return cached version or fetch from network
-        return response || fetch(event.request).then((response) => {
-          // Don't cache non-GET requests or non-successful responses
-          if (event.request.method !== 'GET' || !response || response.status !== 200) {
+        return (
+          response ||
+          fetch(event.request).then((response) => {
+            if (event.request.method !== 'GET' || !response || response.status !== 200) {
+              return response;
+            }
+
+            const responseToCache = response.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, responseToCache);
+            });
+
             return response;
-          }
-
-          // Clone the response
-          const responseToCache = response.clone();
-
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache);
-          });
-
-          return response;
-        });
+          })
+        );
       })
       .catch(() => {
-        // If both cache and network fail, return offline page if available
         if (event.request.destination === 'document') {
           return caches.match('/');
         }

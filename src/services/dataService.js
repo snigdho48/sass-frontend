@@ -203,7 +203,9 @@ export const dataService = {
   // Plant services
   async getPlants(params = {}) {
     try {
-      const response = await api.get('/plants/', { params });
+      const response = await api.get('/plants/', {
+        params: { ...params, _t: Date.now() },
+      });
       return response.data;
     } catch (error) {
       throw new Error(getApiErrorMessage(error, 'Failed to fetch plants'));
@@ -223,7 +225,9 @@ export const dataService = {
 
   async getPlant(plantId) {
     try {
-      const response = await api.get(`/plants/${plantId}/`);
+      const response = await api.get(`/plants/${plantId}/`, {
+        params: { _t: Date.now() },
+      });
       return response.data;
     } catch (error) {
       throw new Error(getApiErrorMessage(error, 'Failed to fetch plant'));
