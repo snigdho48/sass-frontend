@@ -851,7 +851,7 @@ const DataEntry = () => {
       // Add cooling parameters
       const coolingFields = [
         'cooling_ph_min', 'cooling_ph_max', 'cooling_tds_min', 'cooling_tds_max',
-        'cooling_hardness_max', 'cooling_alkalinity_max', 
+        'cooling_hardness_max',
         'cooling_total_alkalinity_min', 'cooling_total_alkalinity_max',
         'cooling_chloride_max', 'cooling_chloride_enabled', 
         'cooling_cycle_min', 'cooling_cycle_max', 'cooling_cycle_enabled', 
@@ -1407,21 +1407,6 @@ const DataEntry = () => {
                                 setWaterSystemFormData({
                                   ...waterSystemFormData,
                                   cooling_hardness_max: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
-                                })
-                              }
-                            />
-                          </div>
-                          <div>
-                            <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>Alkalinity Max (ppm)</label>
-                            <input
-                              type='number'
-                              step='0.01'
-                              className='input'
-                              value={waterSystemFormData.cooling_alkalinity_max}
-                              onChange={(e) =>
-                                setWaterSystemFormData({
-                                  ...waterSystemFormData,
-                                  cooling_alkalinity_max: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
                                 })
                               }
                             />
