@@ -27,19 +27,11 @@ const Reports = () => {
   // Fetch water systems based on analysis type
   const { data: waterSystemsData, isLoading: waterSystemsLoading, error: waterSystemsError } = useQuery(
     ['water-systems', analysisType],
-    () => {
-      console.log('Fetching water systems with params:', { system_type: analysisType });
-      return dataService.getWaterSystems({ system_type: analysisType });
-    },
+    () => dataService.getWaterSystems({ system_type: analysisType }),
     {
       enabled: !!analysisType,
-      onSuccess: (data) => {
-        console.log('Water systems fetched successfully:', data);
-        console.log('Number of water systems:', Array.isArray(data) ? data.length : 'Not an array');
-      },
       onError: (error) => {
         console.error('Water systems error:', error);
-        console.error('Error details:', error.response?.data || error.message);
         toast.error('Failed to load water systems');
       }
     }
@@ -56,18 +48,6 @@ const Reports = () => {
       waterSystem: ws // Keep reference to original object
     }));
   }, [waterSystems]);
-  
-  // Debug logging
-  React.useEffect(() => {
-    if (analysisType) {
-      console.log('Analysis type:', analysisType);
-      console.log('Water systems data:', waterSystemsData);
-      console.log('Water systems (processed):', waterSystems);
-      console.log('Water system options:', waterSystemOptions);
-      console.log('Is loading:', waterSystemsLoading);
-      console.log('Error:', waterSystemsError);
-    }
-  }, [analysisType, waterSystemsData, waterSystems, waterSystemOptions, waterSystemsLoading, waterSystemsError]);
 
   // Generate report mutation
   const generateReportMutation = useMutation(
@@ -482,7 +462,7 @@ const Reports = () => {
           <div className="flex items-center justify-center min-h-screen pt-2 sm:pt-4 px-2 sm:px-4 pb-2 sm:pb-4">
             {/* Background overlay */}
             <div 
-              className="fixed inset-0 bg-gray-500 dark:bg-gray-900 bg-opacity-75 dark:bg-opacity-80 transition-opacity z-40"
+              className="fixed inset-0 bg-gray-500/75 dark:bg-gray-900/80 transition-opacity z-40"
               onClick={handleClosePreview}
             ></div>
 

@@ -58,7 +58,7 @@ const Register = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-6 sm:space-y-8">
+      <div className="max-w-md w-full space-y-6 sm:space-y-8 ui-page-enter">
         <div>
           <div className="mx-auto flex items-center justify-center">
             <img 

@@ -31,11 +31,11 @@ const StatCard = ({ title, value, change, icon: Icon, color = 'primary' }) => {
       <div className={`bg-gradient-to-r ${colors.gradient} px-4 sm:px-6 py-3 sm:py-4`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2 sm:space-x-3">
-            <div className={`p-2 sm:p-2.5 rounded-lg ${colors.iconBg} bg-white bg-opacity-20 backdrop-blur-sm`}>
+            <div className={`p-2 sm:p-2.5 rounded-lg ${colors.iconBg} bg-white/20 backdrop-blur-sm`}>
               <Icon className={`h-5 w-5 sm:h-6 sm:w-6 text-white`} />
             </div>
             <div>
-              <p className="text-xs sm:text-sm font-medium text-white text-opacity-90 uppercase tracking-wide">
+              <p className="text-xs sm:text-sm font-medium text-white/90 uppercase tracking-wide">
                 {title}
               </p>
             </div>

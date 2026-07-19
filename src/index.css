@@ -1,8 +1,86 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@import "tw-animate-css";
+@config "../tailwind.config.cjs";
+
+/* Class-based dark mode (matches ThemeContext html.dark) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Preserve Tailwind v3 default ring width/color */
+@theme {
+  --default-ring-width: 3px;
+  --default-ring-color: var(--color-blue-500);
+}
+
+/*
+  shadcn/ui design tokens — infrastructure only.
+  Do NOT apply to body/* globally (would change existing UI).
+  Do NOT remap --color-primary / --color-secondary (would break existing primary-* / secondary-* classes).
+*/
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --radius: 0.5rem;
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+}
 
 @layer base {
+  /* Preserve Tailwind v3 default border color */
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+
   html {
     font-family: 'Inter', system-ui, sans-serif;
   }
@@ -10,11 +88,61 @@
   body {
     @apply bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100;
   }
+
+  /* Tailwind v4 switched buttons to cursor: default; restore v3/shadcn pointer behavior */
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
+
+  /*
+    Smoothness layer (shadcn-style, CSS-only via tw-animate-css + transitions).
+    No Framer Motion. Does not change resting colors/layout — only timing.
+  */
+  html,
+  body {
+    transition:
+      background-color 200ms cubic-bezier(0.4, 0, 0.2, 1),
+      color 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  a,
+  button,
+  [role='button'],
+  input,
+  select,
+  textarea,
+  summary {
+    transition-property: color, background-color, border-color, box-shadow, opacity,
+      transform, filter, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 200ms;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    html,
+    body,
+    a,
+    button,
+    [role='button'],
+    input,
+    select,
+    textarea,
+    summary {
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+    }
+  }
 }
 
 @layer components {
   .btn {
-    @apply px-4 py-2 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+    @apply px-4 py-2 rounded-lg font-medium transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-offset-2 active:scale-[0.98];
   }
   
   .btn-primary {
@@ -38,7 +166,7 @@
   }
   
   .card {
-    @apply bg-white rounded-lg shadow-sm border border-gray-200 transition-all duration-200 hover:shadow-md dark:bg-gray-800 dark:border-gray-700;
+    @apply bg-white rounded-lg shadow-sm border border-gray-200 transition-all duration-200 ease-out hover:shadow-md dark:bg-gray-800 dark:border-gray-700;
   }
   
   .card-header {
@@ -50,7 +178,7 @@
   }
   
   .sidebar-link {
-    @apply flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg transition-all duration-200 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white;
+    @apply flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-lg transition-all duration-200 ease-out dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white;
   }
   
   .sidebar-link.active {
@@ -107,7 +235,7 @@
     @apply h-full bg-primary-600 transition-all duration-300 ease-out dark:bg-primary-500;
   }
 
-  /* Page transition animations */
+  /* Page transition animations (legacy class names kept) */
   .page-enter {
     @apply opacity-0 transform translate-y-4;
   }
@@ -124,21 +252,38 @@
     @apply opacity-0 transform -translate-y-4 transition-all duration-300;
   }
 
-  /* Skeleton loading */
+  /* tw-animate-css enter helpers (shadcn stack, no Framer Motion) */
+  .ui-page-enter {
+    @apply animate-in fade-in slide-in-from-bottom-2 duration-300 fill-mode-both;
+  }
+
+  .ui-modal-enter {
+    @apply animate-in fade-in zoom-in-95 duration-200 fill-mode-both;
+  }
+
+  .ui-overlay-enter {
+    @apply animate-in fade-in duration-200 fill-mode-both;
+  }
+
+  .ui-panel-enter {
+    @apply animate-in fade-in slide-in-from-left duration-300 fill-mode-both;
+  }
+
+  /* Skeleton loading (inlined: Tailwind v4 cannot @apply custom component classes) */
   .skeleton {
     @apply animate-pulse bg-gray-200 rounded dark:bg-gray-700;
   }
 
   .skeleton-text {
-    @apply skeleton h-4 mb-2;
+    @apply animate-pulse bg-gray-200 rounded dark:bg-gray-700 h-4 mb-2;
   }
 
   .skeleton-title {
-    @apply skeleton h-6 mb-4;
+    @apply animate-pulse bg-gray-200 rounded dark:bg-gray-700 h-6 mb-4;
   }
 
   .skeleton-avatar {
-    @apply skeleton w-12 h-12 rounded-full;
+    @apply animate-pulse bg-gray-200 dark:bg-gray-700 w-12 h-12 rounded-full;
   }
 
   /* Smooth scrolling */
@@ -255,7 +400,7 @@
 
   /* Loading states */
   .loading-overlay {
-    @apply fixed inset-0 bg-white bg-opacity-75 flex items-center justify-center z-50 dark:bg-gray-900 dark:bg-opacity-75;
+    @apply fixed inset-0 bg-white/75 flex items-center justify-center z-50 dark:bg-gray-900/75;
   }
 
   .loading-spinner {

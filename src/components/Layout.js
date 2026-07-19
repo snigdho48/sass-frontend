@@ -132,17 +132,24 @@ const Layout = () => {
       {/* Navigation Loader */}
       {navigationLoading && <NavigationLoader />}
 
-      {/* Mobile sidebar */}
+      {/* Mobile sidebar — CSS slide/fade (no Framer Motion) */}
       <div
-        className={`fixed inset-0 z-50 lg:hidden ${
-          sidebarOpen ? "block" : "hidden"
+        className={`fixed inset-0 z-50 lg:hidden transition-opacity duration-300 ease-out ${
+          sidebarOpen
+            ? 'opacity-100 pointer-events-auto'
+            : 'opacity-0 pointer-events-none'
         }`}
+        aria-hidden={!sidebarOpen}
       >
         <div
-          className='fixed inset-0 bg-gray-600 bg-opacity-75 dark:bg-gray-900 dark:bg-opacity-75'
+          className='fixed inset-0 bg-gray-600/75 dark:bg-gray-900/75'
           onClick={handleSidebarClose}
         />
-        <div className='fixed inset-y-0 left-0 flex w-64 flex-col bg-white dark:bg-gray-800'>
+        <div
+          className={`fixed inset-y-0 left-0 flex w-64 flex-col bg-white dark:bg-gray-800 transform transition-transform duration-300 ease-out ${
+            sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
+        >
           <div className='flex h-14 sm:h-16 items-center justify-between px-3 sm:px-4'>
             <div className='flex h-14 sm:h-16 items-center px-3 sm:px-4 justify-center'>
               <img
@@ -156,7 +163,7 @@ const Layout = () => {
             </div>
             <button
               onClick={handleSidebarClose}
-              className='text-gray-400 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-200 p-1'
+              className='text-gray-400 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-200 p-1 transition-colors duration-200'
               aria-label='Close sidebar'
             >
               <X size={20} className='sm:w-6 sm:h-6' />
@@ -222,7 +229,7 @@ const Layout = () => {
         <div className='sticky top-0 z-40 flex h-14 sm:h-16 shrink-0 items-center gap-x-2 sm:gap-x-4 border-b border-gray-200 bg-white dark:bg-gray-800 dark:border-gray-700 px-3 sm:px-4 shadow-sm sm:gap-x-6 lg:px-8'>
           <button
             type='button'
-            className='-m-2.5 p-2 text-gray-700 dark:text-gray-300 lg:hidden'
+            className='-m-2.5 p-2 text-gray-700 dark:text-gray-300 lg:hidden transition-colors duration-200'
             onClick={handleSidebarToggle}
             aria-label='Toggle sidebar'
           >
@@ -316,10 +323,12 @@ const Layout = () => {
           </div>
         </div>
 
-        {/* Page content */}
+        {/* Page content — route enter via tw-animate-css */}
         <main className='py-4 sm:py-6'>
           <div className='mx-auto max-w-7xl px-2 sm:px-4 lg:px-6 xl:px-8'>
-            <Outlet />
+            <div key={location.pathname} className='ui-page-enter'>
+              <Outlet />
+            </div>
           </div>
         </main>
 

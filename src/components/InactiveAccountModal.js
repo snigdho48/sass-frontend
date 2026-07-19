@@ -14,13 +14,13 @@ const InactiveAccountModal = ({ isOpen, onClose, user }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
+    <div className="fixed inset-0 z-50 overflow-y-auto ui-overlay-enter">
       {/* Backdrop - non-clickable */}
-      <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 transition-opacity" />
+      <div className="fixed inset-0 bg-black/50 dark:bg-black/70" />
       
       {/* Modal */}
       <div className="flex min-h-full items-center justify-center p-4">
-        <div className="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full transform transition-all">
+        <div className="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full ui-modal-enter">
 
           {/* Content */}
           <div className="p-6">

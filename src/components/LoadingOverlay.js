@@ -2,9 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Droplets } from 'lucide-react';
 
 // Water-themed loading overlay with animated waves (SVG) and bouncing droplet
-// Positioned absolutely within the nearest relative container
-// Keep z-index lower than header/sidebar (e.g., z-40) so they stay above
-const LoadingOverlay = ({ show = false, zIndexClass = 'z-40' }) => {
+// Fixed to the viewport but constrained to the content area (Outlet):
+// below the sticky header (h-14 sm:h-16) and right of the desktop sidebar (lg:w-64),
+// so the spinner is always centered in the visible area without covering the sidebar.
+const overlayPosition =
+  'fixed inset-x-0 bottom-0 top-14 sm:top-16 lg:left-64';
+
+const LoadingOverlay = ({ show = false, zIndexClass = 'z-30' }) => {
   const [timeoutReached, setTimeoutReached] = useState(false);
   useEffect(() => {
     if (show) {
@@ -22,7 +26,7 @@ const LoadingOverlay = ({ show = false, zIndexClass = 'z-40' }) => {
 
   if (timeoutReached) {
     return (
-      <div className={`absolute inset-0 ${zIndexClass} flex items-center justify-center bg-white/70 dark:bg-gray-900/70`}>
+      <div className={`${overlayPosition} ${zIndexClass} flex items-center justify-center bg-white/70 dark:bg-gray-900/70 ui-overlay-enter`}>
         <div className="flex flex-col items-center justify-center select-none">
           <div className="text-red-500 dark:text-red-400 mb-4 text-center">
             <div className="text-lg font-semibold mb-2">Loading Timeout</div>
@@ -40,7 +44,7 @@ const LoadingOverlay = ({ show = false, zIndexClass = 'z-40' }) => {
   }
 
   return (
-    <div className={`absolute inset-0 ${zIndexClass} flex items-center justify-center bg-white/70 dark:bg-gray-900/70`}>
+    <div className={`${overlayPosition} ${zIndexClass} flex items-center justify-center bg-white/70 dark:bg-gray-900/70 ui-overlay-enter`}>
       <div className="flex flex-col items-center justify-center select-none">
         <Droplets className="w-8 h-8 text-blue-600 dark:text-blue-400 mb-4 animate-bounce" />
         <div className="relative w-24 h-24">

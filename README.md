@@ -1,142 +1,69 @@
-# SaaS Platform Frontend
+# WaterSight Frontend
 
-A modern React application with Tailwind CSS for the SaaS technical data logging and analytics platform.
+React SPA for WaterSight water-analysis data logging, dashboards, and reporting.
 
-## Features
+## Stack
 
-- 🎨 Modern UI with Tailwind CSS
-- 📊 Interactive charts and analytics
-- 🔐 Authentication system
-- 📱 Responsive design
-- ⚡ Fast and optimized
-- 🎯 Role-based access control
-- 📈 Real-time data visualization
-- 📄 PDF report generation
+- **React 19.2** + React Router 7
+- **Vite 8** (`@vitejs/plugin-react` with Oxc; no Babel/CRA)
+- **Tailwind CSS 4** via `@tailwindcss/vite` (no PostCSS)
+- **Redux Toolkit** + redux-persist, React Query, Axios
+- **shadcn/ui ready** — `components.json`, `src/lib/utils.js` (`cn`), design tokens in CSS (not applied to existing UI)
+- **npm only** (no Yarn PnP / pnpm)
 
-## Tech Stack
-
-- **React 18** - UI framework
-- **Tailwind CSS** - Styling
-- **React Router** - Navigation
-- **React Query** - Data fetching
-- **Recharts** - Charts and graphs
-- **Lucide React** - Icons
-- **Axios** - HTTP client
-- **React Hook Form** - Form handling
-
-## Getting Started
+## Getting started
 
 ### Prerequisites
 
-- Node.js 16+ 
-- npm or yarn
-- Backend Django server running
+- Node.js 20+ (24 recommended)
+- npm
+- Backend Django API running (default `http://127.0.0.1:8000/api`)
 
-### Installation
+### Install & run
 
-1. Install dependencies:
 ```bash
-npm install
+cd sass-frontend
+npm install --legacy-peer-deps
+npm run dev
 ```
 
-2. Create environment file:
-```bash
-cp .env.example .env
-```
+App: `http://localhost:3000`
 
-3. Configure environment variables:
-```env
-REACT_APP_API_URL=http://localhost:8000/api
-```
+> `--legacy-peer-deps` is needed while `react-query@3` peers React ≤18. Leave it until a TanStack Query v5 migration.
 
-4. Start development server:
-```bash
-npm start
-```
+### Scripts
 
-The application will be available at `http://localhost:3000`
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Vite dev server |
+| `npm run build` | Production build → `build/` |
+| `npm run preview` | Preview production build |
+| `npm test` | Placeholder (no runner yet) |
 
-### Available Scripts
-
-- `npm start` - Start development server
-- `npm build` - Build for production
-- `npm test` - Run tests
-- `npm eject` - Eject from Create React App
-
-## Project Structure
+## Project structure
 
 ```
 src/
-├── components/     # Reusable UI components
-├── pages/         # Page components
-├── services/      # API services
-├── contexts/      # React contexts
-├── hooks/         # Custom hooks
-├── utils/         # Utility functions
-└── index.css      # Global styles
+├── components/     # Reusable UI (+ ui/ for future shadcn components)
+├── pages/          # Route screens
+├── services/       # API clients
+├── store/          # Redux + persist
+├── contexts/       # Theme, Auth
+├── hooks/
+├── lib/utils.js    # cn() helper for shadcn
+└── index.css       # Tailwind 4 + app component classes + shadcn tokens
 ```
 
-## Features Overview
+## shadcn/ui
 
-### Authentication
-- Login/Register forms
-- JWT token management
-- Protected routes
-- User profile management
+Infrastructure only — existing screens are unchanged. To add a component later:
 
-### Dashboard
-- Analytics overview
-- Interactive charts
-- Real-time metrics
-- Recent activity feed
-
-### Data Entry
-- Category selection
-- Form validation
-- Data management
-- CRUD operations
-
-### Reports
-- Report generation
-- PDF download
-- Custom date ranges
-- Multiple report types
-
-## API Integration
-
-The frontend communicates with the Django backend through RESTful APIs:
-
-- Authentication endpoints
-- Data management
-- Analytics and reporting
-- User management
-
-## Deployment
-
-### Production Build
-
-1. Build the application:
 ```bash
-npm run build
+npx shadcn@latest add button
 ```
 
-2. Serve the build folder with a web server (nginx, Apache, etc.)
+Do **not** apply shadcn global `body` / `border-border` base overrides, and do **not** remap the existing `primary-*` / `secondary-*` palettes.
 
-### Environment Variables
+## Workflow docs
 
-Configure these environment variables for production:
-
-- `REACT_APP_API_URL` - Backend API URL
-- `REACT_APP_ENVIRONMENT` - Environment (production/development)
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
-
-## License
-
-This project is licensed under the MIT License. 
+See [`.cursor/workflow/README.md`](.cursor/workflow/README.md) and [`.cursor/workflow/CHANGELOG.md`](.cursor/workflow/CHANGELOG.md).

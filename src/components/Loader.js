@@ -76,7 +76,7 @@ export const TailSpinLoader = ({ visible = true, size = 20, color = '#3B82F6' })
 
 // Page Loader for full page loading
 export const PageLoader = () => (
-  <div className="fixed inset-0 bg-white dark:bg-gray-900 bg-opacity-75 dark:bg-opacity-75 flex items-center justify-center z-50">
+  <div className="fixed inset-0 bg-white/75 dark:bg-gray-900/75 flex items-center justify-center z-50">
     <div className="text-center">
       <DNALoader size={100} />
       <p className="mt-4 text-gray-600 dark:text-gray-400">Loading...</p>

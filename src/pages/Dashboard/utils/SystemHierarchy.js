@@ -59,12 +59,12 @@ const SystemHierarchy = ({ systems, systemType, color = 'blue' }) => {
       {/* Header */}
       <div className={`${colors.primary} px-4 sm:px-6 py-3 sm:py-4 text-white`}>
         <div className="flex items-center space-x-2 sm:space-x-3">
-          <div className="bg-white bg-opacity-20 p-1.5 sm:p-2 rounded-lg">
+          <div className="bg-white/20 p-1.5 sm:p-2 rounded-lg">
             <Icon className="h-5 w-5 sm:h-6 sm:w-6" />
           </div>
           <div>
             <h3 className="text-base sm:text-lg font-bold">{systemName}</h3>
-            <p className="text-xs text-white text-opacity-90 mt-0.5">
+            <p className="text-xs text-white/90 mt-0.5">
               {systems.length} {systems.length === 1 ? 'system' : 'systems'} configured
             </p>
           </div>

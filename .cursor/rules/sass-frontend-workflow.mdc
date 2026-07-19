@@ -1,0 +1,76 @@
+---
+description: WaterSight frontend (sass-frontend) workflow, changelog, and conventions
+alwaysApply: true
+---
+
+# sass-frontend workflow (WaterSight UI)
+
+React 19 single-page app for the WaterSight water-analysis platform. This rule
+complements the global auto-workflow-changelog rule.
+
+## Stack
+
+- React 19.2, React Router 7, Redux Toolkit + redux-persist, React Query
+- **Vite 8** + `@vitejs/plugin-react` (Oxc; no CRA/Babel)
+- Tailwind CSS 4 via `@tailwindcss/vite` (no PostCSS), Recharts, lucide-react
+- shadcn/ui infrastructure: `components.json`, `src/lib/utils.js`, CSS tokens (not applied to existing UI)
+- Axios (HTTP), react-hook-form (forms), react-hot-toast (notifications)
+- PWA: service worker + manifest (install prompt)
+- Package manager: **npm only** (`npm install --legacy-peer-deps` while react-query@3 remains)
+
+## Hard rules (never violate)
+
+- **Never change the existing UI** — no visual redesigns, layout changes, color/
+  spacing/typography changes, or behavior changes unless the user explicitly
+  asks for that specific change.
+- **shadcn/ui style smoothness** — when adding new components or polish, follow
+  shadcn/ui patterns (Radix-style accessibility, subtle transitions, smooth
+  animations) while keeping the existing look intact. Use **`tw-animate-css`**
+  (`animate-in` / `fade-in` / `slide-in-*` / helpers like `.ui-page-enter`) —
+  never Framer Motion / Magic UI / Aceternity (too heavy).
+- **Tailwind CSS 4** — prefer Tailwind v4 conventions and the
+  `@tailwindcss/vite` plugin for anything new; do not reintroduce PostCSS or
+  v3-only config patterns.
+- **npm only** — use npm; do not use pnpm or Yarn PnP.
+
+## Structure
+
+- `src/pages` — route-level screens (Dashboard, DataEntry, Reports, WaterAnalysis, Admin, Login/Register, Profile)
+- `src/components` — reusable UI (Layout, selects, loaders, modals, theme toggle)
+- `src/store` — Redux store and slices (`auth`, `data`, `ui`)
+- `src/services` — API layer (`api.js`, `authService`, `dataService`)
+- `src/contexts` — React contexts (Auth, Theme)
+- `src/hooks` — custom hooks
+
+## Changelog (required every coding turn)
+
+Append entries under `[Unreleased]` (newest first) in:
+
+- `sass-frontend/.cursor/workflow/CHANGELOG.md`
+
+Entry format:
+
+```markdown
+### Added | Changed | Fixed | Removed — YYYY-MM-DD
+
+**Time:** YYYY-MM-DD HH:MM (UTC+6)
+**Author:** Cursor agent
+**Issue:** #<id> (if known)
+
+**Summary:** One line — what changed and why.
+
+**Files:**
+- `path/to/file` — brief note
+
+**Impact:** route / api / ui / state / build / none
+```
+
+## Frontend conventions
+
+- Use conventional commits (feat, fix, chore, docs, refactor, test); reference
+  GitLab issues with `#<id>`.
+- API base URL comes from `REACT_APP_API_URL`; never hardcode backend URLs.
+- New/changed routes → **Impact: route**; API service changes → **Impact: api**;
+  Redux slice/state changes → **Impact: state**.
+- Keep components accessible and responsive; follow existing Tailwind patterns.
+- Do not commit secrets or `.env` files.

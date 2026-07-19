@@ -13,14 +13,18 @@ const ThemeToggle = () => {
       title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
       aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
     >
-      {isDark ? (
-        <Sun size={18} className="sm:w-5 sm:h-5" />
-      ) : (
-        <Moon size={18} className="sm:w-5 sm:h-5" />
-      )}
+      <span
+        key={isDark ? 'sun' : 'moon'}
+        className='inline-flex animate-in fade-in zoom-in-95 duration-200 fill-mode-both'
+      >
+        {isDark ? (
+          <Sun size={18} className="sm:w-5 sm:h-5" />
+        ) : (
+          <Moon size={18} className="sm:w-5 sm:h-5" />
+        )}
+      </span>
     </button>
   );
 };
 
 export default ThemeToggle;
-

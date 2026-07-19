@@ -1,7 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { persistStore, persistReducer } from 'redux-persist';
-import storage from 'redux-persist/lib/storage';
+import storageImport from 'redux-persist/lib/storage';
 import { combineReducers } from 'redux';
+
+// Vite ESM interop: CJS default export may arrive as { default: storage }
+const storage = storageImport?.default ?? storageImport;
 
 // Import reducers
 import authReducer from './slices/authSlice';
@@ -40,7 +43,7 @@ export const store = configureStore({
         ignoredActions: ['persist/PERSIST', 'persist/REHYDRATE'],
       },
     }),
-  devTools: process.env.NODE_ENV !== 'production',
+  devTools: import.meta.env.DEV,
 });
 
 // Create persistor

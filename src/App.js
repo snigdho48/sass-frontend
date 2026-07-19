@@ -242,7 +242,6 @@ const DataEntryRoute = () => {
     return null;
   }
 
-  console.log('DataEntryRoute', user);
   return <DataEntry />;
 };
 

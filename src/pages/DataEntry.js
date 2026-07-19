@@ -108,7 +108,7 @@ const DataEntry = () => {
 
   const queryClient = useQueryClient();
 
-  const { data: categories = [], error: categoriesError, isLoading: categoriesLoading } = useQuery('categories', dataService.getCategories, {
+  const { data: categories = [], isLoading: categoriesLoading } = useQuery('categories', dataService.getCategories, {
     retry: 3,
     retryDelay: 1000,
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -118,14 +118,8 @@ const DataEntry = () => {
       console.error('Categories error:', error);
       toast.error('Failed to load categories');
     },
-    onSuccess: () => {
-      // Reset any error states when data loads successfully
-      if (categoriesError) {
-        console.log('Categories loaded successfully');
-      }
-    }
   });
-  const { data: entries = [], isLoading, error: entriesError } = useQuery(
+  const { data: entries = [], isLoading } = useQuery(
     ['entries', selectedCategory],
     () => dataService.getDataEntries({ category: selectedCategory }),
     { 
@@ -139,12 +133,6 @@ const DataEntry = () => {
         console.error('Entries error:', error);
         toast.error('Failed to load data entries');
       },
-      onSuccess: () => {
-        // Reset error state when data loads successfully
-        if (entriesError) {
-          console.log('Entries loaded successfully');
-        }
-      }
     }
   );
 
@@ -608,10 +596,6 @@ const DataEntry = () => {
       delete submitData.owner_id;
     }
 
-    console.log('Submitting plant data:', submitData);
-    console.log('User role:', user?.is_admin);
-    console.log('Editing plant:', editingPlant);
-
     if (editingPlant) {
       updatePlantMutation.mutate({ id: editingPlant.id, data: submitData });
     } else {
@@ -1032,13 +1016,6 @@ const DataEntry = () => {
   
   // Check if user can change target ranges (only Super Admin can)
   const canEditTargetRanges = user?.can_change_target_range || false;
-  
-  // Debug info
-  console.log('Plants Data:', plantsData);
-  console.log('Total Pages:', totalPages);
-  console.log('Current Page:', currentPage);
-  console.log('Plants Count:', plantsData.count);
-  
 
   return (
     <div className='space-y-4 sm:space-y-6 px-2 sm:px-0'>
@@ -1235,7 +1212,7 @@ const DataEntry = () => {
 
         {/* Water System Management Modal */}
         {showWaterSystemForm && (
-          <div className='fixed inset-0 bg-gray-600 bg-opacity-50 dark:bg-gray-900 dark:bg-opacity-70 flex items-center justify-center z-[60] p-2 sm:p-4'>
+          <div className='fixed inset-0 bg-gray-600/50 dark:bg-gray-900/70 flex items-center justify-center z-[60] p-2 sm:p-4'>
             <div className='bg-white dark:bg-gray-800 rounded-lg p-3 sm:p-4 md:p-6 w-full max-w-5xl max-h-[95vh] my-4 overflow-y-auto'>
               <div className='flex justify-between items-center mb-3 sm:mb-4'>
                 <h3 className='text-base sm:text-lg font-medium text-gray-900 dark:text-gray-100'>
@@ -2355,7 +2332,7 @@ const DataEntry = () => {
 
         {/* Assign Users to Water System Modal */}
         {assigningUsersToWaterSystem && (
-                  <div className='fixed inset-0 bg-gray-600 bg-opacity-50 dark:bg-gray-900 dark:bg-opacity-70 flex items-center justify-center z-[60] p-2 sm:p-4 overflow-y-auto'>
+                  <div className='fixed inset-0 bg-gray-600/50 dark:bg-gray-900/70 flex items-center justify-center z-[60] p-2 sm:p-4 overflow-y-auto'>
             <div className='bg-white dark:bg-gray-800 rounded-lg p-3 sm:p-4 md:p-6 w-full max-w-lg max-h-[95vh] my-4 overflow-y-auto'>
               <div className='flex justify-between items-center mb-3 sm:mb-4'>
                 <h3 className='text-base sm:text-lg font-medium text-gray-900 dark:text-gray-100'>
@@ -2581,7 +2558,7 @@ const DataEntry = () => {
 
         {/* Manage Water Systems Modal */}
         {managingWaterSystems && (
-          <div className='fixed inset-0 bg-gray-600 bg-opacity-50 dark:bg-gray-900 dark:bg-opacity-70 flex items-center justify-center z-50 p-2 sm:p-4 overflow-y-auto'>
+          <div className='fixed inset-0 bg-gray-600/50 dark:bg-gray-900/70 flex items-center justify-center z-50 p-2 sm:p-4 overflow-y-auto'>
             <div className='bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl max-h-[95vh] my-4 overflow-hidden flex flex-col'>
               <div className='px-3 sm:px-4 md:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between'>
                 <div className='flex-1 min-w-0 pr-2'>

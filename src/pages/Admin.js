@@ -520,7 +520,7 @@ const Admin = () => {
 
       {/* Create/Edit User Modal */}
       {(showCreateForm || editingUser) && (
-        <div className="fixed inset-0  bg-gray-600 dark:bg-gray-900 bg-opacity-50 dark:bg-opacity-75 flex items-center justify-center z-50 p-2 sm:p-4 overflow-y-auto" style={{marginTop: '0'}}>
+        <div className="fixed inset-0  bg-gray-600/50 dark:bg-gray-900/75 flex items-center justify-center z-50 p-2 sm:p-4 overflow-y-auto" style={{marginTop: '0'}}>
           <div className="bg-white dark:bg-gray-800 rounded-lg p-4 sm:p-6 w-full max-w-md max-h-[95vh] my-4 overflow-y-auto">
             <div className="flex justify-between items-center mb-3 sm:mb-4">
               <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100">
