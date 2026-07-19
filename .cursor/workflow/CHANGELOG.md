@@ -6,6 +6,47 @@ format defined in `.cursor/rules/sass-frontend-workflow.mdc`.
 
 ## [Unreleased]
 
+### Changed — 2026-07-19
+
+**Time:** 2026-07-19 15:40 (UTC+6)
+**Author:** Cursor agent
+**Issue:** #none
+
+**Summary:** Super Admin Water Analysis now uses a combined custom date-time picker. It defaults to the current local date and time, supports exact hour/minute and AM/PM selection, and sends both `analysis_date` and `analysis_time`.
+
+**Files:**
+- `src/components/DatePicker.js` — added custom time controls, Now/Done actions, and combined date-time display
+- `src/pages/WaterAnalysis.js` — stores local date-time and submits separate API date/time values
+
+**Impact:** ui / API
+
+### Changed — 2026-07-19
+
+**Time:** 2026-07-19 15:25 (UTC+6)
+**Author:** Cursor agent
+**Issue:** #none
+
+**Summary:** Replaced the native HTML date input on Water Analysis with a custom `DatePicker` that matches SearchableSelect styling. Clicking the field opens a calendar popover (no browser date picker); value stays ISO `yyyy-MM-dd`. The header label is clickable: month/year view drill-down (days → months → years), with arrows paging by month, year, or 12-year range depending on the view.
+
+**Files:**
+- `src/components/DatePicker.js` — new custom calendar popover (date-fns) with month/year picker views
+- `src/pages/WaterAnalysis.js` — Super Admin Analysis Date uses `DatePicker`
+
+**Impact:** ui
+
+### Added — 2026-07-19
+
+**Time:** 2026-07-19 15:20 (UTC+6)
+**Author:** Cursor agent
+**Issue:** #none
+
+**Summary:** Super Admin Water Analysis now has an Analysis Date calendar beside Select Plant (defaults to today). The chosen date is sent as `analysis_date` on save; other roles keep today’s date automatically.
+
+**Files:**
+- `src/pages/WaterAnalysis.js` — `analysisDate` state + Super Admin date input + save payload
+
+**Impact:** ui
+
 ### Fixed — 2026-07-19
 
 **Time:** 2026-07-19 15:00 (UTC+6)

@@ -18,7 +18,9 @@ import {
   Zap
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { format } from 'date-fns';
 import SearchableSelect from '../components/SearchableSelect';
+import DatePicker from '../components/DatePicker';
 import LoadingOverlay from '../components/LoadingOverlay';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -43,6 +45,11 @@ const WaterAnalysis = () => {
   const [waterSystemsLoading, setWaterSystemsLoading] = useState(false);
   const [plantParameters, setPlantParameters] = useState(null);
   const [plantDetailsLoading, setPlantDetailsLoading] = useState(false);
+  // Super Admin can pick the local analysis date and time. Everyone else uses now.
+  const [analysisDateTime, setAnalysisDateTime] = useState(() =>
+    format(new Date(), "yyyy-MM-dd'T'HH:mm")
+  );
+  const isSuperAdmin = user?.is_super_admin || user?.role === 'super_admin';
   
   // Input data state - Core parameters for both cooling and boiler water
   const [inputData, setInputData] = useState({
@@ -1233,12 +1240,18 @@ const WaterAnalysis = () => {
       // Exclude frontend field names that need to be mapped
       const { temperature: frontendTemperature, hot_temperature: frontendHotTemperature, ...otherInputData } = cleanInputData;
       
+      // Only Super Admins can override the sample timestamp. Other roles use
+      // the actual submission time rather than the time when this page opened.
+      const submittedDateTime = isSuperAdmin
+        ? analysisDateTime || format(new Date(), "yyyy-MM-dd'T'HH:mm")
+        : format(new Date(), "yyyy-MM-dd'T'HH:mm");
       const analysisData = {
         ...otherInputData,  // All other fields as-is
         ...calculatedResults,
         analysis_type: analysisType,
         water_system: selectedWaterSystem.id,
-        analysis_date: new Date().toISOString().split('T')[0], // Add current date
+        analysis_date: submittedDateTime.slice(0, 10),
+        analysis_time: submittedDateTime.slice(11, 16),
         analysis_name: 'Water Analysis', // Add analysis name
         notes: cleanInputData.notes || '', // Add notes field
         // Map frontend field names to model field names
@@ -1387,21 +1400,39 @@ const WaterAnalysis = () => {
         {/* Plant Selection */}
         <div className='mb-4 sm:mb-6'>
           <div className='bg-white dark:bg-gray-800 rounded-lg shadow-md p-3 sm:p-4'>
-            <div className='flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 sm:space-x-4'>
-              <span className='text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap'>
-                Select Plant: <span className='text-red-500'>*</span>
-              </span>
-              <div className='flex-1 w-full sm:max-w-md'>
-                <SearchableSelect
-                  options={plants}
-                  value={selectedPlant}
-                  onChange={handlePlantChange}
-                  placeholder='Search and select a plant...'
-                  loading={plantsLoading}
-                  searchPlaceholder='Type to search plants...'
-                  noOptionsMessage='No plants found'
-                />
+            <div className='flex flex-col lg:flex-row lg:items-center gap-3 sm:gap-4'>
+              <div className='flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 flex-1 min-w-0'>
+                <span className='text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap'>
+                  Select Plant: <span className='text-red-500'>*</span>
+                </span>
+                <div className='flex-1 w-full sm:max-w-md'>
+                  <SearchableSelect
+                    options={plants}
+                    value={selectedPlant}
+                    onChange={handlePlantChange}
+                    placeholder='Search and select a plant...'
+                    loading={plantsLoading}
+                    searchPlaceholder='Type to search plants...'
+                    noOptionsMessage='No plants found'
+                  />
+                </div>
               </div>
+
+              {isSuperAdmin && (
+                <div className='flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4'>
+                  <span className='text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap'>
+                    Analysis Date &amp; Time:{' '}
+                    <span className='text-red-500'>*</span>
+                  </span>
+                  <div className='w-full sm:w-56'>
+                    <DatePicker
+                      value={analysisDateTime}
+                      onChange={setAnalysisDateTime}
+                      ariaLabel='Analysis date and time'
+                    />
+                  </div>
+                </div>
+              )}
             </div>
             {plantDetailsLoading && (
               <div className='mt-2 text-sm text-gray-600 dark:text-gray-400'>
