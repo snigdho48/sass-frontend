@@ -16,7 +16,7 @@ yarn.lock
 
 # Production builds
 build/
-dist/
+
 
 # Environment variables
 .env
