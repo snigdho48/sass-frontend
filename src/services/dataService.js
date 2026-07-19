@@ -107,6 +107,108 @@ export const dataService = {
     }
   },
 
+  // Super Admin: paginated distinct analysis dates with time entries
+  async getDailyAnalysisGroups({ analysisType, waterSystemId, page = 1, pageSize = 10 }) {
+    try {
+      const response = await api.get('/water-analysis/daily-groups/', {
+        params: {
+          analysis_type: analysisType,
+          water_system: waterSystemId,
+          page,
+          page_size: pageSize,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(
+        error.response?.data?.error || 'Failed to fetch daily analysis groups'
+      );
+    }
+  },
+
+  // Super Admin: paginated months or years that contain analysis data
+  async getReportPeriods({
+    analysisType,
+    waterSystemId,
+    periodType,
+    page = 1,
+    pageSize = 10,
+  }) {
+    try {
+      const response = await api.get('/water-analysis/report-periods/', {
+        params: {
+          analysis_type: analysisType,
+          water_system: waterSystemId,
+          period_type: periodType,
+          page,
+          page_size: pageSize,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(
+        error.response?.data?.error || 'Failed to fetch available report periods'
+      );
+    }
+  },
+
+  async getWaterAnalysis(analysisId) {
+    try {
+      const response = await api.get(`/water-analysis/${analysisId}/`);
+      return response.data;
+    } catch (error) {
+      throw new Error(
+        error.response?.data?.error || 'Failed to fetch water analysis'
+      );
+    }
+  },
+
+  async updateWaterAnalysis(analysisId, analysisData) {
+    try {
+      const response = await api.patch(`/water-analysis/${analysisId}/`, analysisData);
+      return response.data;
+    } catch (error) {
+      const errors = error.response?.data;
+      if (errors && typeof errors === 'object') {
+        const errorMessages = Object.entries(errors)
+          .map(([key, value]) => {
+            const msg = Array.isArray(value) ? value.join(', ') : String(value);
+            return key === 'error' || key === 'detail' ? msg : `${key}: ${msg}`;
+          });
+        throw new Error(errorMessages.join('; ') || 'Failed to update water analysis');
+      }
+      throw new Error('Failed to update water analysis');
+    }
+  },
+
+  async deleteWaterAnalysis(analysisId) {
+    try {
+      await api.delete(`/water-analysis/${analysisId}/`);
+      return { success: true };
+    } catch (error) {
+      throw new Error(
+        error.response?.data?.error || 'Failed to delete water analysis'
+      );
+    }
+  },
+
+  async deleteAnalysisDay({ analysisType, waterSystemId, date }) {
+    try {
+      const response = await api.delete('/water-analysis/delete-day/', {
+        data: {
+          analysis_type: analysisType,
+          water_system: waterSystemId,
+          date,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(
+        error.response?.data?.error || 'Failed to delete day analyses'
+      );
+    }
+  },
+
   // Generate report
   async generateReport(reportData) {
     try {

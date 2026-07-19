@@ -8,6 +8,48 @@ format defined in `.cursor/rules/sass-frontend-workflow.mdc`.
 
 ### Changed — 2026-07-19
 
+**Time:** 2026-07-19 17:44 (UTC+6)
+**Author:** Cursor agent
+**Issue:** #none
+
+**Summary:** All authenticated users with a selected water system now see Daily/Monthly/Yearly availability tables with Preview and Download. Edit/delete and time chips remain Super Admin only.
+
+**Files:**
+- `src/pages/Reports.js` — open availability workspaces to all roles; hide Super Admin-only controls
+
+**Impact:** ui
+
+### Added — 2026-07-19
+
+**Time:** 2026-07-19 17:28 (UTC+6)
+**Author:** Cursor agent
+**Issue:** #none
+
+**Summary:** Super Admin Monthly and Yearly reports now show paginated availability tables/cards containing only periods with analysis data, with day/record counts and per-period Preview/Download actions and loading states.
+
+**Files:**
+- `src/pages/Reports.js` — monthly/yearly availability workspaces and period report actions
+- `src/services/dataService.js` — report-period availability API helper
+
+**Impact:** ui / API
+
+### Added — 2026-07-19
+
+**Time:** 2026-07-19 16:45 (UTC+6)
+**Author:** Cursor agent
+**Issue:** #none
+
+**Summary:** Super Admin Daily reports now show a paginated date list (table/cards) with clickable time chips, per-day Preview/Download/Delete, and an edit modal for measurement values and date-time. Monthly/yearly flows are unchanged.
+
+**Files:**
+- `src/pages/Reports.js` — Super Admin daily workspace, pagination, row actions
+- `src/components/AnalysisEditModal.js` — edit/delete single analysis records
+- `src/services/dataService.js` — daily-groups, CRUD, delete-day helpers
+
+**Impact:** ui / API
+
+### Changed — 2026-07-19
+
 **Time:** 2026-07-19 15:40 (UTC+6)
 **Author:** Cursor agent
 **Issue:** #none

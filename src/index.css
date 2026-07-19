@@ -253,8 +253,10 @@
   }
 
   /* tw-animate-css enter helpers (shadcn stack, no Framer Motion) */
+  /* No fill-mode-both here: a retained transform/filter would turn this wrapper
+     into a containing block for position:fixed descendants (modals, overlays). */
   .ui-page-enter {
-    @apply animate-in fade-in slide-in-from-bottom-2 duration-300 fill-mode-both;
+    @apply animate-in fade-in slide-in-from-bottom-2 duration-300;
   }
 
   .ui-modal-enter {

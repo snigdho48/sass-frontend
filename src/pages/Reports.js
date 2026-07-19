@@ -1,64 +1,204 @@
-import React, { useState } from 'react';
-import { useQuery, useMutation } from 'react-query';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { dataService } from '../services/dataService';
-import { FileText, Calendar, Droplet, Flame, CheckCircle, Download, Eye, X } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { useAppSelector } from '../hooks/useAppSelector';
+import AnalysisEditModal from '../components/AnalysisEditModal';
 import SearchableSelect from '../components/SearchableSelect';
+import {
+  FileText,
+  Calendar,
+  Droplet,
+  Flame,
+  CheckCircle,
+  Download,
+  Eye,
+  X,
+  Trash2,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  Loader2,
+} from 'lucide-react';
+import toast from 'react-hot-toast';
+import { format, parseISO } from 'date-fns';
+
+const formatDisplayTime = (timeStr) => {
+  if (!timeStr) return '--:--';
+  try {
+    return format(parseISO(`1970-01-01T${timeStr.slice(0, 8)}`), 'h:mm a');
+  } catch {
+    return timeStr.slice(0, 5);
+  }
+};
+
+const formatDisplayDate = (dateStr) => {
+  try {
+    return format(parseISO(dateStr), 'MMM d, yyyy');
+  } catch {
+    return dateStr;
+  }
+};
+
+const formatDisplayPeriod = (period, periodType) => {
+  if (periodType === 'yearly') return period;
+  try {
+    return format(parseISO(`${period}-01`), 'MMMM yyyy');
+  } catch {
+    return period;
+  }
+};
 
 const Reports = () => {
-  // Step 1: Analysis Type Selection
-  const [analysisType, setAnalysisType] = useState(null); // 'cooling' or 'boiler'
-  
-  // Step 2: Water System Selection
+  const { user } = useAppSelector((state) => state.auth);
+  // Match backend report-period/daily-groups gates (role SUPER_ADMIN via can_create_plants)
+  const isSuperAdmin = !!user?.can_create_plants;
+  const queryClient = useQueryClient();
+
+  const [analysisType, setAnalysisType] = useState(null);
   const [selectedWaterSystem, setSelectedWaterSystem] = useState(null);
-  
-  // Step 3: Report Type Selection
-  const [reportType, setReportType] = useState(null); // 'daily', 'monthly', 'yearly'
-  
-  // Step 4: Date/Month/Year Selection
+  const [reportType, setReportType] = useState(null);
+
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedMonth, setSelectedMonth] = useState('');
   const [selectedYear, setSelectedYear] = useState('');
-  
-  // Generated PDF state
-  const [generatedPdf, setGeneratedPdf] = useState(null); // { blobUrl, filename }
+
+  const [generatedPdf, setGeneratedPdf] = useState(null);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
 
-  // Fetch water systems based on analysis type
-  const { data: waterSystemsData, isLoading: waterSystemsLoading, error: waterSystemsError } = useQuery(
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [editingAnalysisId, setEditingAnalysisId] = useState(null);
+
+  const showDailyWorkspace = reportType === 'daily' && !!selectedWaterSystem;
+  const showPeriodWorkspace =
+    (reportType === 'monthly' || reportType === 'yearly') &&
+    !!selectedWaterSystem;
+  const showReportWorkspace = showDailyWorkspace || showPeriodWorkspace;
+
+  const {
+    data: waterSystemsData,
+    isLoading: waterSystemsLoading,
+    error: waterSystemsError,
+  } = useQuery(
     ['water-systems', analysisType],
     () => dataService.getWaterSystems({ system_type: analysisType }),
     {
       enabled: !!analysisType,
-      onError: (error) => {
-        console.error('Water systems error:', error);
-        toast.error('Failed to load water systems');
-      }
+      onError: () => toast.error('Failed to load water systems'),
     }
   );
 
-  // Ensure waterSystems is always an array
   const waterSystems = Array.isArray(waterSystemsData) ? waterSystemsData : [];
-  
-  // Format water systems for SearchableSelect: 'plant name - water system name'
-  const waterSystemOptions = React.useMemo(() => {
-    return waterSystems.map(ws => ({
-      id: ws.id,
-      name: `${ws.plant_name || 'Unknown Plant'} - ${ws.name}`,
-      waterSystem: ws // Keep reference to original object
-    }));
-  }, [waterSystems]);
+  const waterSystemOptions = useMemo(
+    () =>
+      waterSystems.map((ws) => ({
+        id: ws.id,
+        name: `${ws.plant_name || 'Unknown Plant'} - ${ws.name}`,
+        waterSystem: ws,
+      })),
+    [waterSystems]
+  );
 
-  // Generate report mutation
-  const generateReportMutation = useMutation(
-    (reportData) => dataService.generateReport(reportData),
+  const {
+    data: dailyGroupsData,
+    isLoading: dailyGroupsLoading,
+    isFetching: dailyGroupsFetching,
+    error: dailyGroupsError,
+    refetch: refetchDailyGroups,
+  } = useQuery(
+    [
+      'daily-analysis-groups',
+      analysisType,
+      selectedWaterSystem?.id,
+      currentPage,
+      pageSize,
+    ],
+    () =>
+      dataService.getDailyAnalysisGroups({
+        analysisType,
+        waterSystemId: selectedWaterSystem.id,
+        page: currentPage,
+        pageSize,
+      }),
     {
-      onSuccess: (data) => {
-        toast.success('Report generated successfully!');
-        // Store PDF data for download/preview
+      enabled: showDailyWorkspace,
+      keepPreviousData: true,
+      onError: (error) => {
+        toast.error(error.message || 'Failed to load daily analyses');
+      },
+    }
+  );
+
+  const dailyResults = dailyGroupsData?.results || [];
+  const totalPages = dailyGroupsData?.total_pages || 1;
+  const totalCount = dailyGroupsData?.count || 0;
+
+  const {
+    data: reportPeriodsData,
+    isLoading: reportPeriodsLoading,
+    isFetching: reportPeriodsFetching,
+    error: reportPeriodsError,
+    refetch: refetchReportPeriods,
+  } = useQuery(
+    [
+      'report-periods',
+      analysisType,
+      selectedWaterSystem?.id,
+      reportType,
+      currentPage,
+      pageSize,
+    ],
+    () =>
+      dataService.getReportPeriods({
+        analysisType,
+        waterSystemId: selectedWaterSystem.id,
+        periodType: reportType,
+        page: currentPage,
+        pageSize,
+      }),
+    {
+      enabled: showPeriodWorkspace,
+      keepPreviousData: true,
+      onError: (error) => {
+        toast.error(error.message || 'Failed to load available reports');
+      },
+    }
+  );
+
+  const reportPeriodResults = reportPeriodsData?.results || [];
+  const reportPeriodTotalPages = reportPeriodsData?.total_pages || 1;
+  const reportPeriodTotalCount = reportPeriodsData?.count || 0;
+
+  useEffect(() => {
+    const activeData = showDailyWorkspace ? dailyGroupsData : reportPeriodsData;
+    if (
+      showReportWorkspace &&
+      activeData &&
+      currentPage > (activeData.total_pages || 1)
+    ) {
+      setCurrentPage(Math.max(1, activeData.total_pages || 1));
+    }
+  }, [
+    showDailyWorkspace,
+    showReportWorkspace,
+    dailyGroupsData,
+    reportPeriodsData,
+    currentPage,
+  ]);
+
+  const generateReportMutation = useMutation(
+    (reportData) => {
+      const { __preview, __autoDownload, ...payload } = reportData;
+      return dataService.generateReport(payload);
+    },
+    {
+      onSuccess: (data, variables) => {
+        if (!variables.__autoDownload) {
+          toast.success('Report generated successfully!');
+        }
         setGeneratedPdf({
           blobUrl: data.blobUrl,
-          filename: data.filename
+          filename: data.filename,
         });
       },
       onError: (error) => {
@@ -66,11 +206,36 @@ const Reports = () => {
       },
     }
   );
-  
-  // Download PDF function
+
+  const deleteDayMutation = useMutation(
+    ({ date }) =>
+      dataService.deleteAnalysisDay({
+        analysisType,
+        waterSystemId: selectedWaterSystem.id,
+        date,
+      }),
+    {
+      onSuccess: (data) => {
+        toast.success(
+          `Deleted ${data.deleted_count} analysis record${
+            data.deleted_count === 1 ? '' : 's'
+          }`
+        );
+        queryClient.invalidateQueries(['daily-analysis-groups']);
+        if (generatedPdf?.blobUrl) {
+          window.URL.revokeObjectURL(generatedPdf.blobUrl);
+        }
+        setGeneratedPdf(null);
+        setShowPreviewModal(false);
+      },
+      onError: (error) => {
+        toast.error(error.message || 'Failed to delete day');
+      },
+    }
+  );
+
   const handleDownloadPdf = () => {
     if (!generatedPdf) return;
-    
     const link = document.createElement('a');
     link.href = generatedPdf.blobUrl;
     link.setAttribute('download', generatedPdf.filename);
@@ -79,20 +244,17 @@ const Reports = () => {
     link.remove();
     toast.success('Report downloaded successfully!');
   };
-  
-  // Open preview modal
+
   const handlePreviewPdf = () => {
     if (!generatedPdf) return;
     setShowPreviewModal(true);
   };
-  
-  // Close preview modal and cleanup
+
   const handleClosePreview = () => {
     setShowPreviewModal(false);
   };
-  
-  // Cleanup blob URL when component unmounts or PDF changes
-  React.useEffect(() => {
+
+  useEffect(() => {
     return () => {
       if (generatedPdf?.blobUrl) {
         window.URL.revokeObjectURL(generatedPdf.blobUrl);
@@ -100,23 +262,7 @@ const Reports = () => {
     };
   }, [generatedPdf]);
 
-  const resetForm = () => {
-    setAnalysisType(null);
-    setSelectedWaterSystem(null);
-    setReportType(null);
-    setSelectedDate('');
-    setSelectedMonth('');
-    setSelectedYear('');
-    // Clear generated PDF
-    if (generatedPdf?.blobUrl) {
-      window.URL.revokeObjectURL(generatedPdf.blobUrl);
-    }
-    setGeneratedPdf(null);
-    setShowPreviewModal(false);
-  };
-  
-  // Clear generated PDF when selections change
-  React.useEffect(() => {
+  useEffect(() => {
     if (generatedPdf) {
       if (generatedPdf.blobUrl) {
         window.URL.revokeObjectURL(generatedPdf.blobUrl);
@@ -125,10 +271,87 @@ const Reports = () => {
       setShowPreviewModal(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [analysisType, selectedWaterSystem, reportType, selectedDate, selectedMonth, selectedYear]);
+  }, [
+    analysisType,
+    selectedWaterSystem,
+    reportType,
+    selectedDate,
+    selectedMonth,
+    selectedYear,
+  ]);
+
+  const generateForDate = (date, { preview = false } = {}) => {
+    if (!analysisType || !selectedWaterSystem) return;
+    if (generateReportMutation.isLoading || deleteDayMutation.isLoading) return;
+    generateReportMutation.mutate(
+      {
+        analysis_type: analysisType,
+        water_system_id: selectedWaterSystem.id,
+        report_type: 'daily',
+        date,
+        __preview: preview,
+        __autoDownload: !preview,
+      },
+      {
+        onSuccess: (data, variables) => {
+          if (variables.__preview) {
+            setShowPreviewModal(true);
+          }
+          if (variables.__autoDownload) {
+            const link = document.createElement('a');
+            link.href = data.blobUrl;
+            link.setAttribute('download', data.filename);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            toast.success('Report downloaded successfully!');
+          }
+        },
+      }
+    );
+  };
+
+  const generateForPeriod = (period, { preview = false } = {}) => {
+    if (
+      !analysisType ||
+      !selectedWaterSystem ||
+      !['monthly', 'yearly'].includes(reportType)
+    ) {
+      return;
+    }
+    if (generateReportMutation.isLoading || deleteDayMutation.isLoading) return;
+
+    generateReportMutation.mutate(
+      {
+        analysis_type: analysisType,
+        water_system_id: selectedWaterSystem.id,
+        report_type: reportType,
+        ...(reportType === 'monthly'
+          ? { month: period }
+          : { year: period }),
+        __preview: preview,
+        __autoDownload: !preview,
+      },
+      {
+        onSuccess: (data, variables) => {
+          if (variables.__preview) {
+            setShowPreviewModal(true);
+          }
+          if (variables.__autoDownload) {
+            const link = document.createElement('a');
+            link.href = data.blobUrl;
+            link.setAttribute('download', data.filename);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            toast.success('Report downloaded successfully!');
+          }
+        },
+      }
+    );
+  };
 
   const handleGenerateReport = () => {
-    // Validate all selections
     if (!analysisType) {
       toast.error('Please select analysis type (Cooling or Boiler)');
       return;
@@ -141,8 +364,6 @@ const Reports = () => {
       toast.error('Please select report type (Daily, Monthly, or Yearly)');
       return;
     }
-
-    // Validate date/month/year based on report type
     if (reportType === 'daily' && !selectedDate) {
       toast.error('Please select a date');
       return;
@@ -156,7 +377,6 @@ const Reports = () => {
       return;
     }
 
-    // Prepare report data
     const reportData = {
       analysis_type: analysisType,
       water_system_id: selectedWaterSystem.id,
@@ -169,42 +389,66 @@ const Reports = () => {
     generateReportMutation.mutate(reportData);
   };
 
-  // Get current year and generate year options
+  const handleDeleteDay = (date) => {
+    if (!isSuperAdmin) return;
+    if (generateReportMutation.isLoading || deleteDayMutation.isLoading) return;
+    const confirmed = window.confirm(
+      `Delete ALL analysis records for ${formatDisplayDate(
+        date
+      )}? This cannot be undone.`
+    );
+    if (!confirmed) return;
+    deleteDayMutation.mutate({ date });
+  };
+
+  const getRowActionState = (date) => {
+    const genVars = generateReportMutation.variables;
+    const delVars = deleteDayMutation.variables;
+    const generating =
+      generateReportMutation.isLoading && genVars?.date === date;
+    const previewing = generating && !!genVars?.__preview;
+    const downloading = generating && !!genVars?.__autoDownload;
+    const deleting =
+      deleteDayMutation.isLoading && delVars?.date === date;
+    const busy =
+      generateReportMutation.isLoading || deleteDayMutation.isLoading;
+    return { previewing, downloading, deleting, busy };
+  };
+
+  const getPeriodActionState = (period) => {
+    const variables = generateReportMutation.variables;
+    const requestedPeriod =
+      variables?.report_type === 'monthly' ? variables.month : variables?.year;
+    const generating =
+      generateReportMutation.isLoading && requestedPeriod === period;
+    return {
+      previewing: generating && !!variables?.__preview,
+      downloading: generating && !!variables?.__autoDownload,
+      busy: generateReportMutation.isLoading || deleteDayMutation.isLoading,
+    };
+  };
+
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 10 }, (_, i) => currentYear - i);
 
-  // Generate month options
-  const months = [
-    { value: '01', label: 'January' },
-    { value: '02', label: 'February' },
-    { value: '03', label: 'March' },
-    { value: '04', label: 'April' },
-    { value: '05', label: 'May' },
-    { value: '06', label: 'June' },
-    { value: '07', label: 'July' },
-    { value: '08', label: 'August' },
-    { value: '09', label: 'September' },
-    { value: '10', label: 'October' },
-    { value: '11', label: 'November' },
-    { value: '12', label: 'December' },
-  ];
-
   return (
     <div className="space-y-4 sm:space-y-6 p-4 sm:p-6">
-      {/* Header */}
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">Water Analysis Reports</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">
+          Water Analysis Reports
+        </h1>
         <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
           Generate detailed reports for your water analysis data
         </p>
       </div>
 
-      {/* Report Generation Form */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 sm:p-6">
-        <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4 sm:mb-6">Generate Report</h2>
+        <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4 sm:mb-6">
+          Generate Report
+        </h2>
 
         <div className="space-y-4 sm:space-y-6">
-          {/* Step 1: Analysis Type Selection */}
+          {/* Step 1 */}
           <div>
             <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 sm:mb-3">
               Step 1: Select Analysis Type <span className="text-red-500">*</span>
@@ -214,7 +458,9 @@ const Reports = () => {
                 type="button"
                 onClick={() => {
                   setAnalysisType('cooling');
-                  setSelectedWaterSystem(null); // Reset water system when changing type
+                  setSelectedWaterSystem(null);
+                  setReportType(null);
+                  setCurrentPage(1);
                 }}
                 className={`p-3 sm:p-4 rounded-lg border-2 transition-all ${
                   analysisType === 'cooling'
@@ -222,13 +468,21 @@ const Reports = () => {
                     : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
                 }`}
               >
-                <Droplet className={`h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2 ${
-                  analysisType === 'cooling' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'
-                }`} />
+                <Droplet
+                  className={`h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2 ${
+                    analysisType === 'cooling'
+                      ? 'text-blue-600 dark:text-blue-400'
+                      : 'text-gray-400 dark:text-gray-500'
+                  }`}
+                />
                 <div className="text-center">
-                  <div className={`text-sm sm:text-base font-medium ${
-                    analysisType === 'cooling' ? 'text-blue-900 dark:text-blue-300' : 'text-gray-700 dark:text-gray-300'
-                  }`}>
+                  <div
+                    className={`text-sm sm:text-base font-medium ${
+                      analysisType === 'cooling'
+                        ? 'text-blue-900 dark:text-blue-300'
+                        : 'text-gray-700 dark:text-gray-300'
+                    }`}
+                  >
                     Cooling Water
                   </div>
                   {analysisType === 'cooling' && (
@@ -241,7 +495,9 @@ const Reports = () => {
                 type="button"
                 onClick={() => {
                   setAnalysisType('boiler');
-                  setSelectedWaterSystem(null); // Reset water system when changing type
+                  setSelectedWaterSystem(null);
+                  setReportType(null);
+                  setCurrentPage(1);
                 }}
                 className={`p-3 sm:p-4 rounded-lg border-2 transition-all ${
                   analysisType === 'boiler'
@@ -249,13 +505,21 @@ const Reports = () => {
                     : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
                 }`}
               >
-                <Flame className={`h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2 ${
-                  analysisType === 'boiler' ? 'text-orange-600 dark:text-orange-400' : 'text-gray-400 dark:text-gray-500'
-                }`} />
+                <Flame
+                  className={`h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2 ${
+                    analysisType === 'boiler'
+                      ? 'text-orange-600 dark:text-orange-400'
+                      : 'text-gray-400 dark:text-gray-500'
+                  }`}
+                />
                 <div className="text-center">
-                  <div className={`text-sm sm:text-base font-medium ${
-                    analysisType === 'boiler' ? 'text-orange-900 dark:text-orange-300' : 'text-gray-700 dark:text-gray-300'
-                  }`}>
+                  <div
+                    className={`text-sm sm:text-base font-medium ${
+                      analysisType === 'boiler'
+                        ? 'text-orange-900 dark:text-orange-300'
+                        : 'text-gray-700 dark:text-gray-300'
+                    }`}
+                  >
                     Boiler Water
                   </div>
                   {analysisType === 'boiler' && (
@@ -266,7 +530,7 @@ const Reports = () => {
             </div>
           </div>
 
-          {/* Step 2: Water System Selection */}
+          {/* Step 2 */}
           {analysisType && (
             <div>
               <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 sm:mb-3">
@@ -274,50 +538,60 @@ const Reports = () => {
               </label>
               {waterSystemsLoading ? (
                 <div className="flex items-center justify-center p-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
                 </div>
               ) : !Array.isArray(waterSystems) || waterSystems.length === 0 ? (
                 <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
                   <p className="text-sm text-yellow-800 dark:text-yellow-300 font-medium mb-2">
-                    No {analysisType === 'cooling' ? 'cooling' : 'boiler'} water systems available.
+                    No {analysisType === 'cooling' ? 'cooling' : 'boiler'} water
+                    systems available.
                   </p>
                   <p className="text-xs text-yellow-700 dark:text-yellow-400">
-                    {waterSystemsError 
+                    {waterSystemsError
                       ? 'Error loading water systems. Please try again or contact your administrator.'
-                      : 'You may not have access to any ' + (analysisType === 'cooling' ? 'cooling' : 'boiler') + ' water systems, or none have been created yet. Please contact your administrator to create or assign a water system.'}
+                      : `You may not have access to any ${
+                          analysisType === 'cooling' ? 'cooling' : 'boiler'
+                        } water systems, or none have been created yet.`}
                   </p>
-                  {waterSystemsError && (
-                    <details className="mt-2 text-xs text-yellow-600 dark:text-yellow-400">
-                      <summary className="cursor-pointer">Error details</summary>
-                      <pre className="mt-1 p-2 bg-yellow-100 dark:bg-yellow-900/30 rounded overflow-auto text-gray-900 dark:text-gray-100">
-                        {JSON.stringify(waterSystemsError.response?.data || waterSystemsError.message, null, 2)}
-                      </pre>
-                    </details>
-                  )}
                 </div>
               ) : (
                 <SearchableSelect
                   options={waterSystemOptions}
-                  value={selectedWaterSystem ? { id: selectedWaterSystem.id, name: waterSystemOptions.find(opt => opt.id === selectedWaterSystem.id)?.name || `${selectedWaterSystem.plant_name || 'Unknown Plant'} - ${selectedWaterSystem.name}` } : null}
+                  value={
+                    selectedWaterSystem
+                      ? {
+                          id: selectedWaterSystem.id,
+                          name:
+                            waterSystemOptions.find(
+                              (opt) => opt.id === selectedWaterSystem.id
+                            )?.name ||
+                            `${selectedWaterSystem.plant_name || 'Unknown Plant'} - ${
+                              selectedWaterSystem.name
+                            }`,
+                        }
+                      : null
+                  }
                   onChange={(option) => {
                     if (option) {
-                      // Find the original water system object
-                      const system = waterSystems.find(ws => ws.id === option.id);
+                      const system = waterSystems.find((ws) => ws.id === option.id);
                       setSelectedWaterSystem(system);
+                      setCurrentPage(1);
                     } else {
                       setSelectedWaterSystem(null);
                     }
                   }}
                   placeholder="Search and select a water system..."
                   searchPlaceholder="Search by plant name or water system name..."
-                  noOptionsMessage={`No ${analysisType === 'cooling' ? 'cooling' : 'boiler'} water systems found`}
+                  noOptionsMessage={`No ${
+                    analysisType === 'cooling' ? 'cooling' : 'boiler'
+                  } water systems found`}
                   loading={waterSystemsLoading}
                 />
               )}
             </div>
           )}
 
-          {/* Step 3: Report Type Selection */}
+          {/* Step 3 */}
           {selectedWaterSystem && (
             <div>
               <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 sm:mb-3">
@@ -330,10 +604,10 @@ const Reports = () => {
                     type="button"
                     onClick={() => {
                       setReportType(type);
-                      // Reset date selections when changing report type
                       setSelectedDate('');
                       setSelectedMonth('');
                       setSelectedYear('');
+                      setCurrentPage(1);
                     }}
                     className={`p-3 sm:p-4 rounded-lg border-2 transition-all ${
                       reportType === type
@@ -341,12 +615,20 @@ const Reports = () => {
                         : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
                     }`}
                   >
-                    <Calendar className={`h-5 w-5 sm:h-6 sm:w-6 mx-auto mb-2 ${
-                      reportType === type ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'
-                    }`} />
-                    <div className={`text-center text-sm sm:text-base font-medium ${
-                      reportType === type ? 'text-blue-900 dark:text-blue-300' : 'text-gray-700 dark:text-gray-300'
-                    }`}>
+                    <Calendar
+                      className={`h-5 w-5 sm:h-6 sm:w-6 mx-auto mb-2 ${
+                        reportType === type
+                          ? 'text-blue-600 dark:text-blue-400'
+                          : 'text-gray-400 dark:text-gray-500'
+                      }`}
+                    />
+                    <div
+                      className={`text-center text-sm sm:text-base font-medium ${
+                        reportType === type
+                          ? 'text-blue-900 dark:text-blue-300'
+                          : 'text-gray-700 dark:text-gray-300'
+                      }`}
+                    >
                       {type.charAt(0).toUpperCase() + type.slice(1)}
                     </div>
                   </button>
@@ -355,20 +637,26 @@ const Reports = () => {
             </div>
           )}
 
-          {/* Step 4: Date/Month/Year Selection */}
-          {reportType && (
+          {/* Step 4: manual selectors for users without the availability workspace */}
+          {reportType && !showReportWorkspace && (
             <div>
               <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 sm:mb-3">
-                Step 4: Select {reportType === 'daily' ? 'Date' : reportType === 'monthly' ? 'Month' : 'Year'} <span className="text-red-500">*</span>
+                Step 4: Select{' '}
+                {reportType === 'daily'
+                  ? 'Date'
+                  : reportType === 'monthly'
+                  ? 'Month'
+                  : 'Year'}{' '}
+                <span className="text-red-500">*</span>
               </label>
-              
+
               {reportType === 'daily' && (
                 <div className="w-full sm:max-w-xs">
                   <input
                     type="date"
                     value={selectedDate}
                     onChange={(e) => setSelectedDate(e.target.value)}
-                    max={new Date().toISOString().split('T')[0]} // Don't allow future dates
+                    max={new Date().toISOString().split('T')[0]}
                     className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                   />
                 </div>
@@ -380,7 +668,7 @@ const Reports = () => {
                     type="month"
                     value={selectedMonth}
                     onChange={(e) => setSelectedMonth(e.target.value)}
-                    max={`${currentYear}-12`} // Don't allow future months
+                    max={`${currentYear}-12`}
                     className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                   />
                 </div>
@@ -405,70 +693,620 @@ const Reports = () => {
             </div>
           )}
 
-          {/* Generate Button - Hidden when PDF is generated */}
-          {selectedWaterSystem && reportType && 
-           ((reportType === 'daily' && selectedDate) ||
-            (reportType === 'monthly' && selectedMonth) ||
-            (reportType === 'yearly' && selectedYear)) && (
-            <div className="pt-3 sm:pt-4 border-t space-y-3 sm:space-y-4">
-              {/* Generate Button - Only show when no PDF is generated */}
-              {!generatedPdf && (
-                <button
-                  onClick={handleGenerateReport}
-                  disabled={generateReportMutation.isLoading}
-                  className="w-full px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-                >
-                  {generateReportMutation.isLoading ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-white mr-2"></div>
-                      Generating...
-                    </>
-                  ) : (
-                    <>
-                      <FileText className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-                      Generate Report
-                    </>
-                  )}
-                </button>
-              )}
-              
-              {/* Download and Preview Buttons (shown after generation) */}
-              {generatedPdf && !generateReportMutation.isLoading && (
-                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+          {/* Classic generate UI (users without the availability workspace) */}
+          {!showReportWorkspace &&
+            selectedWaterSystem &&
+            reportType &&
+            ((reportType === 'daily' && selectedDate) ||
+              (reportType === 'monthly' && selectedMonth) ||
+              (reportType === 'yearly' && selectedYear)) && (
+              <div className="pt-3 sm:pt-4 border-t space-y-3 sm:space-y-4">
+                {!generatedPdf && (
                   <button
-                    onClick={handleDownloadPdf}
-                    className="flex-1 px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 flex items-center justify-center"
+                    onClick={handleGenerateReport}
+                    disabled={generateReportMutation.isLoading}
+                    className="w-full px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                   >
-                    <Download className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-                    Download Report
+                    {generateReportMutation.isLoading ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-white mr-2" />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <FileText className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+                        Generate Report
+                      </>
+                    )}
                   </button>
-                  <button
-                    onClick={handlePreviewPdf}
-                    className="flex-1 px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 flex items-center justify-center"
-                  >
-                    <Eye className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-                    Preview Report
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
+                )}
+
+                {generatedPdf && !generateReportMutation.isLoading && (
+                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                    <button
+                      onClick={handleDownloadPdf}
+                      className="flex-1 px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 flex items-center justify-center"
+                    >
+                      <Download className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+                      Download Report
+                    </button>
+                    <button
+                      onClick={handlePreviewPdf}
+                      className="flex-1 px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 flex items-center justify-center"
+                    >
+                      <Eye className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+                      Preview Report
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
         </div>
       </div>
 
+      {/* Daily availability workspace */}
+      {showDailyWorkspace && (
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+            <div>
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100">
+                {isSuperAdmin ? 'Daily Analyses' : 'Available Daily Reports'}
+              </h2>
+              <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
+                {isSuperAdmin
+                  ? 'One row per date. Click a time to edit or delete that sample. Preview/Download includes every time for that day.'
+                  : 'Only dates containing analysis data are shown. Preview or download the report for a date.'}
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <label className="text-xs text-gray-500 dark:text-gray-400">
+                Rows
+              </label>
+              <select
+                value={pageSize}
+                onChange={(e) => {
+                  setPageSize(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+                className="px-2 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              >
+                {[10, 25, 50].map((size) => (
+                  <option key={size} value={size}>
+                    {size}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {dailyGroupsLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600" />
+            </div>
+          ) : dailyGroupsError ? (
+            <div className="p-4 rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 text-sm text-red-700 dark:text-red-300">
+              {dailyGroupsError.message || 'Failed to load daily analyses.'}
+              <button
+                type="button"
+                onClick={() => refetchDailyGroups()}
+                className="ml-3 underline"
+              >
+                Retry
+              </button>
+            </div>
+          ) : dailyResults.length === 0 ? (
+            <div className="p-6 text-center text-sm text-gray-500 dark:text-gray-400 border border-dashed border-gray-300 dark:border-gray-600 rounded-lg">
+              No analysis data found for this water system yet.
+            </div>
+          ) : (
+            <>
+              {/* Desktop table */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                  <thead className="bg-gray-50 dark:bg-gray-900/40">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Date
+                      </th>
+                      {isSuperAdmin && (
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                          Times
+                        </th>
+                      )}
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Records
+                      </th>
+                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                    {dailyResults.map((row) => {
+                      const { previewing, downloading, deleting, busy } =
+                        getRowActionState(row.date);
+                      return (
+                        <tr key={row.date} className="hover:bg-gray-50 dark:hover:bg-gray-700/40">
+                          <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100 whitespace-nowrap">
+                            {formatDisplayDate(row.date)}
+                          </td>
+                          {isSuperAdmin && (
+                            <td className="px-4 py-3">
+                              <div className="flex flex-wrap gap-1.5">
+                                {row.entries.map((entry) => (
+                                  <button
+                                    key={entry.id}
+                                    type="button"
+                                    onClick={() => setEditingAnalysisId(entry.id)}
+                                    disabled={busy}
+                                    className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50 transition-colors disabled:opacity-50"
+                                    title="Edit or delete this sample"
+                                  >
+                                    <Clock className="h-3 w-3" />
+                                    {formatDisplayTime(entry.analysis_time)}
+                                  </button>
+                                ))}
+                              </div>
+                            </td>
+                          )}
+                          <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
+                            {row.record_count}
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="flex items-center justify-end gap-2">
+                              <button
+                                type="button"
+                                disabled={busy}
+                                onClick={() =>
+                                  generateForDate(row.date, { preview: true })
+                                }
+                                className="inline-flex items-center px-2.5 py-1.5 text-xs rounded-md bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50"
+                              >
+                                {previewing ? (
+                                  <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" />
+                                ) : (
+                                  <Eye className="h-3.5 w-3.5 mr-1" />
+                                )}
+                                {previewing ? 'Loading…' : 'Preview'}
+                              </button>
+                              <button
+                                type="button"
+                                disabled={busy}
+                                onClick={() =>
+                                  generateForDate(row.date, { preview: false })
+                                }
+                                className="inline-flex items-center px-2.5 py-1.5 text-xs rounded-md bg-green-600 text-white hover:bg-green-700 disabled:opacity-50"
+                              >
+                                {downloading ? (
+                                  <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" />
+                                ) : (
+                                  <Download className="h-3.5 w-3.5 mr-1" />
+                                )}
+                                {downloading ? 'Loading…' : 'Download'}
+                              </button>
+                              {isSuperAdmin && (
+                                <button
+                                  type="button"
+                                  disabled={busy}
+                                  onClick={() => handleDeleteDay(row.date)}
+                                  className="inline-flex items-center px-2.5 py-1.5 text-xs rounded-md bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
+                                >
+                                  {deleting ? (
+                                    <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" />
+                                  ) : (
+                                    <Trash2 className="h-3.5 w-3.5 mr-1" />
+                                  )}
+                                  {deleting ? 'Deleting…' : 'Delete'}
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile cards */}
+              <div className="md:hidden space-y-3">
+                {dailyResults.map((row) => {
+                  const { previewing, downloading, deleting, busy } =
+                    getRowActionState(row.date);
+                  return (
+                    <div
+                      key={row.date}
+                      className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 space-y-3"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                            {formatDisplayDate(row.date)}
+                          </div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">
+                            {row.record_count} record
+                            {row.record_count === 1 ? '' : 's'}
+                          </div>
+                        </div>
+                      </div>
+                      {isSuperAdmin && (
+                        <div className="flex flex-wrap gap-1.5">
+                          {row.entries.map((entry) => (
+                            <button
+                              key={entry.id}
+                              type="button"
+                              onClick={() => setEditingAnalysisId(entry.id)}
+                              disabled={busy}
+                              className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 disabled:opacity-50"
+                            >
+                              <Clock className="h-3 w-3" />
+                              {formatDisplayTime(entry.analysis_time)}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                      <div
+                        className={`grid gap-2 ${
+                          isSuperAdmin ? 'grid-cols-3' : 'grid-cols-2'
+                        }`}
+                      >
+                        <button
+                          type="button"
+                          disabled={busy}
+                          onClick={() =>
+                            generateForDate(row.date, { preview: true })
+                          }
+                          className="inline-flex items-center justify-center px-2 py-2 text-xs rounded-md bg-purple-600 text-white disabled:opacity-50"
+                        >
+                          {previewing ? (
+                            <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" />
+                          ) : (
+                            <Eye className="h-3.5 w-3.5 mr-1" />
+                          )}
+                          {previewing ? '…' : 'Preview'}
+                        </button>
+                        <button
+                          type="button"
+                          disabled={busy}
+                          onClick={() =>
+                            generateForDate(row.date, { preview: false })
+                          }
+                          className="inline-flex items-center justify-center px-2 py-2 text-xs rounded-md bg-green-600 text-white disabled:opacity-50"
+                        >
+                          {downloading ? (
+                            <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" />
+                          ) : (
+                            <Download className="h-3.5 w-3.5 mr-1" />
+                          )}
+                          {downloading ? '…' : 'DL'}
+                        </button>
+                        {isSuperAdmin && (
+                          <button
+                            type="button"
+                            disabled={busy}
+                            onClick={() => handleDeleteDay(row.date)}
+                            className="inline-flex items-center justify-center px-2 py-2 text-xs rounded-md bg-red-600 text-white disabled:opacity-50"
+                          >
+                            {deleting ? (
+                              <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" />
+                            ) : (
+                              <Trash2 className="h-3.5 w-3.5 mr-1" />
+                            )}
+                            {deleting ? '…' : 'Del'}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-t border-gray-200 dark:border-gray-700 pt-4">
+                  <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                    Showing{' '}
+                    <span className="font-medium">
+                      {(currentPage - 1) * pageSize + 1}
+                    </span>{' '}
+                    to{' '}
+                    <span className="font-medium">
+                      {Math.min(currentPage * pageSize, totalCount)}
+                    </span>{' '}
+                    of <span className="font-medium">{totalCount}</span> dates
+                    {dailyGroupsFetching ? ' · Updating…' : ''}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                      disabled={currentPage === 1 || dailyGroupsLoading}
+                      className="p-2 rounded-md border border-gray-300 dark:border-gray-600 disabled:opacity-50"
+                      aria-label="Previous page"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </button>
+                    <span className="text-sm text-gray-700 dark:text-gray-300">
+                      Page {currentPage} of {totalPages}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setCurrentPage((p) => Math.min(totalPages, p + 1))
+                      }
+                      disabled={currentPage === totalPages || dailyGroupsLoading}
+                      className="p-2 rounded-md border border-gray-300 dark:border-gray-600 disabled:opacity-50"
+                      aria-label="Next page"
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
+
+      {/* Monthly/yearly availability workspace */}
+      {showPeriodWorkspace && (
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+            <div>
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100">
+                Available {reportType === 'monthly' ? 'Monthly' : 'Yearly'} Reports
+              </h2>
+              <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
+                Only periods containing analysis data are shown. Preview or
+                download the complete report for a period.
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <label className="text-xs text-gray-500 dark:text-gray-400">
+                Rows
+              </label>
+              <select
+                value={pageSize}
+                onChange={(event) => {
+                  setPageSize(Number(event.target.value));
+                  setCurrentPage(1);
+                }}
+                className="px-2 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              >
+                {[10, 25, 50].map((size) => (
+                  <option key={size} value={size}>
+                    {size}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {reportPeriodsLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+            </div>
+          ) : reportPeriodsError ? (
+            <div className="p-4 rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 text-sm text-red-700 dark:text-red-300">
+              {reportPeriodsError.message || 'Failed to load available reports.'}
+              <button
+                type="button"
+                onClick={() => refetchReportPeriods()}
+                className="ml-3 underline"
+              >
+                Retry
+              </button>
+            </div>
+          ) : reportPeriodResults.length === 0 ? (
+            <div className="p-6 text-center text-sm text-gray-500 dark:text-gray-400 border border-dashed border-gray-300 dark:border-gray-600 rounded-lg">
+              No {reportType === 'monthly' ? 'monthly' : 'yearly'} reports are
+              available for this water system yet.
+            </div>
+          ) : (
+            <>
+              <div className="hidden md:block overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                  <thead className="bg-gray-50 dark:bg-gray-900/40">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        {reportType === 'monthly' ? 'Month' : 'Year'}
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Days with data
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Records
+                      </th>
+                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                    {reportPeriodResults.map((row) => {
+                      const { previewing, downloading, busy } =
+                        getPeriodActionState(row.period);
+                      return (
+                        <tr
+                          key={row.period}
+                          className="hover:bg-gray-50 dark:hover:bg-gray-700/40"
+                        >
+                          <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100 whitespace-nowrap">
+                            {formatDisplayPeriod(row.period, reportType)}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
+                            {row.day_count}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
+                            {row.record_count}
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="flex items-center justify-end gap-2">
+                              <button
+                                type="button"
+                                disabled={busy}
+                                onClick={() =>
+                                  generateForPeriod(row.period, { preview: true })
+                                }
+                                className="inline-flex items-center px-2.5 py-1.5 text-xs rounded-md bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50"
+                              >
+                                {previewing ? (
+                                  <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" />
+                                ) : (
+                                  <Eye className="h-3.5 w-3.5 mr-1" />
+                                )}
+                                {previewing ? 'Loading…' : 'Preview'}
+                              </button>
+                              <button
+                                type="button"
+                                disabled={busy}
+                                onClick={() =>
+                                  generateForPeriod(row.period, { preview: false })
+                                }
+                                className="inline-flex items-center px-2.5 py-1.5 text-xs rounded-md bg-green-600 text-white hover:bg-green-700 disabled:opacity-50"
+                              >
+                                {downloading ? (
+                                  <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" />
+                                ) : (
+                                  <Download className="h-3.5 w-3.5 mr-1" />
+                                )}
+                                {downloading ? 'Loading…' : 'Download'}
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="md:hidden space-y-3">
+                {reportPeriodResults.map((row) => {
+                  const { previewing, downloading, busy } =
+                    getPeriodActionState(row.period);
+                  return (
+                    <div
+                      key={row.period}
+                      className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 space-y-3"
+                    >
+                      <div>
+                        <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                          {formatDisplayPeriod(row.period, reportType)}
+                        </div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          {row.day_count} day{row.day_count === 1 ? '' : 's'} with
+                          data · {row.record_count} record
+                          {row.record_count === 1 ? '' : 's'}
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <button
+                          type="button"
+                          disabled={busy}
+                          onClick={() =>
+                            generateForPeriod(row.period, { preview: true })
+                          }
+                          className="inline-flex items-center justify-center px-2 py-2 text-xs rounded-md bg-purple-600 text-white disabled:opacity-50"
+                        >
+                          {previewing ? (
+                            <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" />
+                          ) : (
+                            <Eye className="h-3.5 w-3.5 mr-1" />
+                          )}
+                          {previewing ? 'Loading…' : 'Preview'}
+                        </button>
+                        <button
+                          type="button"
+                          disabled={busy}
+                          onClick={() =>
+                            generateForPeriod(row.period, { preview: false })
+                          }
+                          className="inline-flex items-center justify-center px-2 py-2 text-xs rounded-md bg-green-600 text-white disabled:opacity-50"
+                        >
+                          {downloading ? (
+                            <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" />
+                          ) : (
+                            <Download className="h-3.5 w-3.5 mr-1" />
+                          )}
+                          {downloading ? 'Loading…' : 'Download'}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {reportPeriodTotalPages > 1 && (
+                <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-t border-gray-200 dark:border-gray-700 pt-4">
+                  <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                    Showing{' '}
+                    <span className="font-medium">
+                      {(currentPage - 1) * pageSize + 1}
+                    </span>{' '}
+                    to{' '}
+                    <span className="font-medium">
+                      {Math.min(
+                        currentPage * pageSize,
+                        reportPeriodTotalCount
+                      )}
+                    </span>{' '}
+                    of{' '}
+                    <span className="font-medium">{reportPeriodTotalCount}</span>{' '}
+                    periods
+                    {reportPeriodsFetching ? ' · Updating…' : ''}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                      disabled={currentPage === 1 || reportPeriodsLoading}
+                      className="p-2 rounded-md border border-gray-300 dark:border-gray-600 disabled:opacity-50"
+                      aria-label="Previous page"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </button>
+                    <span className="text-sm text-gray-700 dark:text-gray-300">
+                      Page {currentPage} of {reportPeriodTotalPages}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setCurrentPage((page) =>
+                          Math.min(reportPeriodTotalPages, page + 1)
+                        )
+                      }
+                      disabled={
+                        currentPage === reportPeriodTotalPages ||
+                        reportPeriodsLoading
+                      }
+                      className="p-2 rounded-md border border-gray-300 dark:border-gray-600 disabled:opacity-50"
+                      aria-label="Next page"
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
+
       {/* PDF Preview Modal */}
       {showPreviewModal && generatedPdf && (
-        <div className="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div
+          className="fixed inset-0 z-50 overflow-y-auto"
+          aria-labelledby="modal-title"
+          role="dialog"
+          aria-modal="true"
+        >
           <div className="flex items-center justify-center min-h-screen pt-2 sm:pt-4 px-2 sm:px-4 pb-2 sm:pb-4">
-            {/* Background overlay */}
-            <div 
+            <div
               className="fixed inset-0 bg-gray-500/75 dark:bg-gray-900/80 transition-opacity z-40"
               onClick={handleClosePreview}
-            ></div>
-
-            {/* Modal panel */}
+            />
             <div className="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-6xl z-50 my-2 sm:my-8">
-              {/* Modal header */}
               <div className="bg-white dark:bg-gray-800 px-3 sm:px-4 md:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3 sticky top-0 z-10">
                 <h3 className="text-sm sm:text-base md:text-lg font-medium text-gray-900 dark:text-gray-100 flex items-center break-words flex-1 min-w-0">
                   <FileText className="h-4 w-4 sm:h-5 sm:w-5 mr-2 flex-shrink-0" />
@@ -492,10 +1330,11 @@ const Reports = () => {
                   </button>
                 </div>
               </div>
-
-              {/* Modal body with PDF preview */}
               <div className="bg-white dark:bg-gray-800 px-2 sm:px-4 md:px-6 py-2 sm:py-4">
-                <div className="w-full" style={{ height: 'calc(100vh - 180px)', minHeight: '400px' }}>
+                <div
+                  className="w-full"
+                  style={{ height: 'calc(100vh - 180px)', minHeight: '400px' }}
+                >
                   <iframe
                     src={generatedPdf.blobUrl}
                     className="w-full h-full border border-gray-300 dark:border-gray-600 rounded-md"
@@ -506,6 +1345,19 @@ const Reports = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {isSuperAdmin && editingAnalysisId && (
+        <AnalysisEditModal
+          analysisId={editingAnalysisId}
+          onClose={() => setEditingAnalysisId(null)}
+          onSaved={() => {
+            queryClient.invalidateQueries(['daily-analysis-groups']);
+          }}
+          onDeleted={() => {
+            queryClient.invalidateQueries(['daily-analysis-groups']);
+          }}
+        />
       )}
     </div>
   );

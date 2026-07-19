@@ -58,4 +58,15 @@ npm run dev        # http://localhost:3000
 - `build` — dependency or build/config change
 - `none` — docs/tooling only
 
+## Daily report management (Super Admin)
+
+On Reports, after selecting analysis type + water system + report type, users
+see paginated availability lists (desktop table / mobile cards):
+
+- **Daily** — dates with data; Super Admins also get clickable time chips →
+  `AnalysisEditModal` and whole-day Delete
+- **Monthly / Yearly** — periods with data, distinct-day and record counts
+- Preview / Download for every role
+- Non–Super Admin lists only include periods with their own analysis data
+
 See `.cursor/rules/sass-frontend-workflow.mdc` for the full rule.
