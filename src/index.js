@@ -24,16 +24,29 @@ window.queryClient = queryClient;
 
 // Register Service Worker
 if ('serviceWorker' in navigator) {
+  // Reload once when a new worker takes control so users get the latest HTML/JS
+  let refreshing = false;
+  if (navigator.serviceWorker.controller) {
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (refreshing) return;
+      refreshing = true;
+      window.location.reload();
+    });
+  }
+
   window.addEventListener('load', () => {
     navigator.serviceWorker
-      .register('/service-worker.js')
+      .register('/service-worker.js', { updateViaCache: 'none' })
       .then((registration) => {
-        console.log('Service Worker registered successfully:', registration.scope);
-        
-        // Check for updates periodically
+        registration.update();
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState === 'visible') {
+            registration.update();
+          }
+        });
         setInterval(() => {
           registration.update();
-        }, 60 * 60 * 1000); // Check every hour
+        }, 5 * 60 * 1000);
       })
       .catch((error) => {
         console.log('Service Worker registration failed:', error);

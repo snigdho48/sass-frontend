@@ -1,86 +1,95 @@
-const CACHE_NAME = 'watersight-v1';
-const urlsToCache = [
-  '/',
+const CACHE_NAME = 'watersight-static-v2';
+const PRECACHE_URLS = [
   '/manifest.json',
   '/icon.png',
   '/favicon.ico',
   '/logo.png',
 ];
 
-// Install event - cache resources
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then((cache) => {
-        console.log('Service Worker: Cache opened');
-        return cache.addAll(urlsToCache);
-      })
+      .then((cache) => cache.addAll(PRECACHE_URLS))
       .catch((error) => {
-        console.error('Service Worker: Cache failed', error);
+        console.error('Service Worker: Precache failed', error);
       })
   );
   self.skipWaiting();
 });
 
-// Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
-            console.log('Service Worker: Deleting old cache', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
+    caches.keys().then((cacheNames) =>
+      Promise.all(
+        cacheNames
+          .filter((name) => name !== CACHE_NAME)
+          .map((name) => caches.delete(name))
+      )
+    ).then(() => self.clients.claim())
+  );
+});
+
+function isSameOrigin(url) {
+  try {
+    return new URL(url, self.location.origin).origin === self.location.origin;
+  } catch {
+    return false;
+  }
+}
+
+function isNavigationRequest(request) {
+  return (
+    request.mode === 'navigate' ||
+    (request.method === 'GET' &&
+      (request.headers.get('accept') || '').includes('text/html'))
+  );
+}
+
+function shouldBypassCache(requestUrl) {
+  const { pathname } = new URL(requestUrl, self.location.origin);
+  if (pathname === '/' || pathname === '/index.html') return true;
+  if (pathname === '/service-worker.js') return true;
+  if (pathname.startsWith('/api')) return true;
+  if (pathname.startsWith('/assets/')) return true;
+  return false;
+}
+
+self.addEventListener('fetch', (event) => {
+  const { request } = event;
+  if (request.method !== 'GET' || !isSameOrigin(request.url)) {
+    return;
+  }
+
+  if (isNavigationRequest(request) || shouldBypassCache(request.url)) {
+    event.respondWith(fetch(request));
+    return;
+  }
+
+  event.respondWith(
+    caches.match(request).then((cached) => {
+      if (cached) {
+        return cached;
+      }
+      return fetch(request).then((response) => {
+        if (!response || response.status !== 200) {
+          return response;
+        }
+        const responseToCache = response.clone();
+        caches.open(CACHE_NAME).then((cache) => {
+          cache.put(request, responseToCache);
+        });
+        return response;
+      });
     })
   );
-  return self.clients.claim();
 });
 
-// Fetch event - serve from cache, fallback to network
-self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        // Return cached version or fetch from network
-        return response || fetch(event.request).then((response) => {
-          // Don't cache non-GET requests or non-successful responses
-          if (event.request.method !== 'GET' || !response || response.status !== 200) {
-            return response;
-          }
-
-          // Clone the response
-          const responseToCache = response.clone();
-
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache);
-          });
-
-          return response;
-        });
-      })
-      .catch(() => {
-        // If both cache and network fail, return offline page if available
-        if (event.request.destination === 'document') {
-          return caches.match('/');
-        }
-      })
-  );
-});
-
-// Handle background sync (optional - for offline data sync)
 self.addEventListener('sync', (event) => {
   if (event.tag === 'background-sync') {
-    event.waitUntil(
-      // Add your background sync logic here
-      console.log('Background sync triggered')
-    );
+    event.waitUntil(Promise.resolve());
   }
 });
 
-// Handle push notifications (optional)
 self.addEventListener('push', (event) => {
   const options = {
     body: event.data ? event.data.text() : 'New notification',
@@ -94,11 +103,7 @@ self.addEventListener('push', (event) => {
   );
 });
 
-// Handle notification clicks
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  event.waitUntil(
-    clients.openWindow('/')
-  );
+  event.waitUntil(clients.openWindow('/'));
 });
-
