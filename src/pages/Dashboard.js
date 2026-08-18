@@ -8,6 +8,8 @@ import PerformanceTrends from './Dashboard/utils/PerformanceTrends';
 import ParameterList from './Dashboard/utils/ParameterList';
 
 const Dashboard = () => {
+  const user = useAppSelector((state) => state.auth.user);
+  const showPerformanceCharts = !!user?.is_general_user;
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [dashboardData, setDashboardData] = useState(null);
@@ -40,15 +42,19 @@ const Dashboard = () => {
           Welcome back! Here's what's happening with your technical data.
         </p>
         <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-          Real-time performance trend scores & area charts
+          {showPerformanceCharts
+            ? 'Real-time performance trend scores & area charts'
+            : 'Overview of configured plants and water systems'}
         </p>
       </div>
 
       <ContentLoader loading={loading} error={error}>
         {dashboardData && (
           <>
-            {/* KPI Cards */}
-            <KPICards kpis={dashboardData.kpis} loading={loading} />
+            {/* KPI Cards — user dashboard only */}
+            {showPerformanceCharts && (
+              <KPICards kpis={dashboardData.kpis} loading={loading} />
+            )}
 
             {/* System Sections */}
             <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:gap-8 lg:grid-cols-2">
@@ -59,8 +65,8 @@ const Dashboard = () => {
                   systemType="cooling"
                   color="blue"
                 />
-                {/* Only show performance trends and parameters if systems exist */}
-                {dashboardData.hierarchy?.cooling_tower?.systems?.length > 0 ? (
+                {/* Only show performance trends and parameters for general users */}
+                {showPerformanceCharts && dashboardData.hierarchy?.cooling_tower?.systems?.length > 0 ? (
                   <>
                     <PerformanceTrends
                       data={dashboardData.performance_trends?.cooling_tower || []}
@@ -79,7 +85,7 @@ const Dashboard = () => {
                       />
                     </div>
                   </>
-                ) : (
+                ) : showPerformanceCharts ? (
                   <div className="card border-2 border-gray-200 dark:border-gray-700">
                     <div className="card-body p-8">
                       <div className="text-center">
@@ -97,7 +103,7 @@ const Dashboard = () => {
                       </div>
                     </div>
                   </div>
-                )}
+                ) : null}
               </div>
 
               {/* Boiler Section */}
@@ -107,8 +113,8 @@ const Dashboard = () => {
                   systemType="boiler"
                   color="purple"
                 />
-                {/* Only show performance trends and parameters if systems exist */}
-                {dashboardData.hierarchy?.boiler?.systems?.length > 0 ? (
+                {/* Only show performance trends and parameters for general users */}
+                {showPerformanceCharts && dashboardData.hierarchy?.boiler?.systems?.length > 0 ? (
                   <>
                     <PerformanceTrends
                       data={dashboardData.performance_trends?.boiler || []}
@@ -127,7 +133,7 @@ const Dashboard = () => {
                       />
                     </div>
                   </>
-                ) : (
+                ) : showPerformanceCharts ? (
                   <div className="card border-2 border-gray-200 dark:border-gray-700">
                     <div className="card-body p-8">
                       <div className="text-center">
@@ -145,7 +151,7 @@ const Dashboard = () => {
                       </div>
                     </div>
                   </div>
-                )}
+                ) : null}
               </div>
             </div>
           </>

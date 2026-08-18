@@ -6,6 +6,19 @@ format defined in `.cursor/rules/sass-frontend-workflow.mdc`.
 
 ## [Unreleased]
 
+### Changed — 2026-08-18
+
+**Time:** 2026-08-18 13:34 (UTC+6)
+**Author:** Cursor agent
+**Issue:** #none
+
+**Summary:** Super Admin and Admin dashboards now show only the plant/water-system hierarchy overview. Performance trends, parameter charts, and KPI cards are limited to General User dashboards.
+
+**Files:**
+- `src/pages/Dashboard.js` — role-based visibility for KPI cards, performance trends, and parameter charts
+
+**Impact:** ui
+
 ### Changed — 2026-07-19
 
 **Time:** 2026-07-19 17:44 (UTC+6)
