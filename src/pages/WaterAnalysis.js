@@ -1678,6 +1678,29 @@ const WaterAnalysis = () => {
                     />
                   </div>
                   )}
+
+                  {plantParameters?.alkalinity && (
+                  <div>
+                    <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
+                      M-Alkalinity as CaCO₃ (ppm)
+                    </label>
+                    <input
+                      type='number'
+                      step='1'
+                      min='0'
+                      value={inputData.m_alkalinity}
+                      onChange={(e) =>
+                        handleInputChange(
+                          "m_alkalinity",
+                          e.target.value === ""
+                            ? ""
+                            : parseFloat(e.target.value)
+                        )
+                      }
+                      className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100'
+                    />
+                  </div>
+                  )}
                   
                   {plantParameters?.p_alkalinity && (
                     <div>
@@ -1724,6 +1747,29 @@ const WaterAnalysis = () => {
                       />
                     </div>
                   )}
+
+                  {plantParameters?.sodium_chloride && (
+                    <div>
+                      <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
+                        Sodium Chloride (ppm)
+                      </label>
+                      <input
+                        type='number'
+                        step='1'
+                        min='0'
+                        value={inputData.sodium_chloride}
+                        onChange={(e) =>
+                          handleInputChange(
+                            "sodium_chloride",
+                            e.target.value === ""
+                              ? ""
+                              : parseFloat(e.target.value)
+                          )
+                        }
+                        className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100'
+                      />
+                    </div>
+                  )}
                   
                   {plantParameters?.sulphite && (
                     <div>
@@ -1738,29 +1784,6 @@ const WaterAnalysis = () => {
                         onChange={(e) =>
                           handleInputChange(
                             "sulphite",
-                            e.target.value === ""
-                              ? ""
-                              : parseFloat(e.target.value)
-                          )
-                        }
-                        className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100'
-                      />
-                    </div>
-                  )}
-                  
-                  {plantParameters?.sodium_chloride && (
-                    <div>
-                      <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
-                        Sodium Chloride (ppm)
-                      </label>
-                      <input
-                        type='number'
-                        step='1'
-                        min='0'
-                        value={inputData.sodium_chloride}
-                        onChange={(e) =>
-                          handleInputChange(
-                            "sodium_chloride",
                             e.target.value === ""
                               ? ""
                               : parseFloat(e.target.value)
@@ -1984,33 +2007,6 @@ const WaterAnalysis = () => {
                 </>
               )}
 
-              {analysisType === "boiler" && (
-                <>
-                  {plantParameters?.alkalinity && (
-                  <div>
-                    <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>
-                      M-Alkalinity as CaCO₃ (ppm)
-                    </label>
-                    <input
-                      type='number'
-                      step='1'
-                      min='0'
-                      value={inputData.m_alkalinity}
-                      onChange={(e) =>
-                        handleInputChange(
-                          "m_alkalinity",
-                          e.target.value === ""
-                            ? ""
-                            : parseFloat(e.target.value)
-                        )
-                      }
-                      className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100'
-                    />
-                  </div>
-                  )}
-                </>
-              )}
-              
               <button
                 onClick={calculateAnalysis}
                 disabled={
