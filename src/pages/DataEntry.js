@@ -8,6 +8,56 @@ import SearchableUserSelect from '../components/SearchableUserSelect';
 import SearchableMultiUserSelect from '../components/SearchableMultiUserSelect';
 import toast from 'react-hot-toast';
 
+const BASIC_PARAMETER_GROUPS = {
+  cooling: [
+    { key: 'cooling_ph', label: 'pH Monitoring', fields: [
+      { name: 'cooling_ph_min', label: 'pH Min', step: '0.1' },
+      { name: 'cooling_ph_max', label: 'pH Max', step: '0.1' },
+    ] },
+    { key: 'cooling_tds', label: 'TDS Monitoring', fields: [
+      { name: 'cooling_tds_min', label: 'TDS Min (ppm)', step: '0.01' },
+      { name: 'cooling_tds_max', label: 'TDS Max (ppm)', step: '0.01' },
+    ] },
+    { key: 'cooling_hardness', label: 'Hardness Monitoring', fields: [
+      { name: 'cooling_hardness_max', label: 'Hardness Max (ppm)', step: '0.01' },
+    ] },
+    { key: 'cooling_alkalinity', label: 'Alkalinity Monitoring', fields: [
+      { name: 'cooling_alkalinity_max', label: 'Alkalinity Max (ppm)', step: '0.01' },
+    ] },
+    { key: 'cooling_total_alkalinity', label: 'Total Alkalinity Monitoring', fields: [
+      { name: 'cooling_total_alkalinity_min', label: 'Total Alkalinity Min (ppm)', step: '0.01' },
+      { name: 'cooling_total_alkalinity_max', label: 'Total Alkalinity Max (ppm)', step: '0.01' },
+    ] },
+  ],
+  boiler: [
+    { key: 'boiler_ph', label: 'pH Monitoring', fields: [
+      { name: 'boiler_ph_min', label: 'pH Min', step: '0.1' },
+      { name: 'boiler_ph_max', label: 'pH Max', step: '0.1' },
+    ] },
+    { key: 'boiler_tds', label: 'TDS Monitoring', fields: [
+      { name: 'boiler_tds_min', label: 'TDS Min (ppm)', step: '0.01' },
+      { name: 'boiler_tds_max', label: 'TDS Max (ppm)', step: '0.01' },
+    ] },
+    { key: 'boiler_hardness', label: 'Hardness Monitoring', fields: [
+      { name: 'boiler_hardness_max', label: 'Hardness Max (ppm)', step: '0.1' },
+    ] },
+    { key: 'boiler_alkalinity', label: 'Alkalinity Monitoring', fields: [
+      { name: 'boiler_alkalinity_min', label: 'Alkalinity Min (ppm)', step: '0.01' },
+      { name: 'boiler_alkalinity_max', label: 'Alkalinity Max (ppm)', step: '0.01' },
+    ] },
+  ],
+};
+
+const ALL_BASIC_PARAMETER_GROUPS = [...BASIC_PARAMETER_GROUPS.cooling, ...BASIC_PARAMETER_GROUPS.boiler];
+
+const basicGroupEnabledFlags = (source = {}) =>
+  Object.fromEntries(
+    ALL_BASIC_PARAMETER_GROUPS.map((group) => [
+      `${group.key}_enabled`,
+      group.fields.some(({ name }) => source[name] !== null && source[name] !== undefined && source[name] !== ''),
+    ])
+  );
+
 const DataEntry = () => {
   const { user } = useAppSelector(state => state.auth);
   const [selectedCategory, setSelectedCategory] = useState('');
@@ -712,6 +762,7 @@ const DataEntry = () => {
       boiler_do_min: '', boiler_do_max: '', boiler_do_enabled: false,
       boiler_phosphate_min: '', boiler_phosphate_max: '', boiler_phosphate_enabled: false,
       boiler_iron_max: '', boiler_iron_enabled: false,
+      ...basicGroupEnabledFlags(),
     });
     setShowWaterSystemForm(true);
   };
@@ -788,6 +839,7 @@ const DataEntry = () => {
       boiler_phosphate_enabled: waterSystem.boiler_phosphate_enabled || false,
       boiler_iron_max: waterSystem.boiler_iron_max ?? '',
       boiler_iron_enabled: waterSystem.boiler_iron_enabled || false,
+      ...basicGroupEnabledFlags(waterSystem),
     };
     setWaterSystemFormData(formData);
     setShowWaterSystemForm(true);
@@ -894,12 +946,70 @@ const DataEntry = () => {
       });
     }
 
+    BASIC_PARAMETER_GROUPS[waterSystemFormData.system_type].forEach((group) => {
+      if (!waterSystemFormData[`${group.key}_enabled`]) {
+        group.fields.forEach(({ name }) => {
+          submitData[name] = null;
+        });
+      }
+    });
+
     if (editingWaterSystem) {
       updateWaterSystemMutation.mutate({ id: editingWaterSystem.id, data: submitData });
     } else {
       createWaterSystemMutation.mutate(submitData);
     }
   };
+
+  const renderBasicParameterGroups = (systemType) => (
+    <div className='space-y-3 sm:space-y-4'>
+      {BASIC_PARAMETER_GROUPS[systemType].map((group) => {
+        const enabledKey = `${group.key}_enabled`;
+        const enabled = Boolean(waterSystemFormData[enabledKey]);
+        return (
+          <div key={group.key} className='border border-gray-200 dark:border-gray-600 rounded-lg p-3 sm:p-4 bg-gray-50 dark:bg-gray-700/50'>
+            <div className='flex items-center justify-between mb-2'>
+              <label className='flex items-center text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300'>
+                <input
+                  type='checkbox'
+                  className='mr-2 h-3 w-3 sm:h-4 sm:w-4 rounded border-gray-300 dark:border-gray-600 text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-400 dark:bg-gray-700 dark:checked:bg-primary-600'
+                  checked={enabled}
+                  onChange={(e) =>
+                    setWaterSystemFormData({
+                      ...waterSystemFormData,
+                      [enabledKey]: e.target.checked,
+                    })
+                  }
+                />
+                {group.label}
+              </label>
+            </div>
+            {enabled && (
+              <div className={group.fields.length > 1 ? 'grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4' : ''}>
+                {group.fields.map((field) => (
+                  <div key={field.name}>
+                    <label className='block text-xs text-gray-600 dark:text-gray-400 mb-1'>{field.label}</label>
+                    <input
+                      type='number'
+                      step={field.step}
+                      className='input text-sm sm:text-base'
+                      value={waterSystemFormData[field.name] ?? ''}
+                      onChange={(e) =>
+                        setWaterSystemFormData({
+                          ...waterSystemFormData,
+                          [field.name]: e.target.value === '' ? '' : parseFloat(e.target.value),
+                        })
+                      }
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
 
   const handleAssignUsersToWaterSystem = (waterSystem) => {
     // Only regular admins (not super admin) can assign users
@@ -1308,128 +1418,7 @@ const DataEntry = () => {
                       {/* Basic Parameters */}
                       <div>
                         <h5 className='text-xs sm:text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2 sm:mb-3'>Basic Parameters</h5>
-                        <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'>
-                          <div>
-                            <label className='block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>pH Min</label>
-                            <input
-                              type='number'
-                              step='0.1'
-                              className='input text-sm sm:text-base'
-                              value={waterSystemFormData.cooling_ph_min}
-                              onChange={(e) =>
-                                setWaterSystemFormData({
-                                  ...waterSystemFormData,
-                                  cooling_ph_min: e.target.value === '' ? '' : parseFloat(e.target.value),
-                                })
-                              }
-                            />
-                          </div>
-                          <div>
-                            <label className='block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>pH Max</label>
-                            <input
-                              type='number'
-                              step='0.1'
-                              className='input text-sm sm:text-base'
-                              value={waterSystemFormData.cooling_ph_max}
-                              onChange={(e) =>
-                                setWaterSystemFormData({
-                                  ...waterSystemFormData,
-                                  cooling_ph_max: e.target.value === '' ? '' : parseFloat(e.target.value),
-                                })
-                              }
-                            />
-                          </div>
-                          <div>
-                            <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>TDS Min (ppm)</label>
-                            <input
-                              type='number'
-                              step='0.01'
-                              className='input'
-                              value={waterSystemFormData.cooling_tds_min}
-                              onChange={(e) =>
-                                setWaterSystemFormData({
-                                  ...waterSystemFormData,
-                                  cooling_tds_min: e.target.value === '' ? '' : parseFloat(e.target.value),
-                                })
-                              }
-                            />
-                          </div>
-                          <div>
-                            <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>TDS Max (ppm)</label>
-                            <input
-                              type='number'
-                              step='0.01'
-                              className='input'
-                              value={waterSystemFormData.cooling_tds_max}
-                              onChange={(e) =>
-                                setWaterSystemFormData({
-                                  ...waterSystemFormData,
-                                  cooling_tds_max: e.target.value === '' ? '' : parseFloat(e.target.value),
-                                })
-                              }
-                            />
-                          </div>
-                          <div>
-                            <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>Hardness Max (ppm)</label>
-                            <input
-                              type='number'
-                              step='0.01'
-                              className='input'
-                              value={waterSystemFormData.cooling_hardness_max}
-                              onChange={(e) =>
-                                setWaterSystemFormData({
-                                  ...waterSystemFormData,
-                                  cooling_hardness_max: e.target.value === '' ? '' : parseFloat(e.target.value),
-                                })
-                              }
-                            />
-                          </div>
-                          <div>
-                            <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>Alkalinity Max (ppm)</label>
-                            <input
-                              type='number'
-                              step='0.01'
-                              className='input'
-                              value={waterSystemFormData.cooling_alkalinity_max}
-                              onChange={(e) =>
-                                setWaterSystemFormData({
-                                  ...waterSystemFormData,
-                                  cooling_alkalinity_max: e.target.value === '' ? '' : parseFloat(e.target.value),
-                                })
-                              }
-                            />
-                          </div>
-                          <div>
-                            <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>Total Alkalinity Min (ppm)</label>
-                            <input
-                              type='number'
-                              step='0.01'
-                              className='input'
-                              value={waterSystemFormData.cooling_total_alkalinity_min}
-                              onChange={(e) =>
-                                setWaterSystemFormData({
-                                  ...waterSystemFormData,
-                                  cooling_total_alkalinity_min: e.target.value === '' ? '' : parseFloat(e.target.value),
-                                })
-                              }
-                            />
-                          </div>
-                          <div>
-                            <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>Total Alkalinity Max (ppm)</label>
-                            <input
-                              type='number'
-                              step='0.01'
-                              className='input'
-                              value={waterSystemFormData.cooling_total_alkalinity_max}
-                              onChange={(e) =>
-                                setWaterSystemFormData({
-                                  ...waterSystemFormData,
-                                  cooling_total_alkalinity_max: e.target.value === '' ? '' : parseFloat(e.target.value),
-                                })
-                              }
-                            />
-                          </div>
-                        </div>
+                        {renderBasicParameterGroups('cooling')}
                       </div>
 
                       {/* Optional Parameters with Enable Toggles */}
@@ -1832,114 +1821,8 @@ const DataEntry = () => {
                     <div className='space-y-6'>
                       {/* Basic Parameters */}
                       <div>
-                        <h5 className='text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3'>Basic Parameters</h5>
-                        <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'>
-                          <div>
-                            <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>pH Min</label>
-                            <input
-                              type='number'
-                              step='0.1'
-                              className='input'
-                              value={waterSystemFormData.boiler_ph_min}
-                              onChange={(e) =>
-                                setWaterSystemFormData({
-                                  ...waterSystemFormData,
-                                  boiler_ph_min: e.target.value === '' ? '' : parseFloat(e.target.value),
-                                })
-                              }
-                            />
-                          </div>
-                          <div>
-                            <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>pH Max</label>
-                            <input
-                              type='number'
-                              step='0.1'
-                              className='input'
-                              value={waterSystemFormData.boiler_ph_max}
-                              onChange={(e) =>
-                                setWaterSystemFormData({
-                                  ...waterSystemFormData,
-                                  boiler_ph_max: e.target.value === '' ? '' : parseFloat(e.target.value),
-                                })
-                              }
-                            />
-                          </div>
-                          <div>
-                            <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>TDS Min (ppm)</label>
-                            <input
-                              type='number'
-                              step='0.01'
-                              className='input'
-                              value={waterSystemFormData.boiler_tds_min}
-                              onChange={(e) =>
-                                setWaterSystemFormData({
-                                  ...waterSystemFormData,
-                                  boiler_tds_min: e.target.value === '' ? '' : parseFloat(e.target.value),
-                                })
-                              }
-                            />
-                          </div>
-                          <div>
-                            <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>TDS Max (ppm)</label>
-                            <input
-                              type='number'
-                              step='0.01'
-                              className='input'
-                              value={waterSystemFormData.boiler_tds_max}
-                              onChange={(e) =>
-                                setWaterSystemFormData({
-                                  ...waterSystemFormData,
-                                  boiler_tds_max: e.target.value === '' ? '' : parseFloat(e.target.value),
-                                })
-                              }
-                            />
-                          </div>
-                          <div>
-                            <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>Hardness Max (ppm)</label>
-                            <input
-                              type='number'
-                              step='0.1'
-                              className='input'
-                              value={waterSystemFormData.boiler_hardness_max}
-                              onChange={(e) =>
-                                setWaterSystemFormData({
-                                  ...waterSystemFormData,
-                                  boiler_hardness_max: e.target.value === '' ? '' : parseFloat(e.target.value),
-                                })
-                              }
-                            />
-                          </div>
-                          <div>
-                            <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>Alkalinity Min (ppm)</label>
-                            <input
-                              type='number'
-                              step='0.01'
-                              className='input'
-                              value={waterSystemFormData.boiler_alkalinity_min}
-                              onChange={(e) =>
-                                setWaterSystemFormData({
-                                  ...waterSystemFormData,
-                                  boiler_alkalinity_min: e.target.value === '' ? '' : parseFloat(e.target.value),
-                                })
-                              }
-                            />
-                          </div>
-                          <div>
-                            <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>Alkalinity Max (ppm)</label>
-                            <input
-                              type='number'
-                              step='0.01'
-                              className='input'
-                              value={waterSystemFormData.boiler_alkalinity_max}
-                              onChange={(e) =>
-                                setWaterSystemFormData({
-                                  ...waterSystemFormData,
-                                  boiler_alkalinity_max: e.target.value === '' ? '' : parseFloat(e.target.value),
-                                })
-                              }
-                            />
-                          </div>
-                        </div>
+                        <h5 className='text-xs sm:text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2 sm:mb-3'>Basic Parameters</h5>
+                        {renderBasicParameterGroups('boiler')}
                       </div>
 
                       {/* Optional Parameters with Enable Toggles */}
