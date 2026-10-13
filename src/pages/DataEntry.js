@@ -744,10 +744,10 @@ const DataEntry = () => {
       cooling_chloride_enabled: waterSystem.cooling_chloride_enabled || false,
       cooling_temperature_min: waterSystem.cooling_temperature_min ?? '',
       cooling_temperature_max: waterSystem.cooling_temperature_max ?? '',
-      cooling_temperature_enabled: (waterSystem.cooling_temperature_min != null || waterSystem.cooling_temperature_max != null),
+      cooling_temperature_enabled: Boolean(waterSystem.cooling_temperature_enabled) || waterSystem.cooling_temperature_min != null || waterSystem.cooling_temperature_max != null,
       cooling_hot_temperature_min: waterSystem.cooling_hot_temperature_min ?? '',
       cooling_hot_temperature_max: waterSystem.cooling_hot_temperature_max ?? '',
-      cooling_hot_temperature_enabled: (waterSystem.cooling_hot_temperature_min != null || waterSystem.cooling_hot_temperature_max != null),
+      cooling_hot_temperature_enabled: Boolean(waterSystem.cooling_hot_temperature_enabled) || waterSystem.cooling_hot_temperature_min != null || waterSystem.cooling_hot_temperature_max != null,
       cooling_cycle_min: waterSystem.cooling_cycle_min ?? '',
       cooling_cycle_max: waterSystem.cooling_cycle_max ?? '',
       cooling_cycle_enabled: waterSystem.cooling_cycle_enabled || false,
@@ -1319,7 +1319,7 @@ const DataEntry = () => {
                               onChange={(e) =>
                                 setWaterSystemFormData({
                                   ...waterSystemFormData,
-                                  cooling_ph_min: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                  cooling_ph_min: e.target.value === '' ? '' : parseFloat(e.target.value),
                                 })
                               }
                             />
@@ -1334,7 +1334,7 @@ const DataEntry = () => {
                               onChange={(e) =>
                                 setWaterSystemFormData({
                                   ...waterSystemFormData,
-                                  cooling_ph_max: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                  cooling_ph_max: e.target.value === '' ? '' : parseFloat(e.target.value),
                                 })
                               }
                             />
@@ -1349,7 +1349,7 @@ const DataEntry = () => {
                               onChange={(e) =>
                                 setWaterSystemFormData({
                                   ...waterSystemFormData,
-                                  cooling_tds_min: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                  cooling_tds_min: e.target.value === '' ? '' : parseFloat(e.target.value),
                                 })
                               }
                             />
@@ -1364,7 +1364,7 @@ const DataEntry = () => {
                               onChange={(e) =>
                                 setWaterSystemFormData({
                                   ...waterSystemFormData,
-                                  cooling_tds_max: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                  cooling_tds_max: e.target.value === '' ? '' : parseFloat(e.target.value),
                                 })
                               }
                             />
@@ -1379,7 +1379,7 @@ const DataEntry = () => {
                               onChange={(e) =>
                                 setWaterSystemFormData({
                                   ...waterSystemFormData,
-                                  cooling_hardness_max: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                  cooling_hardness_max: e.target.value === '' ? '' : parseFloat(e.target.value),
                                 })
                               }
                             />
@@ -1394,7 +1394,7 @@ const DataEntry = () => {
                               onChange={(e) =>
                                 setWaterSystemFormData({
                                   ...waterSystemFormData,
-                                  cooling_alkalinity_max: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                  cooling_alkalinity_max: e.target.value === '' ? '' : parseFloat(e.target.value),
                                 })
                               }
                             />
@@ -1409,7 +1409,7 @@ const DataEntry = () => {
                               onChange={(e) =>
                                 setWaterSystemFormData({
                                   ...waterSystemFormData,
-                                  cooling_total_alkalinity_min: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                  cooling_total_alkalinity_min: e.target.value === '' ? '' : parseFloat(e.target.value),
                                 })
                               }
                             />
@@ -1424,7 +1424,7 @@ const DataEntry = () => {
                               onChange={(e) =>
                                 setWaterSystemFormData({
                                   ...waterSystemFormData,
-                                  cooling_total_alkalinity_max: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                  cooling_total_alkalinity_max: e.target.value === '' ? '' : parseFloat(e.target.value),
                                 })
                               }
                             />
@@ -1465,7 +1465,7 @@ const DataEntry = () => {
                                   onChange={(e) =>
                                     setWaterSystemFormData({
                                       ...waterSystemFormData,
-                                      cooling_chloride_max: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                      cooling_chloride_max: e.target.value === '' ? '' : parseFloat(e.target.value),
                                     })
                                   }
                                 />
@@ -1503,7 +1503,7 @@ const DataEntry = () => {
                                     onChange={(e) =>
                                       setWaterSystemFormData({
                                         ...waterSystemFormData,
-                                        cooling_cycle_min: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                        cooling_cycle_min: e.target.value === '' ? '' : parseFloat(e.target.value),
                                       })
                                     }
                                   />
@@ -1518,7 +1518,7 @@ const DataEntry = () => {
                                     onChange={(e) =>
                                       setWaterSystemFormData({
                                         ...waterSystemFormData,
-                                        cooling_cycle_max: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                        cooling_cycle_max: e.target.value === '' ? '' : parseFloat(e.target.value),
                                       })
                                     }
                                   />
@@ -1556,7 +1556,7 @@ const DataEntry = () => {
                                   onChange={(e) =>
                                     setWaterSystemFormData({
                                       ...waterSystemFormData,
-                                      cooling_iron_max: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                      cooling_iron_max: e.target.value === '' ? '' : parseFloat(e.target.value),
                                     })
                                   }
                                 />
@@ -1593,7 +1593,7 @@ const DataEntry = () => {
                                   onChange={(e) =>
                                     setWaterSystemFormData({
                                       ...waterSystemFormData,
-                                      cooling_phosphate_max: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                      cooling_phosphate_max: e.target.value === '' ? '' : parseFloat(e.target.value),
                                     })
                                   }
                                 />
@@ -1631,7 +1631,7 @@ const DataEntry = () => {
                                     onChange={(e) =>
                                       setWaterSystemFormData({
                                         ...waterSystemFormData,
-                                        cooling_temperature_min: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                        cooling_temperature_min: e.target.value === '' ? '' : parseFloat(e.target.value),
                                       })
                                     }
                                   />
@@ -1646,7 +1646,7 @@ const DataEntry = () => {
                                     onChange={(e) =>
                                       setWaterSystemFormData({
                                         ...waterSystemFormData,
-                                        cooling_temperature_max: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                        cooling_temperature_max: e.target.value === '' ? '' : parseFloat(e.target.value),
                                       })
                                     }
                                   />
@@ -1685,7 +1685,7 @@ const DataEntry = () => {
                                     onChange={(e) =>
                                       setWaterSystemFormData({
                                         ...waterSystemFormData,
-                                        cooling_hot_temperature_min: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                        cooling_hot_temperature_min: e.target.value === '' ? '' : parseFloat(e.target.value),
                                       })
                                     }
                                   />
@@ -1700,7 +1700,7 @@ const DataEntry = () => {
                                     onChange={(e) =>
                                       setWaterSystemFormData({
                                         ...waterSystemFormData,
-                                        cooling_hot_temperature_max: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                        cooling_hot_temperature_max: e.target.value === '' ? '' : parseFloat(e.target.value),
                                       })
                                     }
                                   />
@@ -1739,7 +1739,7 @@ const DataEntry = () => {
                                     onChange={(e) =>
                                       setWaterSystemFormData({
                                         ...waterSystemFormData,
-                                        cooling_lsi_min: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                        cooling_lsi_min: e.target.value === '' ? '' : parseFloat(e.target.value),
                                       })
                                     }
                                   />
@@ -1754,7 +1754,7 @@ const DataEntry = () => {
                                     onChange={(e) =>
                                       setWaterSystemFormData({
                                         ...waterSystemFormData,
-                                        cooling_lsi_max: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                        cooling_lsi_max: e.target.value === '' ? '' : parseFloat(e.target.value),
                                       })
                                     }
                                   />
@@ -1793,7 +1793,7 @@ const DataEntry = () => {
                                     onChange={(e) =>
                                       setWaterSystemFormData({
                                         ...waterSystemFormData,
-                                        cooling_rsi_min: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                        cooling_rsi_min: e.target.value === '' ? '' : parseFloat(e.target.value),
                                       })
                                     }
                                   />
@@ -1808,7 +1808,7 @@ const DataEntry = () => {
                                     onChange={(e) =>
                                       setWaterSystemFormData({
                                         ...waterSystemFormData,
-                                        cooling_rsi_max: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                        cooling_rsi_max: e.target.value === '' ? '' : parseFloat(e.target.value),
                                       })
                                     }
                                   />
@@ -1844,7 +1844,7 @@ const DataEntry = () => {
                               onChange={(e) =>
                                 setWaterSystemFormData({
                                   ...waterSystemFormData,
-                                  boiler_ph_min: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                  boiler_ph_min: e.target.value === '' ? '' : parseFloat(e.target.value),
                                 })
                               }
                             />
@@ -1859,7 +1859,7 @@ const DataEntry = () => {
                               onChange={(e) =>
                                 setWaterSystemFormData({
                                   ...waterSystemFormData,
-                                  boiler_ph_max: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                  boiler_ph_max: e.target.value === '' ? '' : parseFloat(e.target.value),
                                 })
                               }
                             />
@@ -1874,7 +1874,7 @@ const DataEntry = () => {
                               onChange={(e) =>
                                 setWaterSystemFormData({
                                   ...waterSystemFormData,
-                                  boiler_tds_min: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                  boiler_tds_min: e.target.value === '' ? '' : parseFloat(e.target.value),
                                 })
                               }
                             />
@@ -1889,7 +1889,7 @@ const DataEntry = () => {
                               onChange={(e) =>
                                 setWaterSystemFormData({
                                   ...waterSystemFormData,
-                                  boiler_tds_max: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                  boiler_tds_max: e.target.value === '' ? '' : parseFloat(e.target.value),
                                 })
                               }
                             />
@@ -1904,7 +1904,7 @@ const DataEntry = () => {
                               onChange={(e) =>
                                 setWaterSystemFormData({
                                   ...waterSystemFormData,
-                                  boiler_hardness_max: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                  boiler_hardness_max: e.target.value === '' ? '' : parseFloat(e.target.value),
                                 })
                               }
                             />
@@ -1919,7 +1919,7 @@ const DataEntry = () => {
                               onChange={(e) =>
                                 setWaterSystemFormData({
                                   ...waterSystemFormData,
-                                  boiler_alkalinity_min: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                  boiler_alkalinity_min: e.target.value === '' ? '' : parseFloat(e.target.value),
                                 })
                               }
                             />
@@ -1934,7 +1934,7 @@ const DataEntry = () => {
                               onChange={(e) =>
                                 setWaterSystemFormData({
                                   ...waterSystemFormData,
-                                  boiler_alkalinity_max: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                  boiler_alkalinity_max: e.target.value === '' ? '' : parseFloat(e.target.value),
                                 })
                               }
                             />
@@ -1976,7 +1976,7 @@ const DataEntry = () => {
                                     onChange={(e) =>
                                       setWaterSystemFormData({
                                         ...waterSystemFormData,
-                                        boiler_p_alkalinity_min: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                        boiler_p_alkalinity_min: e.target.value === '' ? '' : parseFloat(e.target.value),
                                       })
                                     }
                                   />
@@ -1991,7 +1991,7 @@ const DataEntry = () => {
                                     onChange={(e) =>
                                       setWaterSystemFormData({
                                         ...waterSystemFormData,
-                                        boiler_p_alkalinity_max: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                        boiler_p_alkalinity_max: e.target.value === '' ? '' : parseFloat(e.target.value),
                                       })
                                     }
                                   />
@@ -2030,7 +2030,7 @@ const DataEntry = () => {
                                     onChange={(e) =>
                                       setWaterSystemFormData({
                                         ...waterSystemFormData,
-                                        boiler_oh_alkalinity_min: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                        boiler_oh_alkalinity_min: e.target.value === '' ? '' : parseFloat(e.target.value),
                                       })
                                     }
                                   />
@@ -2045,7 +2045,7 @@ const DataEntry = () => {
                                     onChange={(e) =>
                                       setWaterSystemFormData({
                                         ...waterSystemFormData,
-                                        boiler_oh_alkalinity_max: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                        boiler_oh_alkalinity_max: e.target.value === '' ? '' : parseFloat(e.target.value),
                                       })
                                     }
                                   />
@@ -2084,7 +2084,7 @@ const DataEntry = () => {
                                     onChange={(e) =>
                                       setWaterSystemFormData({
                                         ...waterSystemFormData,
-                                        boiler_sulphite_min: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                        boiler_sulphite_min: e.target.value === '' ? '' : parseFloat(e.target.value),
                                       })
                                     }
                                   />
@@ -2099,7 +2099,7 @@ const DataEntry = () => {
                                     onChange={(e) =>
                                       setWaterSystemFormData({
                                         ...waterSystemFormData,
-                                        boiler_sulphite_max: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                        boiler_sulphite_max: e.target.value === '' ? '' : parseFloat(e.target.value),
                                       })
                                     }
                                   />
@@ -2137,7 +2137,7 @@ const DataEntry = () => {
                                   onChange={(e) =>
                                     setWaterSystemFormData({
                                       ...waterSystemFormData,
-                                      boiler_sodium_chloride_max: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                      boiler_sodium_chloride_max: e.target.value === '' ? '' : parseFloat(e.target.value),
                                     })
                                   }
                                 />
@@ -2175,7 +2175,7 @@ const DataEntry = () => {
                                     onChange={(e) =>
                                       setWaterSystemFormData({
                                         ...waterSystemFormData,
-                                        boiler_do_min: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                        boiler_do_min: e.target.value === '' ? '' : parseFloat(e.target.value),
                                       })
                                     }
                                   />
@@ -2190,7 +2190,7 @@ const DataEntry = () => {
                                     onChange={(e) =>
                                       setWaterSystemFormData({
                                         ...waterSystemFormData,
-                                        boiler_do_max: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                        boiler_do_max: e.target.value === '' ? '' : parseFloat(e.target.value),
                                       })
                                     }
                                   />
@@ -2229,7 +2229,7 @@ const DataEntry = () => {
                                     onChange={(e) =>
                                       setWaterSystemFormData({
                                         ...waterSystemFormData,
-                                        boiler_phosphate_min: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                        boiler_phosphate_min: e.target.value === '' ? '' : parseFloat(e.target.value),
                                       })
                                     }
                                   />
@@ -2244,7 +2244,7 @@ const DataEntry = () => {
                                     onChange={(e) =>
                                       setWaterSystemFormData({
                                         ...waterSystemFormData,
-                                        boiler_phosphate_max: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                        boiler_phosphate_max: e.target.value === '' ? '' : parseFloat(e.target.value),
                                       })
                                     }
                                   />
@@ -2282,7 +2282,7 @@ const DataEntry = () => {
                                   onChange={(e) =>
                                     setWaterSystemFormData({
                                       ...waterSystemFormData,
-                                      boiler_iron_max: e.target.value === '' ? '' : parseFloat(e.target.value) || '',
+                                      boiler_iron_max: e.target.value === '' ? '' : parseFloat(e.target.value),
                                     })
                                   }
                                 />

@@ -8,7 +8,7 @@ import { dataService } from '../services/dataService';
 const COOLING_FIELDS = [
   { key: 'ph', label: 'pH' },
   { key: 'tds', label: 'TDS (ppm)' },
-  { key: 'total_alkalinity', label: 'Total Alkalinity (ppm)' },
+  { key: 'total_alkalinity', label: 'M-Alkalinity (ppm)' },
   { key: 'hardness', label: 'Hardness (ppm)' },
   { key: 'chloride', label: 'Chloride (ppm)' },
   { key: 'basin_temperature', label: 'Basin Temperature (°C)' },
@@ -107,10 +107,12 @@ const AnalysisEditModal = ({
     };
   }, [analysisId, onClose]);
 
-  const fields = useMemo(
-    () => (analysis?.analysis_type === 'boiler' ? BOILER_FIELDS : COOLING_FIELDS),
-    [analysis?.analysis_type]
-  );
+  const fields = useMemo(() => {
+    const typeFields = analysis?.analysis_type === 'boiler' ? BOILER_FIELDS : COOLING_FIELDS;
+    const assigned = analysis?.assigned_fields;
+    if (!Array.isArray(assigned)) return typeFields;
+    return typeFields.filter(({ key }) => assigned.includes(key));
+  }, [analysis?.analysis_type, analysis?.assigned_fields]);
 
   const handleFieldChange = (key, value) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
@@ -222,6 +224,12 @@ const AnalysisEditModal = ({
                     ariaLabel="Analysis date and time"
                   />
                 </div>
+
+                {fields.length === 0 && (
+                  <p className="sm:col-span-2 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                    No parameters are assigned to this water system.
+                  </p>
+                )}
 
                 {fields.map(({ key, label }) => (
                   <div key={key}>
